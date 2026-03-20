@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    var(--font-jakarta-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-background: #071d3a;
+  --color-foreground: #eef4ff;
+  --color-card: #0b2b54;
+  --color-border: #1b3e6f;
+  --color-muted: #113563;
+  --color-muted-foreground: #b8c8e2;
+  --color-primary: #0f3a73;
+  --color-primary-foreground: #f5f9ff;
+  --color-secondary: #f1c44f;
+  --color-secondary-foreground: #2d2406;
+  --color-accent: #1a487f;
+  --color-ring: #5d8fd1;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(
+        circle at 10% -8%,
+        rgba(241, 196, 79, 0.2),
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 90% 18%,
+        rgba(48, 103, 168, 0.28),
+        transparent 32%
+      ),
+      linear-gradient(180deg, rgba(6, 24, 49, 0.95), rgba(7, 29, 58, 1));
+    min-height: 100vh;
+  }
+
+  a {
+    @apply text-inherit;
+  }
+}
