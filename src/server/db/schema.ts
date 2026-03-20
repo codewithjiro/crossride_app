@@ -32,6 +32,7 @@ export const driverStatusEnum = pgEnum("driver_status", [
   "inactive",
 ]);
 export const tripStatusEnum = pgEnum("trip_status", [
+  "pending",
   "scheduled",
   "in_progress",
   "completed",
