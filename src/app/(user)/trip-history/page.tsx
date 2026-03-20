@@ -5,19 +5,19 @@ import { eq, or, and } from "drizzle-orm";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { MapPin, Calendar, Users } from "lucide-react";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "~/lib/auth";
 
 // Force dynamic rendering (no static prerendering)
 export const dynamic = "force-dynamic";
 
 async function TripHistoryTable() {
-  const { userId } = await auth();
-  if (!userId) return null;
+  const user = await getCurrentUser();
+  if (!user) return null;
 
   const pastTrips = await db.query.bookings.findMany({
     where: (bookings, { eq, or, and }) =>
       and(
-        eq(bookings.userId, userId),
+        eq(bookings.userId, user.id),
         or(
           eq(bookings.status, "approved"),
           eq(bookings.status, "cancelled")

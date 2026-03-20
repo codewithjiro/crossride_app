@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const cookieStore = await cookies();
+    const userId = cookieStore.get("userId")?.value;
 
     if (!userId) {
       return NextResponse.json(
@@ -31,6 +32,14 @@ export async function GET() {
       authenticated: true,
       role: user.role,
       userId: user.id,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        createdAt: user.createdAt,
+      },
     });
   } catch (error) {
     return NextResponse.json(

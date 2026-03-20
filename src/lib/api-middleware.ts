@@ -16,15 +16,10 @@ export async function withAuth(
 ) {
   return async (req: NextRequest) => {
     try {
-      const { userId } = await import("@clerk/nextjs/server").then((m) => m.auth());
-      
-      if (!userId) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-
       const user = await getCurrentUser();
+      
       if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
       return handler(req, user);

@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { User, Mail, Phone, Lock, LogOut } from "lucide-react";
-import { SignOutButton } from "@clerk/nextjs";
 
 interface UserProfile {
+  id: string;
   name: string;
   email: string;
   phoneNumber?: string;
+  createdAt?: Date;
 }
 
 export default function UserProfile() {
-  const { user } = useUser();
+  const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,12 +25,14 @@ export default function UserProfile() {
       try {
         const response = await fetch("/api/auth/check");
         if (response.ok) {
-          const data = (await response.json()) as { authenticated: boolean };
-          if (data.authenticated && user) {
+          const data = await response.json() as { authenticated: boolean; user?: { id: string; email: string; firstName?: string; lastName?: string; phoneNumber?: string; createdAt?: string } };
+          if (data.authenticated && data.user) {
             setUserProfile({
-              name: user.fullName ?? "User",
-              email: user.emailAddresses?.[0]?.emailAddress ?? "",
-              phoneNumber: user.phoneNumbers?.[0]?.phoneNumber ?? "",
+              id: data.user.id,
+              name: `${data.user.firstName || ""} ${data.user.lastName || ""}`.trim() || "User",
+              email: data.user.email,
+              phoneNumber: data.user.phoneNumber,
+              createdAt: data.user.createdAt ? new Date(data.user.createdAt) : undefined,
             });
           }
         }
@@ -40,10 +43,21 @@ export default function UserProfile() {
       }
     };
 
-    if (user) {
-      void fetchUserProfile();
+    void fetchUserProfile();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch("/api/auth/sign-out", {
+        method: "POST",
+      });
+      if (response.ok) {
+        router.push("/sign-in");
+      }
+    } catch (error) {
+      console.error("Sign out failed:", error);
     }
-  }, [user]);
+  };
 
   if (isLoading) {
     return (
@@ -82,7 +96,7 @@ export default function UserProfile() {
                     className="w-full px-4 py-2 bg-[#071d3a] border border-[#f1c44f]/20 rounded text-white disabled:opacity-50 cursor-not-allowed"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Connected to Clerk account. Update in account settings.
+                    Update in account settings.
                   </p>
                 </div>
 
@@ -145,11 +159,12 @@ export default function UserProfile() {
                 <p className="text-gray-400 text-sm mb-4">
                   Sign out from your account on this device
                 </p>
-                <SignOutButton>
-                  <Button className="text-red-400 border border-red-400 hover:bg-red-400/10">
-                    Sign Out Now
-                  </Button>
-                </SignOutButton>
+                <Button 
+                  onClick={handleSignOut}
+                  className="text-red-400 border border-red-400 hover:bg-red-400/10"
+                >
+                  Sign Out Now
+                </Button>
               </div>
             </div>
           </Card>
@@ -170,7 +185,7 @@ export default function UserProfile() {
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Member Since</span>
               <span className="text-white">
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
+                {userProfile?.createdAt ? userProfile.createdAt.toLocaleDateString() : "Unknown"}
               </span>
             </div>
           </div>

@@ -6,17 +6,17 @@ import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { MapPin, Calendar, Users, Trash2 } from "lucide-react";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "~/lib/auth";
 
 // Force dynamic rendering (no static prerendering)
 export const dynamic = "force-dynamic";
 
 async function MyBookingsTable() {
-  const { userId } = await auth();
-  if (!userId) return null;
+  const user = await getCurrentUser();
+  if (!user) return null;
 
   const userBookings = await db.query.bookings.findMany({
-    where: eq(bookings.userId, userId),
+    where: eq(bookings.userId, user.id),
     with: {
       trip: {
         with: {

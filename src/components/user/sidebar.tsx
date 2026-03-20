@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { SignOutButton } from "@clerk/nextjs";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import {
@@ -44,6 +43,20 @@ const navigationItems = [
 
 export function LayoutSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch("/api/auth/sign-out", {
+        method: "POST",
+      });
+      if (response.ok) {
+        router.push("/sign-in");
+      }
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    }
+  };
 
   return (
     <aside className="w-64 bg-[#0a2540] border-r border-[#f1c44f]/20 flex flex-col h-screen">
@@ -80,12 +93,13 @@ export function LayoutSidebar() {
       {/* Footer */}
       <div className="p-6 border-t border-[#f1c44f]/20 space-y-4">
         <Separator className="bg-[#f1c44f]/20" />
-        <SignOutButton>
-          <Button className="w-full gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30">
-            <LogOut size={20} />
-            Sign Out
-          </Button>
-        </SignOutButton>
+        <Button 
+          onClick={handleSignOut}
+          className="w-full gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+        >
+          <LogOut size={20} />
+          Sign Out
+        </Button>
       </div>
     </aside>
   );

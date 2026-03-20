@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
 import { Button } from "~/components/ui/button";
 import {
   LayoutDashboard,
@@ -53,11 +52,18 @@ const menuItems = [
 
 export function Sidebar() {
   const router = useRouter();
-  const { signOut } = useClerk();
 
   const handleLogout = async () => {
-    await signOut();
-    router.push("/");
+    try {
+      const response = await fetch("/api/auth/sign-out", {
+        method: "POST",
+      });
+      if (response.ok) {
+        router.push("/sign-in");
+      }
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    }
   };
 
   return (
