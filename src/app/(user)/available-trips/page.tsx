@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { db } from "~/server/db";
 import { trips as tripsTable, bookings } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -15,9 +16,7 @@ async function AvailableTripsTable() {
   const tripsWithPending = await db
     .select({ tripId: bookings.tripId })
     .from(bookings)
-    .where(
-      (bookings, { eq }) => eq(bookings.status, "pending")
-    );
+    .where(eq(bookings.status, "pending"));
   
   const pendingTripIds = tripsWithPending.map(b => b.tripId);
 
