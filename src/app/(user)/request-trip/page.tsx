@@ -12,8 +12,41 @@ interface BookingRequest {
   vanId: string;
   driverId: string;
   date: string;
+  time: string;
   seatsRequested: number;
 }
+
+// Generate next 7 days
+const getAvailableDates = () => {
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    dates.push({
+      value: date.toISOString().split("T")[0],
+      label: date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+    });
+  }
+  return dates;
+};
+
+// Generate time slots (7 AM to 6 PM)
+const getAvailableTimes = () => {
+  const times = [];
+  for (let hour = 7; hour <= 18; hour++) {
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    times.push({
+      value: `${String(hour).padStart(2, "0")}:00`,
+      label: `${displayHour}:00 ${ampm}`,
+    });
+  }
+  return times;
+};
 
 export default function RequestTrip() {
   const router = useRouter();
@@ -23,8 +56,12 @@ export default function RequestTrip() {
     vanId: "",
     driverId: "",
     date: "",
+    time: "08:00",
     seatsRequested: 1,
   });
+
+  const availableDates = getAvailableDates();
+  const availableTimes = getAvailableTimes();
 
   const selectedVan = VANS.find((v) => v.id === formData.vanId);
   const selectedDriver = DRIVERS.find((d) => d.id === formData.driverId);
@@ -46,8 +83,9 @@ export default function RequestTrip() {
     setLoading(true);
 
     try {
-      // Parse date to get departureTime and create arrival time (2 hours later)
-      const depDateTime = new Date(formData.date);
+      // Combine date and time: "2026-03-20" + "08:00" = "2026-03-20T08:00"
+      const dateTimeString = `${formData.date}T${formData.time}`;
+      const depDateTime = new Date(dateTimeString);
       const arrDateTime = new Date(depDateTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours later
 
       const response = await fetch("/api/bookings/request", {
@@ -101,7 +139,7 @@ export default function RequestTrip() {
           {/* Select Van */}
           <div>
             <label className="mb-4 block text-lg font-bold text-white">
-              <MapPin className="mb-2 inline mr-2" size={20} />
+              <MapPin className="mr-2 mb-2 inline" size={20} />
               Select a Van
             </label>
             <div className="grid gap-4 md:grid-cols-3">
@@ -120,7 +158,9 @@ export default function RequestTrip() {
                     <Users size={16} />
                     {van.capacity} seats
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">{van.description}</p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    {van.description}
+                  </p>
                 </Card>
               ))}
             </div>
@@ -157,51 +197,85 @@ export default function RequestTrip() {
             </div>
           </div>
 
-          {/* Date & Seats */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">
-                <Calendar className="mb-2 inline mr-2" size={16} />
-                Preferred Date
-              </label>
-              <input
-                type="datetime-local"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
-                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">
-                <Users className="mb-2 inline mr-2" size={16} />
-                Number of Seats
-              </label>
-              <select
-                value={formData.seatsRequested}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    seatsRequested: parseInt(e.target.value),
-                  })
-                }
-                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
-                required
-              >
-                {selectedVan ? (
-                  Array.from({ length: selectedVan.capacity }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} {i === 0 ? "seat" : "seats"}
+          {/* Date & Time Selectors */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              <Calendar className="mr-2 mb-2 inline" size={20} />
+              Select Date & Time
+            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Date Dropdown */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-200">
+                  Departure Date
+                </label>
+                <select
+                  value={formData.date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                  required
+                >
+                  <option value="">Select a date</option>
+                  {availableDates.map((d) => (
+                    <option key={d.value} value={d.value}>
+                      {d.label}
                     </option>
-                  ))
-                ) : (
-                  <option>Select van first</option>
-                )}
-              </select>
+                  ))}
+                </select>
+              </div>
+
+              {/* Time Dropdown */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-200">
+                  Departure Time
+                </label>
+                <select
+                  value={formData.time}
+                  onChange={(e) =>
+                    setFormData({ ...formData, time: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                  required
+                >
+                  {availableTimes.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+          </div>
+
+          {/* Seats Selection */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              <Users className="mr-2 mb-2 inline" size={20} />
+              Number of Seats
+            </label>
+            <select
+              value={formData.seatsRequested}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  seatsRequested: parseInt(e.target.value),
+                })
+              }
+              className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+              required
+            >
+              {selectedVan ? (
+                Array.from({ length: selectedVan.capacity }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} {i === 0 ? "seat" : "seats"}
+                  </option>
+                ))
+              ) : (
+                <option>Select van first</option>
+              )}
+            </select>
           </div>
 
           {/* Summary */}
@@ -218,7 +292,13 @@ export default function RequestTrip() {
                 </p>
                 <p>
                   <span className="text-gray-300">Date:</span>{" "}
-                  {new Date(formData.date).toLocaleString()}
+                  {new Date(formData.date).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}{" "}
+                  at {formData.time}
                 </p>
                 <p>
                   <span className="text-gray-300">Seats Requested:</span>{" "}

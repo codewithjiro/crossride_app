@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const cookieStore = await cookies();
@@ -24,25 +24,22 @@ export async function PATCH(
     if (!user || user.role !== "admin") {
       return NextResponse.json(
         { error: "Admin access required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    const body = await request.json() as { status: "approved" | "rejected" };
+    const body = (await request.json()) as { status: "approved" | "rejected" };
     const bookingId = parseInt(params.id);
 
     if (!bookingId || !body.status) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!["approved", "rejected"].includes(body.status)) {
-      return NextResponse.json(
-        { error: "Invalid status" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
     // Update booking status
@@ -63,7 +60,7 @@ export async function PATCH(
     console.error("Booking status update error:", error);
     return NextResponse.json(
       { error: "Failed to update booking" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

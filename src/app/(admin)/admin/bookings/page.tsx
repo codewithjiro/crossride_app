@@ -53,7 +53,10 @@ export default function BookingsPage() {
     }
   };
 
-  const handleApproveReject = async (bookingId: number, status: "approved" | "rejected") => {
+  const handleApproveReject = async (
+    bookingId: number,
+    status: "approved" | "rejected",
+  ) => {
     setActionLoading(bookingId);
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
@@ -67,9 +70,7 @@ export default function BookingsPage() {
       if (response.ok) {
         // Update local state
         setBookings((prev) =>
-          prev.map((b) =>
-            b.id === bookingId ? { ...b, status } : b
-          )
+          prev.map((b) => (b.id === bookingId ? { ...b, status } : b)),
         );
       }
     } catch (error) {
@@ -95,7 +96,9 @@ export default function BookingsPage() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white">Bookings Management</h1>
-        <p className="text-gray-400">Review and manage passenger booking requests</p>
+        <p className="text-gray-400">
+          Review and manage passenger booking requests
+        </p>
       </div>
 
       {/* Pending Requests Section */}
@@ -119,11 +122,15 @@ export default function BookingsPage() {
                         <h3 className="text-lg font-bold text-white">
                           {booking.user?.firstName} {booking.user?.lastName}
                         </h3>
-                        <p className="text-sm text-gray-400">{booking.user?.email}</p>
+                        <p className="text-sm text-gray-400">
+                          {booking.user?.email}
+                        </p>
                         <div className="mt-3 space-y-2">
                           <div className="flex items-center gap-2 text-gray-300">
                             <MapPin size={16} className="text-[#f1c44f]" />
-                            <span className="font-medium">{booking.trip?.route}</span>
+                            <span className="font-medium">
+                              {booking.trip?.route}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-300">
                             <span className="text-sm">
@@ -132,15 +139,20 @@ export default function BookingsPage() {
                           </div>
                           <div className="flex items-center gap-2 text-gray-300">
                             <span className="text-sm">
-                              Driver: <strong>{booking.trip?.driver?.name}</strong>
+                              Driver:{" "}
+                              <strong>{booking.trip?.driver?.name}</strong>
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-300">
                             <Users size={16} />
-                            <span>{booking.seatsBooked} seat{booking.seatsBooked > 1 ? "s" : ""}</span>
+                            <span>
+                              {booking.seatsBooked} seat
+                              {booking.seatsBooked > 1 ? "s" : ""}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 text-xs text-gray-500">
-                            Requested: {new Date(booking.createdAt).toLocaleString()}
+                            Requested:{" "}
+                            {new Date(booking.createdAt).toLocaleString()}
                           </div>
                         </div>
                       </div>
@@ -148,7 +160,9 @@ export default function BookingsPage() {
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => handleApproveReject(booking.id, "approved")}
+                      onClick={() =>
+                        handleApproveReject(booking.id, "approved")
+                      }
                       disabled={actionLoading === booking.id}
                       className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
                     >
@@ -160,7 +174,9 @@ export default function BookingsPage() {
                       Approve
                     </Button>
                     <Button
-                      onClick={() => handleApproveReject(booking.id, "rejected")}
+                      onClick={() =>
+                        handleApproveReject(booking.id, "rejected")
+                      }
                       disabled={actionLoading === booking.id}
                       className="flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                     >
@@ -187,15 +203,22 @@ export default function BookingsPage() {
           </h2>
           <div className="space-y-3">
             {approvedBookings.map((booking) => (
-              <Card key={booking.id} className="border-green-500/20 bg-green-500/5 p-4">
+              <Card
+                key={booking.id}
+                className="border-green-500/20 bg-green-500/5 p-4"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-white">
                       {booking.user?.firstName} {booking.user?.lastName}
                     </p>
-                    <p className="text-sm text-gray-400">{booking.trip?.route}</p>
+                    <p className="text-sm text-gray-400">
+                      {booking.trip?.route}
+                    </p>
                   </div>
-                  <Badge className="bg-green-500/20 text-green-400">Approved</Badge>
+                  <Badge className="bg-green-500/20 text-green-400">
+                    Approved
+                  </Badge>
                 </div>
               </Card>
             ))}
@@ -211,13 +234,18 @@ export default function BookingsPage() {
           </h2>
           <div className="space-y-3">
             {rejectedBookings.map((booking) => (
-              <Card key={booking.id} className="border-red-500/20 bg-red-500/5 p-4">
+              <Card
+                key={booking.id}
+                className="border-red-500/20 bg-red-500/5 p-4"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-white">
                       {booking.user?.firstName} {booking.user?.lastName}
                     </p>
-                    <p className="text-sm text-gray-400">{booking.trip?.route}</p>
+                    <p className="text-sm text-gray-400">
+                      {booking.trip?.route}
+                    </p>
                   </div>
                   <Badge className="bg-red-500/20 text-red-400">Rejected</Badge>
                 </div>

@@ -10,10 +10,7 @@ export async function POST(request: NextRequest) {
     const userId = cookieStore.get("userId")?.value;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Verify user exists
@@ -22,13 +19,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       vanId: number;
       driverId: number;
       route: string;
@@ -50,7 +44,7 @@ export async function POST(request: NextRequest) {
     if (!vanId || !driverId || !route || !departureTime || !seatsRequested) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,7 +54,7 @@ export async function POST(request: NextRequest) {
         and(
           eq(trips.vanId, vanId),
           eq(trips.driverId, driverId),
-          eq(trips.departureTime, new Date(departureTime))
+          eq(trips.departureTime, new Date(departureTime)),
         ),
     });
 
@@ -107,7 +101,7 @@ export async function POST(request: NextRequest) {
     console.error("Booking request error:", error);
     return NextResponse.json(
       { error: "Failed to create booking request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -67,5 +67,5 @@ export const DRIVERS = [
   },
 ];
 
-export type Van = typeof VANS[0];
-export type Driver = typeof DRIVERS[0];
+export type Van = (typeof VANS)[0];
+export type Driver = (typeof DRIVERS)[0];
