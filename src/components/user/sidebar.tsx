@@ -1,28 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import {
-  LayoutDashboard,
-  MapPin,
-  Ticket,
-  History,
-  User,
-  LogOut,
-} from "lucide-react";
+import { LayoutDashboard, Ticket, History, User, LogOut } from "lucide-react";
 
 const navigationItems = [
   {
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    label: "Available Trips",
-    href: "/available-trips",
-    icon: MapPin,
   },
   {
     label: "My Bookings",
@@ -59,11 +48,25 @@ export function LayoutSidebar() {
   };
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-[#f1c44f]/20 bg-[#0a2540]">
+    <aside className="sticky top-0 flex h-screen w-64 flex-col border-r border-[#f1c44f]/20 bg-[#0a2540] overflow-hidden">
       {/* Header */}
       <div className="border-b border-[#f1c44f]/20 p-6">
-        <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
-        <p className="mt-1 text-sm text-gray-400">Passenger Portal</p>
+        <div className="flex items-center gap-3">
+          <div className="relative h-10 w-10">
+            <Image
+              src="/images/logohcc-150x150.png"
+              alt="Holy Cross College Logo"
+              fill
+              sizes="40px"
+              className="rounded-full object-contain"
+              priority
+            />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
+            <p className="mt-1 text-sm text-gray-400">Passenger Portal</p>
+          </div>
+        </div>
       </div>
 
       {/* Navigation */}

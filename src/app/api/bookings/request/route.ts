@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
 import { bookings, trips, users } from "~/server/db/schema";
-import { eq, and, gte, lt } from "drizzle-orm";
+import { eq, and, gte, lt, or } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       departureTime: string;
       arrivalTime: string;
       seatsRequested: number;
+      department?: string;
     };
 
     const {
@@ -38,7 +39,14 @@ export async function POST(request: NextRequest) {
       departureTime,
       arrivalTime,
       seatsRequested,
+      department,
     } = body;
+
+    console.log("=== BOOKING REQUEST ===");
+    console.log("User ID:", userId);
+    console.log("Van ID:", vanId);
+    console.log("Driver ID:", driverId);
+    console.log("Departure Time:", departureTime);
 
     // Validate
     if (!vanId || !driverId || !route || !departureTime || !seatsRequested) {
@@ -48,8 +56,59 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if trip already exists for this van + driver + time in same hour
+    if (!department) {
+      return NextResponse.json(
+        { error: "Missing required field: department" },
+        { status: 400 },
+      );
+    }
+
+    // Check if van already has any APPROVED/scheduled trip on this date
     const depTime = new Date(departureTime);
+    const dateString = depTime.toISOString().split("T")[0]; // "2026-03-24"
+    const startOfDay = new Date(dateString + "T00:00:00.000Z");
+    const endOfDay = new Date(dateString + "T23:59:59.999Z");
+
+    const vanTripsOnDate = await db.query.trips.findMany({
+      where: and(
+        eq(trips.vanId, vanId),
+        eq(trips.status, "scheduled"),
+        gte(trips.departureTime, startOfDay),
+        lt(trips.departureTime, endOfDay),
+      ),
+    });
+
+    if (vanTripsOnDate.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "This van is already scheduled for another trip on this date. Vans can only operate one route per day.",
+        },
+        { status: 400 },
+      );
+    }
+
+    // Check if driver already has any APPROVED/scheduled trip on this date
+    const driverTripsOnDate = await db.query.trips.findMany({
+      where: and(
+        eq(trips.driverId, driverId),
+        eq(trips.status, "scheduled"),
+        gte(trips.departureTime, startOfDay),
+        lt(trips.departureTime, endOfDay),
+      ),
+    });
+
+    if (driverTripsOnDate.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "This driver is already assigned to another trip on this date. Drivers can only operate one route per day.",
+        },
+        { status: 400 },
+      );
+    }
+
+    // Check if trip already exists for this van + driver + time in same hour
     // Round to nearest hour to match booking times
     const depTimeHour = new Date(
       depTime.getFullYear(),
@@ -75,7 +134,7 @@ export async function POST(request: NextRequest) {
     if (existingTrip) {
       tripId = existingTrip.id;
     } else {
-      // Create new scheduled trip
+      // Create new pending trip (will be scheduled after admin approval)
       const newTrip = await db
         .insert(trips)
         .values({
@@ -86,11 +145,18 @@ export async function POST(request: NextRequest) {
           arrivalTime: new Date(arrivalTime),
           seatsAvailable: 15, // Default capacity
           seatsReserved: 0,
-          status: "scheduled",
+          status: "pending",
         })
         .returning();
 
       tripId = newTrip[0].id;
+      console.log("✅ Trip created:", {
+        id: tripId,
+        vanId,
+        driverId,
+        departureTime: newTrip[0].departureTime,
+        status: newTrip[0].status,
+      });
     }
 
     // Get current trip to check available seats
@@ -124,6 +190,7 @@ export async function POST(request: NextRequest) {
         userId,
         tripId,
         seatsBooked: seatsRequested,
+        department,
         status: "pending",
       })
       .returning();

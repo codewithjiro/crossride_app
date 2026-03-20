@@ -32,6 +32,7 @@ export const driverStatusEnum = pgEnum("driver_status", [
   "inactive",
 ]);
 export const tripStatusEnum = pgEnum("trip_status", [
+  "pending",
   "scheduled",
   "in_progress",
   "completed",
@@ -40,6 +41,7 @@ export const tripStatusEnum = pgEnum("trip_status", [
 export const bookingStatusEnum = pgEnum("booking_status", [
   "pending",
   "approved",
+  "completed",
   "rejected",
   "cancelled",
 ]);
@@ -143,6 +145,7 @@ export const bookings = createTable(
       .notNull()
       .references(() => trips.id),
     seatsBooked: d.integer().notNull(),
+    department: d.varchar({ length: 255 }),
     status: bookingStatusEnum("status").default("pending").notNull(),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).defaultNow(),

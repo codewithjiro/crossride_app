@@ -78,6 +78,7 @@ export async function PATCH(req: NextRequest) {
           .set({
             seatsReserved:
               (booking.trip.seatsReserved ?? 0) + booking.seatsBooked,
+            status: "scheduled",
           })
           .where(eq(trips.id, booking.trip.id));
       }

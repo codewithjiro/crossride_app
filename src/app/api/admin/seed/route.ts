@@ -33,6 +33,11 @@ export async function POST() {
         capacity: 14,
       },
       {
+        name: "Hiace Commuter Deluxe",
+        plateNumber: "HCC-002",
+        capacity: 14,
+      },
+      {
         name: "Hiace Grandia",
         plateNumber: "HCG-001",
         capacity: 11,
@@ -40,6 +45,11 @@ export async function POST() {
       {
         name: "L300 Van",
         plateNumber: "L3V-001",
+        capacity: 10,
+      },
+      {
+        name: "L300 Van",
+        plateNumber: "L3V-002",
         capacity: 10,
       },
     ];

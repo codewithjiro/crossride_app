@@ -67,7 +67,7 @@ export async function PATCH(
       }
     }
 
-    // If approving, confirm the seatsReserved
+    // If approving, confirm the seatsReserved and change trip to scheduled
     if (body.status === "approved") {
       const trip = await db.query.trips.findFirst({
         where: eq(trips.id, booking.tripId),
@@ -78,6 +78,7 @@ export async function PATCH(
           .update(trips)
           .set({
             seatsReserved: trip.seatsReserved + booking.seatsBooked,
+            status: "scheduled",
           })
           .where(eq(trips.id, booking.tripId));
       }

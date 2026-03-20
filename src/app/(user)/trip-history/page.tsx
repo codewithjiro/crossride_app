@@ -18,7 +18,11 @@ async function TripHistoryTable() {
     where: (bookings, { eq, or, and }) =>
       and(
         eq(bookings.userId, user.id),
-        or(eq(bookings.status, "approved"), eq(bookings.status, "cancelled")),
+        or(
+          eq(bookings.status, "completed"),
+          eq(bookings.status, "rejected"),
+          eq(bookings.status, "cancelled"),
+        ),
       ),
     with: {
       trip: {
@@ -70,14 +74,12 @@ async function TripHistoryTable() {
                   </div>
                   <Badge
                     className={`capitalize ${
-                      booking.status === "approved"
+                      booking.status === "completed"
                         ? "bg-green-500/20 text-green-400"
                         : "bg-red-500/20 text-red-400"
                     }`}
                   >
-                    {booking.status === "approved"
-                      ? "Completed"
-                      : booking.status}
+                    {booking.status}
                   </Badge>
                 </div>
 

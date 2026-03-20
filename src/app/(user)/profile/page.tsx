@@ -154,42 +154,6 @@ export default function UserProfile() {
           </Card>
         </div>
 
-        {/* Security Section */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8">
-            <div className="flex items-start gap-4">
-              <Lock className="mt-1 text-[#f1c44f]" size={24} />
-              <div className="flex-1">
-                <h3 className="mb-2 text-lg font-bold text-white">Password</h3>
-                <p className="mb-4 text-sm text-gray-400">
-                  Manage your password and security settings
-                </p>
-                <Button className="border border-[#f1c44f] text-[#f1c44f] hover:bg-[#f1c44f]/10">
-                  Change Password
-                </Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8">
-            <div className="flex items-start gap-4">
-              <LogOut className="mt-1 text-red-400" size={24} />
-              <div className="flex-1">
-                <h3 className="mb-2 text-lg font-bold text-white">Sign Out</h3>
-                <p className="mb-4 text-sm text-gray-400">
-                  Sign out from your account on this device
-                </p>
-                <Button
-                  onClick={handleSignOut}
-                  className="border border-red-400 text-red-400 hover:bg-red-400/10"
-                >
-                  Sign Out Now
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-
         {/* Account Status */}
         <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8">
           <h3 className="mb-4 text-lg font-bold text-white">Account Status</h3>

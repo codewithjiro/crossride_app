@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { VANS, DRIVERS } from "~/lib/data";
+import { DRIVERS } from "~/lib/data";
 import { MapPin, Users, Calendar, Loader2, ArrowLeft } from "lucide-react";
 
 interface BookingRequest {
@@ -14,21 +15,32 @@ interface BookingRequest {
   date: string;
   time: string;
   seatsRequested: number;
+  department: string;
 }
+
+interface LocationResult {
+  label: string;
+  lat: number;
+  lon: number;
+}
+
+interface RouteInfo {
+  distanceKm: number;
+  durationMin: number;
+  coords: Array<{ lat: number; lon: number }>;
+}
+
+const DEPARTMENTS = [
+  "School of Arts, Sciences and Education",
+  "School of Criminal Justice",
+  "School of Tourism and Hospitality Management",
+  "School of Computer Information Technology and Engineering",
+  "School of Business and Accountancy",
+];
 
 interface AvailabilityData {
   dates: Array<{ value: string; label: string }>;
   times: Array<{ value: string; label: string }>;
-}
-
-interface ScheduledTrip {
-  id: number;
-  vanId: number;
-  driverId: number;
-  time: string;
-  seatsAvailable: number;
-  van: { name: string };
-  driver: { name: string };
 }
 
 export default function RequestTrip() {
@@ -39,8 +51,37 @@ export default function RequestTrip() {
     null,
   );
   const [loadingAvailability, setLoadingAvailability] = useState(true);
-  const [scheduledTrips, setScheduledTrips] = useState<ScheduledTrip[]>([]);
-  const [loadingTrips, setLoadingTrips] = useState(false);
+  const [unavailableVanIds, setUnavailableVanIds] = useState<number[]>([]);
+  const [unavailableDriverIds, setUnavailableDriverIds] = useState<number[]>(
+    [],
+  );
+
+  const [pickupQuery, setPickupQuery] = useState(
+    "Holy Cross College Santa Ana Pampanga",
+  );
+  const [dropoffQuery, setDropoffQuery] = useState("");
+  const [pickupResults, setPickupResults] = useState<LocationResult[]>([]);
+  const [dropoffResults, setDropoffResults] = useState<LocationResult[]>([]);
+  const [selectedPickup, setSelectedPickup] = useState<LocationResult | null>({
+    label: "Holy Cross College Santa Ana Pampanga",
+    lat: 15.093701809054442,
+    lon: 120.769449501851,
+  });
+  const [selectedDropoff, setSelectedDropoff] = useState<LocationResult | null>(
+    null,
+  );
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+  const [vans, setVans] = useState<Array<{ id: number; name: string; plateNumber: string; capacity: number }>>([]);
+  const [loadingVans, setLoadingVans] = useState(true);
+
+  const RouteMap = dynamic(() => import("~/components/maps/route-map"), {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center text-sm text-gray-400">
+        Loading map...
+      </div>
+    ),
+  });
 
   const [formData, setFormData] = useState<BookingRequest>({
     vanId: "",
@@ -48,9 +89,10 @@ export default function RequestTrip() {
     date: "",
     time: "08:00",
     seatsRequested: 1,
+    department: "",
   });
 
-  const selectedVan = VANS.find((v) => v.id === formData.vanId);
+  const selectedVan = vans.find((v) => String(v.id) === formData.vanId);
   const selectedDriver = DRIVERS.find((d) => d.id === formData.driverId);
 
   // Fetch availability from API
@@ -80,29 +122,128 @@ export default function RequestTrip() {
     fetchAvailability();
   }, []);
 
-  // Fetch scheduled trips for selected date
+  // Fetch active vans
   useEffect(() => {
-    if (!formData.date) return;
+    const loadVans = async () => {
+      try {
+        const res = await fetch("/api/vans");
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.vans)) {
+          setVans(data.vans);
+        }
+      } catch (err) {
+        console.error("Failed to load vans", err);
+      } finally {
+        setLoadingVans(false);
+      }
+    };
+    loadVans();
+  }, []);
 
-    const fetchScheduledTrips = async () => {
-      setLoadingTrips(true);
+  // Fetch unavailable vans and drivers for selected date
+  useEffect(() => {
+    if (!formData.date) {
+      setUnavailableVanIds([]);
+      setUnavailableDriverIds([]);
+      return;
+    }
+
+    const fetchUnavailable = async () => {
       try {
         const response = await fetch(
-          `/api/trips/by-date?date=${formData.date}`
+          `/api/trips/by-date?date=${formData.date}`,
         );
         const data = await response.json();
         if (response.ok) {
-          setScheduledTrips(data.trips || []);
+          setUnavailableVanIds(data.unavailableVanIds || []);
+          setUnavailableDriverIds(data.unavailableDriverIds || []);
         }
       } catch (err) {
-        console.error("Failed to fetch scheduled trips:", err);
-      } finally {
-        setLoadingTrips(false);
+        console.error("Failed to fetch unavailable vans and drivers:", err);
       }
     };
 
-    fetchScheduledTrips();
+    fetchUnavailable();
   }, [formData.date]);
+
+  // Geocode helpers (debounced fetches)
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!pickupQuery || pickupQuery.length < 3) {
+      setPickupResults([]);
+      return () => controller.abort();
+    }
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/geocode?q=${encodeURIComponent(pickupQuery)}`,
+          { signal: controller.signal },
+        );
+        const data = await res.json();
+        if (res.ok) setPickupResults(data.results || []);
+      } catch (err) {
+        if (err?.name !== "AbortError") {
+          console.error("Pickup search failed", err);
+        }
+      }
+    }, 300);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [pickupQuery]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!dropoffQuery || dropoffQuery.length < 3) {
+      setDropoffResults([]);
+      return () => controller.abort();
+    }
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/geocode?q=${encodeURIComponent(dropoffQuery)}`,
+          { signal: controller.signal },
+        );
+        const data = await res.json();
+        if (res.ok) setDropoffResults(data.results || []);
+      } catch (err) {
+        if ((err as any)?.name !== "AbortError") {
+          console.error("Dropoff search failed", err);
+        }
+      }
+    }, 300);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [dropoffQuery]);
+
+  // Fetch route info when both points are selected
+  useEffect(() => {
+    const fetchRoute = async () => {
+      if (!selectedPickup || !selectedDropoff) {
+        setRouteInfo(null);
+        return;
+      }
+      try {
+        const res = await fetch(
+          `/api/route?from=${selectedPickup.lat},${selectedPickup.lon}&to=${selectedDropoff.lat},${selectedDropoff.lon}`,
+        );
+        const data = await res.json();
+        if (res.ok && data.route) {
+          setRouteInfo({
+            distanceKm: data.route.distanceKm,
+            durationMin: data.route.durationMin,
+            coords: data.route.coords || [],
+          });
+        }
+      } catch (err) {
+        console.error("Route fetch failed", err);
+      }
+    };
+    fetchRoute();
+  }, [selectedPickup, selectedDropoff]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +251,16 @@ export default function RequestTrip() {
 
     if (!formData.vanId || !formData.driverId || !formData.date) {
       setError("Please select a van, driver, and date");
+      return;
+    }
+
+    if (!formData.department) {
+      setError("Please select your department");
+      return;
+    }
+
+    if (!selectedPickup || !selectedDropoff) {
+      setError("Please select pickup and destination from suggestions");
       return;
     }
 
@@ -132,7 +283,12 @@ export default function RequestTrip() {
         body: JSON.stringify({
           vanId: parseInt(formData.vanId),
           driverId: parseInt(formData.driverId),
-          route: `Holy Cross College Route`,
+          route:
+            `Pickup: ${selectedPickup.label} → Dropoff: ${selectedDropoff.label}` +
+            (routeInfo
+              ? ` | Distance: ${routeInfo.distanceKm} km, ETA: ${routeInfo.durationMin} mins`
+              : ""),
+          department: formData.department,
           departureTime: depDateTime.toISOString(),
           arrivalTime: arrDateTime.toISOString(),
           seatsRequested: formData.seatsRequested,
@@ -174,66 +330,27 @@ export default function RequestTrip() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Select Van */}
-          <div>
-            <label className="mb-4 block text-lg font-bold text-white">
-              <MapPin className="mr-2 mb-2 inline" size={20} />
-              Select a Van
+          {/* Department */}
+          <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
+            <label className="mb-2 block text-sm font-semibold text-white">
+              Department
             </label>
-            <div className="grid gap-4 md:grid-cols-3">
-              {VANS.map((van) => (
-                <Card
-                  key={van.id}
-                  className={`cursor-pointer border-2 p-4 transition-all ${
-                    formData.vanId === van.id
-                      ? "border-[#f1c44f] bg-[#f1c44f]/10"
-                      : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
-                  }`}
-                  onClick={() => setFormData({ ...formData, vanId: van.id })}
-                >
-                  <h3 className="font-bold text-white">{van.name}</h3>
-                  <div className="mt-2 flex items-center gap-2 text-sm text-gray-400">
-                    <Users size={16} />
-                    {van.capacity} seats
-                  </div>
-                  <p className="mt-2 text-xs text-gray-500">
-                    {van.description}
-                  </p>
-                </Card>
+            <select
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+              required
+            >
+              <option value="">Select department</option>
+              {DEPARTMENTS.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
               ))}
-            </div>
-          </div>
-
-          {/* Select Driver */}
-          <div>
-            <label className="mb-4 block text-lg font-bold text-white">
-              Select a Driver
-            </label>
-            <div className="grid gap-4 md:grid-cols-2">
-              {DRIVERS.map((driver) => (
-                <Card
-                  key={driver.id}
-                  className={`cursor-pointer border-2 p-4 transition-all ${
-                    formData.driverId === driver.id
-                      ? "border-[#f1c44f] bg-[#f1c44f]/10"
-                      : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
-                  }`}
-                  onClick={() =>
-                    setFormData({ ...formData, driverId: driver.id })
-                  }
-                >
-                  <h3 className="font-bold text-white">{driver.name}</h3>
-                  <p className="text-sm text-gray-400">{driver.role}</p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {driver.experience} experience
-                  </p>
-                  <p className="text-xs text-[#f1c44f]">
-                    {driver.specialization}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          </div>
+            </select>
+          </Card>
 
           {/* Date Picker */}
           <div>
@@ -246,21 +363,23 @@ export default function RequestTrip() {
                 Loading dates...
               </div>
             ) : (
-              <select
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
-                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
-                required
-              >
-                <option value="">Select a date</option>
-                {availability?.dates.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <select
+                  value={formData.date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                  required
+                >
+                  <option value="">Select a date</option>
+                  {availability?.dates.map((d) => (
+                    <option key={d.value} value={d.value}>
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
 
@@ -291,49 +410,110 @@ export default function RequestTrip() {
             )}
           </div>
 
-          {/* Scheduled Trips for Selected Date */}
-          {formData.date && (
-            <div>
-              <label className="mb-4 block text-lg font-bold text-white">
-                Available Trips on {new Date(formData.date).toLocaleDateString()}
-              </label>
-              {loadingTrips ? (
-                <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
-                  <div className="flex items-center justify-center gap-2 text-gray-400">
-                    <Loader2 size={16} className="animate-spin" />
-                    Loading trips...
-                  </div>
-                </Card>
-              ) : scheduledTrips.length > 0 ? (
-                <div className="space-y-3">
-                  {scheduledTrips.map((trip) => (
-                    <Card
-                      key={trip.id}
-                      className="border-[#f1c44f]/20 bg-[#0a2540] p-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-bold text-white">
-                            {trip.time} - {trip.van.name}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            Driver: {trip.driver.name}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {trip.seatsAvailable} seats available
-                          </p>
+          {/* Select Van */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              <MapPin className="mr-2 mb-2 inline" size={20} />
+              Select a Van
+            </label>
+            <div className="grid gap-4 md:grid-cols-3">
+              {(loadingVans ? [] : vans).map((van) => {
+                // Van is unavailable only if it has a trip on the SELECTED date
+                const isUnavailableOnSelectedDate =
+                  formData.date && unavailableVanIds.includes(van.id);
+
+                return (
+                  <Card
+                    key={van.id}
+                    className={`border-2 p-4 transition-all ${
+                      isUnavailableOnSelectedDate
+                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-60"
+                        : `cursor-pointer ${
+                            formData.vanId === String(van.id)
+                              ? "border-[#f1c44f] bg-[#f1c44f]/10"
+                              : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
+                          }`
+                    }`}
+                    onClick={() =>
+                      !isUnavailableOnSelectedDate &&
+                      setFormData({ ...formData, vanId: String(van.id) })
+                    }
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-white">{van.name}</h3>
+                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-400">
+                          <Users size={16} />
+                          {van.capacity} seats · Plate {van.plateNumber}
                         </div>
+                        <p className="mt-2 text-xs text-gray-500">
+                          {van.description}
+                        </p>
+                        {isUnavailableOnSelectedDate && (
+                          <p className="mt-2 text-xs font-semibold text-red-400">
+                            ❌ Not available on{" "}
+                            {formData.date
+                              ? new Date(formData.date).toLocaleDateString()
+                              : "selected date"}
+                          </p>
+                        )}
                       </div>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
-                  <p className="text-gray-400">No scheduled trips on this date.</p>
-                </Card>
-              )}
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
-          )}
+          </div>
+
+          {/* Select Driver */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              Select a Driver
+            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              {DRIVERS.map((driver) => {
+                const isUnavailableOnSelectedDate =
+                  formData.date &&
+                  unavailableDriverIds.includes(parseInt(driver.id));
+
+                return (
+                  <Card
+                    key={driver.id}
+                    className={`border-2 p-4 transition-all ${
+                      isUnavailableOnSelectedDate
+                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-60"
+                        : `cursor-pointer ${
+                            formData.driverId === driver.id
+                              ? "border-[#f1c44f] bg-[#f1c44f]/10"
+                              : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
+                          }`
+                    }`}
+                    onClick={() =>
+                      !isUnavailableOnSelectedDate &&
+                      setFormData({ ...formData, driverId: driver.id })
+                    }
+                  >
+                    <h3 className="font-bold text-white">{driver.name}</h3>
+                    <p className="text-sm text-gray-400">{driver.role}</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {driver.experience} experience
+                    </p>
+                    <p className="text-xs text-[#f1c44f]">
+                      {driver.specialization}
+                    </p>
+                    {isUnavailableOnSelectedDate && (
+                      <p className="mt-2 text-xs font-semibold text-red-400">
+                        ❌ Not available on{" "}
+                        {formData.date
+                          ? new Date(formData.date).toLocaleDateString()
+                          : "selected date"}
+                      </p>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Seats Selection */}
           <div>
@@ -363,6 +543,128 @@ export default function RequestTrip() {
               )}
             </select>
           </div>
+
+          {/* Locations */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
+              <p className="text-sm font-semibold text-white">
+                Pickup Location
+              </p>
+              <input
+                value={pickupQuery}
+                onChange={(e) => {
+                  setPickupQuery(e.target.value);
+                  setSelectedPickup(null);
+                }}
+                placeholder="Search address or place"
+                className="mt-2 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-3 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+              />
+              {selectedPickup && (
+                <p className="mt-2 text-xs text-green-300">
+                  Selected: {selectedPickup.label}
+                </p>
+              )}
+              {!selectedPickup && pickupResults.length > 0 && (
+                <div className="mt-2 max-h-40 space-y-1 overflow-auto rounded border border-gray-700 bg-[#0b2a4a] p-2">
+                  {pickupResults.map((r) => (
+                    <button
+                      key={`${r.lat}-${r.lon}`}
+                      type="button"
+                      className="block w-full text-left text-xs text-gray-200 hover:text-[#f1c44f]"
+                      onClick={() => {
+                        setSelectedPickup(r);
+                        setPickupQuery(r.label);
+                        setPickupResults([]);
+                      }}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
+              <p className="text-sm font-semibold text-white">Destination</p>
+              <input
+                value={dropoffQuery}
+                onChange={(e) => {
+                  setDropoffQuery(e.target.value);
+                  setSelectedDropoff(null);
+                }}
+                placeholder="Search destination"
+                className="mt-2 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-3 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+              />
+              {selectedDropoff && (
+                <p className="mt-2 text-xs text-green-300">
+                  Selected: {selectedDropoff.label}
+                </p>
+              )}
+              {!selectedDropoff && dropoffResults.length > 0 && (
+                <div className="mt-2 max-h-40 space-y-1 overflow-auto rounded border border-gray-700 bg-[#0b2a4a] p-2">
+                  {dropoffResults.map((r) => (
+                    <button
+                      key={`${r.lat}-${r.lon}`}
+                      type="button"
+                      className="block w-full text-left text-xs text-gray-200 hover:text-[#f1c44f]"
+                      onClick={() => {
+                        setSelectedDropoff(r);
+                        setDropoffQuery(r.label);
+                        setDropoffResults([]);
+                      }}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {routeInfo && (
+            <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
+              <p className="text-sm text-gray-300">
+                Estimated route:{" "}
+                <span className="font-semibold text-white">
+                  {routeInfo.distanceKm} km
+                </span>{" "}
+                ·
+                <span className="font-semibold text-white">
+                  {" "}
+                  {routeInfo.durationMin} mins
+                </span>
+              </p>
+            </Card>
+          )}
+
+          {/* Map Preview (Leaflet with OSM tiles + polyline) */}
+          {selectedPickup && selectedDropoff && routeInfo && (
+            <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-4">
+              <p className="mb-3 text-sm font-semibold text-white">
+                Route Preview
+              </p>
+              <div className="aspect-[16/9] overflow-hidden rounded-lg border border-gray-700">
+                <RouteMap
+                  pickup={{ lat: selectedPickup.lat, lon: selectedPickup.lon }}
+                  dropoff={{
+                    lat: selectedDropoff.lat,
+                    lon: selectedDropoff.lon,
+                  }}
+                  coords={
+                    routeInfo.coords?.length
+                      ? routeInfo.coords
+                      : [
+                          { lat: selectedPickup.lat, lon: selectedPickup.lon },
+                          {
+                            lat: selectedDropoff.lat,
+                            lon: selectedDropoff.lon,
+                          },
+                        ]
+                  }
+                />
+              </div>
+            </Card>
+          )}
 
           {/* Summary */}
           {selectedVan && selectedDriver && formData.date && (
