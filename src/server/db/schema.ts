@@ -23,8 +23,9 @@ export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
 export const users = createTable(
   "user",
   (d) => ({
-    id: d.varchar({ length: 255 }).primaryKey(), // Clerk user ID
+    id: d.varchar({ length: 255 }).primaryKey(), // UUID
     email: d.varchar({ length: 255 }).notNull().unique(),
+    password: d.varchar({ length: 255 }).notNull(), // Hashed password
     firstName: d.varchar({ length: 255 }),
     lastName: d.varchar({ length: 255 }),
     phoneNumber: d.varchar({ length: 20 }),
