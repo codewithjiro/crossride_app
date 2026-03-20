@@ -22,11 +22,21 @@ async function LogsTable() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-[#f1c44f]/20 bg-[#0a2540]">
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Admin</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Action</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Resource</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Description</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Timestamp</th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Admin
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Action
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Resource
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Description
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Timestamp
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -38,8 +48,11 @@ async function LogsTable() {
             </tr>
           ) : (
             logs.map((log) => (
-              <tr key={log.id} className="border-b border-[#f1c44f]/10 hover:bg-[#0a2540]/50 transition-colors">
-                <td className="px-6 py-4 text-white font-medium flex items-center gap-2">
+              <tr
+                key={log.id}
+                className="border-b border-[#f1c44f]/10 transition-colors hover:bg-[#0a2540]/50"
+              >
+                <td className="flex items-center gap-2 px-6 py-4 font-medium text-white">
                   <Shield size={16} className="text-[#f1c44f]" />
                   {log.admin?.firstName} {log.admin?.lastName}
                 </td>
@@ -48,9 +61,13 @@ async function LogsTable() {
                     {log.action.toLowerCase()}
                   </Badge>
                 </td>
-                <td className="px-6 py-4 text-gray-300 capitalize">{log.entityType}</td>
-                <td className="px-6 py-4 text-gray-300 max-w-xs truncate">{log.description}</td>
-                <td className="px-6 py-4 text-gray-400 text-xs">
+                <td className="px-6 py-4 text-gray-300 capitalize">
+                  {log.entityType}
+                </td>
+                <td className="max-w-xs truncate px-6 py-4 text-gray-300">
+                  {log.description}
+                </td>
+                <td className="px-6 py-4 text-xs text-gray-400">
                   {new Date(log.createdAt).toLocaleString()}
                 </td>
               </tr>
@@ -67,11 +84,15 @@ export default function LogsPage() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white">Activity Logs</h1>
-        <p className="text-gray-400">View all admin actions and system events</p>
+        <p className="text-gray-400">
+          View all admin actions and system events
+        </p>
       </div>
 
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20">
-        <Suspense fallback={<div className="p-8 text-white">Loading logs...</div>}>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540]">
+        <Suspense
+          fallback={<div className="p-8 text-white">Loading logs...</div>}
+        >
           <LogsTable />
         </Suspense>
       </Card>

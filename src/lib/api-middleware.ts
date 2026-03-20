@@ -12,12 +12,12 @@ export interface User {
 }
 
 export async function withAuth(
-  handler: (req: NextRequest, user: User) => Promise<NextResponse>
+  handler: (req: NextRequest, user: User) => Promise<NextResponse>,
 ) {
   return async (req: NextRequest) => {
     try {
       const user = await getCurrentUser();
-      
+
       if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
@@ -25,15 +25,18 @@ export async function withAuth(
       return handler(req, user);
     } catch (error) {
       return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Internal Server Error" },
-        { status: 500 }
+        {
+          error:
+            error instanceof Error ? error.message : "Internal Server Error",
+        },
+        { status: 500 },
       );
     }
   };
 }
 
 export async function withAdminAuth(
-  handler: (req: NextRequest, user: User) => Promise<NextResponse>
+  handler: (req: NextRequest, user: User) => Promise<NextResponse>,
 ) {
   return async (req: NextRequest) => {
     try {
@@ -41,7 +44,10 @@ export async function withAdminAuth(
       return handler(req, user);
     } catch (error) {
       if (error instanceof Error && error.message.includes("Forbidden")) {
-        return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+        return NextResponse.json(
+          { error: "Forbidden: Admin access required" },
+          { status: 403 },
+        );
       }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -11,7 +11,7 @@ interface AdminInitRequest {
 /**
  * POST /api/admin/init
  * Promote a user to admin (requires admin secret)
- * 
+ *
  * Body: { email: 'user@example.com' }
  * Header: X-Admin-Secret (matches environment variable ADMIN_INIT_SECRET)
  */
@@ -20,21 +20,16 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as AdminInitRequest;
     const { email } = body;
     const secret = request.headers.get("X-Admin-Secret");
-    const initSecret = process.env.ADMIN_INIT_SECRET ?? "change-me-in-production";
+    const initSecret =
+      process.env.ADMIN_INIT_SECRET ?? "change-me-in-production";
 
     // Verify secret
     if (secret !== initSecret) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Find user by email
@@ -43,10 +38,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Update to admin
@@ -58,14 +50,11 @@ export async function POST(request: NextRequest) {
           email,
           role: "admin",
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
-    await db
-      .update(users)
-      .set({ role: "admin" })
-      .where(eq(users.email, email));
+    await db.update(users).set({ role: "admin" }).where(eq(users.email, email));
 
     return NextResponse.json(
       {
@@ -74,13 +63,13 @@ export async function POST(request: NextRequest) {
         email,
         role: "admin",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Admin init error:", error);
     return NextResponse.json(
       { error: "Failed to promote user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -103,7 +92,7 @@ export async function GET() {
     console.error("Admin check error:", error);
     return NextResponse.json(
       { error: "Failed to check admin status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

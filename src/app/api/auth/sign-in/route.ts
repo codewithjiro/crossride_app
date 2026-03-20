@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return Response.json(
         { error: "Email and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     if (!user) {
       return Response.json(
         { error: "Invalid email or password" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     if (!isValidPassword) {
       return Response.json(
         { error: "Invalid email or password" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -56,9 +56,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Sign-in error:", error);
-    return Response.json(
-      { error: "Failed to sign in" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to sign in" }, { status: 500 });
   }
 }

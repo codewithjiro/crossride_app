@@ -5,6 +5,7 @@ A modern transportation management platform built with Next.js, featuring separa
 ## Features
 
 ### 👨‍💼 Admin Dashboard
+
 - **Van Management**: Add, edit, delete vehicles with capacity tracking
 - **Driver Management**: Manage driver information and availability
 - **Trip Scheduling**: Create and schedule routes with conflict detection
@@ -13,6 +14,7 @@ A modern transportation management platform built with Next.js, featuring separa
 - **Settings**: Configure system parameters
 
 ### 👤 User Dashboard
+
 - **Browse Trips**: View available transportation options with real-time seat availability
 - **Book Trips**: Easy booking interface with instant confirmation
 - **Manage Bookings**: View, track, and cancel your bookings
@@ -20,6 +22,7 @@ A modern transportation management platform built with Next.js, featuring separa
 - **Profile Management**: Update personal information
 
 ### 🔐 Security & Authentication
+
 - **Clerk Authentication**: Secure user authentication and role-based access
 - **Role-Based Access Control**: Separate admin and user access levels
 - **Admin Initialization**: Secure endpoint for creating admin users
@@ -37,32 +40,38 @@ A modern transportation management platform built with Next.js, featuring separa
 ## Quick Start
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/your-username/cross_ride.git
 cd cross_ride
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 pnpm install
 ```
 
 ### 3. Setup Environment Variables
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edit `.env.local` with your:
+
 - PostgreSQL connection string (local development)
 - Clerk publishable key
 - Clerk secret key
 
 ### 4. Initialize Database
+
 ```bash
 pnpm db:push
 ```
 
 ### 5. Start Development Server
+
 ```bash
 pnpm dev
 ```
@@ -76,6 +85,7 @@ Visit `http://localhost:3000`
 **See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete deployment guide.**
 
 Quick steps:
+
 1. Push code to GitHub
 2. Go to https://vercel.com/new
 3. Import your GitHub repository
@@ -83,6 +93,7 @@ Quick steps:
 5. Click Deploy
 
 Database options for Vercel:
+
 - **Vercel Postgres** (integrated)
 - **Neon** (neon.tech)
 - **Supabase** (supabase.com)
@@ -128,6 +139,7 @@ src/
 ## Database Schema
 
 ### Tables
+
 - **users**: User accounts with roles
 - **vans**: Vehicle fleet information
 - **drivers**: Driver information and status
@@ -138,6 +150,7 @@ src/
 ## API Endpoints
 
 ### Admin APIs
+
 - `POST /api/admin/vans` - Create van
 - `GET/PATCH/DELETE /api/admin/vans/[id]` - Van management
 - `POST /api/admin/drivers` - Create driver
@@ -149,11 +162,13 @@ src/
 - `GET /api/admin/logs` - View activity logs
 
 ### User APIs
+
 - `GET /api/bookings` - User's bookings
 - `POST /api/bookings` - Create booking
 - `GET /api/auth/check` - Check authentication status
 
 ### Admin Setup
+
 - `GET /api/admin/init` - Check admin status
 - `POST /api/admin/init` - Create/promote admin user
 
@@ -192,6 +207,7 @@ pnpm preview          # Preview production build locally
 ## Admin User Creation
 
 ### Method 1: API Endpoint
+
 ```bash
 curl -X POST http://localhost:3000/api/admin/init \
   -H "Content-Type: application/json" \
@@ -199,6 +215,7 @@ curl -X POST http://localhost:3000/api/admin/init \
 ```
 
 ### Method 2: Database (Vercel Postgres)
+
 ```sql
 UPDATE users SET role = 'admin' WHERE user_id = 'user_xxx' LIMIT 1;
 ```
@@ -206,6 +223,7 @@ UPDATE users SET role = 'admin' WHERE user_id = 'user_xxx' LIMIT 1;
 ## Development Tips
 
 ### Local Development Workflow
+
 1. Create `.env.local` with test Clerk keys
 2. Connect to local PostgreSQL database
 3. Run `pnpm dev`
@@ -214,12 +232,14 @@ UPDATE users SET role = 'admin' WHERE user_id = 'user_xxx' LIMIT 1;
 6. Vercel auto-deploys on push
 
 ### Debugging
+
 - Check server logs: `pnpm dev` console output
 - View database: `pnpm db:studio`
 - Inspect Clerk logs: Clerk dashboard
 - Check Vercel logs: Vercel dashboard → Deployments
 
 ### Testing Routes
+
 - Public: http://localhost:3000
 - User dashboard: http://localhost:3000/dashboard (requires login)
 - Admin dashboard: http://localhost:3000/admin/dashboard (requires admin role)
@@ -277,4 +297,3 @@ MIT
 ---
 
 **Ready to deploy? Check [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)** 🚀
-

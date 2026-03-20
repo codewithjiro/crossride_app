@@ -22,13 +22,27 @@ async function TripsTable() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-[#f1c44f]/20 bg-[#0a2540]">
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Route</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Van</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Driver</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Departure</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Seats</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Status</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Actions</th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Route
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Van
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Driver
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Departure
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Seats
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -40,30 +54,38 @@ async function TripsTable() {
             </tr>
           ) : (
             allTrips.map((trip) => (
-              <tr key={trip.id} className="border-b border-[#f1c44f]/10 hover:bg-[#0a2540]/50 transition-colors">
-                <td className="px-6 py-4 text-white font-medium flex items-center gap-2">
+              <tr
+                key={trip.id}
+                className="border-b border-[#f1c44f]/10 transition-colors hover:bg-[#0a2540]/50"
+              >
+                <td className="flex items-center gap-2 px-6 py-4 font-medium text-white">
                   <MapPin size={16} className="text-[#f1c44f]" />
                   {trip.route}
                 </td>
                 <td className="px-6 py-4 text-gray-300">{trip.van?.name}</td>
                 <td className="px-6 py-4 text-gray-300">{trip.driver?.name}</td>
-                <td className="px-6 py-4 text-gray-300 text-xs">
+                <td className="px-6 py-4 text-xs text-gray-300">
                   {new Date(trip.departureTime).toLocaleString()}
                 </td>
-                <td className="px-6 py-4 flex items-center gap-2 text-gray-300">
+                <td className="flex items-center gap-2 px-6 py-4 text-gray-300">
                   <Users size={16} />
                   {trip.seatsReserved}/{trip.seatsAvailable}
                 </td>
                 <td className="px-6 py-4">
-                  <Badge variant={trip.status === "scheduled" ? "default" : "secondary"} className="bg-[#f1c44f]/20 text-[#f1c44f] capitalize">
+                  <Badge
+                    variant={
+                      trip.status === "scheduled" ? "default" : "secondary"
+                    }
+                    className="bg-[#f1c44f]/20 text-[#f1c44f] capitalize"
+                  >
                     {trip.status}
                   </Badge>
                 </td>
-                <td className="px-6 py-4 flex gap-2">
-                  <button className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors text-blue-400">
+                <td className="flex gap-2 px-6 py-4">
+                  <button className="rounded-lg p-2 text-blue-400 transition-colors hover:bg-blue-500/20">
                     <Edit size={18} />
                   </button>
-                  <button className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400">
+                  <button className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/20">
                     <Trash2 size={18} />
                   </button>
                 </td>
@@ -90,8 +112,10 @@ export default function TripsPage() {
         </Button>
       </div>
 
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20">
-        <Suspense fallback={<div className="p-8 text-white">Loading trips...</div>}>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540]">
+        <Suspense
+          fallback={<div className="p-8 text-white">Loading trips...</div>}
+        >
           <TripsTable />
         </Suspense>
       </Card>

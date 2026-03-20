@@ -18,13 +18,20 @@ interface UpdateTripRequest {
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAdmin();
     const { id } = await params;
-    const { vanId, driverId, route, departureTime, arrivalTime, seatsAvailable, status } =
-      (await req.json()) as UpdateTripRequest;
+    const {
+      vanId,
+      driverId,
+      route,
+      departureTime,
+      arrivalTime,
+      seatsAvailable,
+      status,
+    } = (await req.json()) as UpdateTripRequest;
     const tripId = parseInt(id, 10);
 
     // Get existing trip
@@ -37,35 +44,39 @@ export async function PATCH(
     }
 
     const newVanId = vanId ? parseInt(String(vanId), 10) : existingTrip.vanId;
-    const newDriverId = driverId ? parseInt(String(driverId), 10) : existingTrip.driverId;
-    const newDepTime = departureTime ? new Date(departureTime) : existingTrip.departureTime;
-    const newArrTime = arrivalTime ? new Date(arrivalTime) : existingTrip.arrivalTime;
+    const newDriverId = driverId
+      ? parseInt(String(driverId), 10)
+      : existingTrip.driverId;
+    const newDepTime = departureTime
+      ? new Date(departureTime)
+      : existingTrip.departureTime;
+    const newArrTime = arrivalTime
+      ? new Date(arrivalTime)
+      : existingTrip.arrivalTime;
 
     // Validate times if being updated
     if (departureTime ?? arrivalTime) {
       if (newDepTime >= newArrTime) {
         return NextResponse.json(
           { error: "Departure time must be before arrival time" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
 
     // Check for conflicts if van or driver or times changed
-    if (
-      (vanId ?? driverId ?? departureTime ?? arrivalTime) !== undefined
-    ) {
+    if ((vanId ?? driverId ?? departureTime ?? arrivalTime) !== undefined) {
       const conflictCheck = await checkConflicts(
         newVanId,
         newDriverId,
         newDepTime,
         newArrTime,
-        tripId
+        tripId,
       );
       if (conflictCheck.hasConflict) {
         return NextResponse.json(
           { error: conflictCheck.message ?? "Scheduling conflict detected" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -76,7 +87,8 @@ export async function PATCH(
     if (route !== undefined) updateData.route = route;
     if (departureTime !== undefined) updateData.departureTime = newDepTime;
     if (arrivalTime !== undefined) updateData.arrivalTime = newArrTime;
-    if (seatsAvailable !== undefined) updateData.seatsAvailable = parseInt(String(seatsAvailable), 10);
+    if (seatsAvailable !== undefined)
+      updateData.seatsAvailable = parseInt(String(seatsAvailable), 10);
     if (status !== undefined) updateData.status = status;
 
     const updatedTrip = await db
@@ -98,15 +110,17 @@ export async function PATCH(
     return NextResponse.json(updatedTrip[0]);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update trip" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to update trip",
+      },
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAdmin();
@@ -134,11 +148,16 @@ export async function DELETE(
       description: `Deleted trip: ${trip.route}`,
     });
 
-    return NextResponse.json({ success: true, message: "Trip deleted successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Trip deleted successfully",
+    });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to delete trip" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to delete trip",
+      },
+      { status: 500 },
     );
   }
 }

@@ -10,10 +10,7 @@ export async function GET() {
     const userId = cookieStore.get("userId")?.value;
 
     if (!userId) {
-      return NextResponse.json(
-        { authenticated: false },
-        { status: 200 }
-      );
+      return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
     // Look up user in database
@@ -22,10 +19,7 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { authenticated: false },
-        { status: 200 }
-      );
+      return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
     return NextResponse.json({
@@ -43,8 +37,11 @@ export async function GET() {
     });
   } catch (error) {
     return NextResponse.json(
-      { authenticated: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 200 }
+      {
+        authenticated: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 200 },
     );
   }
 }

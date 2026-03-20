@@ -25,8 +25,11 @@ export async function GET() {
     return NextResponse.json(userBookings);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch bookings" },
-      { status: 401 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch bookings",
+      },
+      { status: 401 },
     );
   }
 }
@@ -44,14 +47,14 @@ export async function POST(req: NextRequest) {
     if (!tripId || !seatsBooked) {
       return NextResponse.json(
         { error: "Missing required fields: tripId, seatsBooked" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (seatsBooked < 1) {
       return NextResponse.json(
         { error: "Must book at least 1 seat" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
     if (seatsBooked > availableSeats) {
       return NextResponse.json(
         { error: `Only ${availableSeats} seats available` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -77,14 +80,14 @@ export async function POST(req: NextRequest) {
     const existingBooking = await db.query.bookings.findFirst({
       where: and(
         eq(bookings.userId, user.id),
-        eq(bookings.tripId, parseInt(String(tripId), 10))
+        eq(bookings.tripId, parseInt(String(tripId), 10)),
       ),
     });
 
     if (existingBooking) {
       return NextResponse.json(
         { error: "You already have a booking for this trip" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -102,8 +105,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(newBooking[0], { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create booking" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to create booking",
+      },
+      { status: 500 },
     );
   }
 }

@@ -18,11 +18,21 @@ async function VansTable() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-[#f1c44f]/20 bg-[#0a2540]">
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Van Name</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Plate Number</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Capacity</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Status</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Actions</th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Van Name
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Plate Number
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Capacity
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -34,20 +44,28 @@ async function VansTable() {
             </tr>
           ) : (
             allVans.map((van) => (
-              <tr key={van.id} className="border-b border-[#f1c44f]/10 hover:bg-[#0a2540]/50 transition-colors">
-                <td className="px-6 py-4 text-white font-medium">{van.name}</td>
+              <tr
+                key={van.id}
+                className="border-b border-[#f1c44f]/10 transition-colors hover:bg-[#0a2540]/50"
+              >
+                <td className="px-6 py-4 font-medium text-white">{van.name}</td>
                 <td className="px-6 py-4 text-gray-300">{van.plateNumber}</td>
-                <td className="px-6 py-4 text-gray-300">{van.capacity} seats</td>
+                <td className="px-6 py-4 text-gray-300">
+                  {van.capacity} seats
+                </td>
                 <td className="px-6 py-4">
-                  <Badge variant={van.status === "active" ? "default" : "secondary"} className="bg-[#f1c44f]/20 text-[#f1c44f] capitalize">
+                  <Badge
+                    variant={van.status === "active" ? "default" : "secondary"}
+                    className="bg-[#f1c44f]/20 text-[#f1c44f] capitalize"
+                  >
                     {van.status}
                   </Badge>
                 </td>
-                <td className="px-6 py-4 flex gap-2">
-                  <button className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors text-blue-400">
+                <td className="flex gap-2 px-6 py-4">
+                  <button className="rounded-lg p-2 text-blue-400 transition-colors hover:bg-blue-500/20">
                     <Edit size={18} />
                   </button>
-                  <button className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400">
+                  <button className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/20">
                     <Trash2 size={18} />
                   </button>
                 </td>
@@ -74,8 +92,10 @@ export default function VansPage() {
         </Button>
       </div>
 
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20">
-        <Suspense fallback={<div className="p-8 text-white">Loading vans...</div>}>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540]">
+        <Suspense
+          fallback={<div className="p-8 text-white">Loading vans...</div>}
+        >
           <VansTable />
         </Suspense>
       </Card>

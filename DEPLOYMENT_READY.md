@@ -5,6 +5,7 @@
 ## What's Complete
 
 ### Frontend (12 Pages)
+
 - ✅ **Admin Dashboard** (7 pages)
   - Dashboard (stats & recent bookings)
   - Vans management
@@ -22,6 +23,7 @@
   - Profile
 
 ### Backend & API
+
 - ✅ PostgreSQL database with Drizzle ORM
 - ✅ 6 tables: users, vans, drivers, trips, bookings, adminLogs
 - ✅ Clerk authentication with webhook integration
@@ -33,12 +35,14 @@
 - ✅ Audit logging for all admin actions
 
 ### Code Quality
+
 - ✅ TypeScript compilation: **ZERO ERRORS**
 - ✅ ESLint: Warnings only (unused imports - non-critical)
 - ✅ All dependencies installed: `pnpm install` ✓
 - ✅ svix installed for webhook verification
 
 ### Documentation
+
 - ✅ [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) - Complete deployment guide
 - ✅ [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Quick reference tasks
 - ✅ [README.md](README.md) - Full project documentation
@@ -47,6 +51,7 @@
 ## Quick Start to Deploy
 
 ### 1. Push to GitHub
+
 ```bash
 git add .
 git commit -m "Ready for Vercel deployment"
@@ -54,12 +59,14 @@ git push origin main
 ```
 
 ### 2. Deploy to Vercel
+
 1. Go to **[vercel.com/new](https://vercel.com/new)**
 2. Import your GitHub repository
 3. Skip "Create a Team" (use personal account)
 4. Click **Deploy**
 
 ### 3. Add Environment Variables
+
 In Vercel dashboard, go to **Settings > Environment Variables**:
 
 ```
@@ -70,6 +77,7 @@ WEBHOOK_SECRET=whsec_xxx
 ```
 
 ### 4. Add Webhook to Clerk
+
 After deployment:
 
 1. Go to **Clerk Dashboard > Webhooks > Create Endpoint**
@@ -81,6 +89,7 @@ After deployment:
 4. Copy **Signing Secret** to Vercel env as `WEBHOOK_SECRET`
 
 ### 5. Create First Admin
+
 ```bash
 curl -X POST https://your-app.vercel.app/api/admin/init \
   -H "Content-Type: application/json" \
@@ -88,9 +97,11 @@ curl -X POST https://your-app.vercel.app/api/admin/init \
 ```
 
 Get `user_xxx` from:
+
 - Clerk Dashboard > Users > Copy User ID
 
 ### 6. Test
+
 - ✅ Admin login: `https://your-app.vercel.app/admin`
 - ✅ User home: `https://your-app.vercel.app`
 
@@ -121,10 +132,12 @@ Get `user_xxx` from:
 ## Key Endpoints
 
 ### Public
+
 - `GET /` - Homepage
 - `POST /api/auth/register` - User registration (via Clerk webhook)
 
 ### Admin
+
 - `GET /api/admin/vans` - List vans
 - `POST/PUT/DELETE /api/admin/vans` - CRUD vans
 - `GET /api/admin/drivers` - List drivers
@@ -136,22 +149,26 @@ Get `user_xxx` from:
 - `POST /api/admin/init` - Create first admin (setup only)
 
 ### User
+
 - `GET /api/bookings` - My bookings
 - `POST /api/bookings` - Book a trip
 - `DELETE /api/bookings/:id` - Cancel booking
 
 ### Webhooks
+
 - `POST /api/webhooks/clerk` - Clerk user sync webhook
 
 ## Configuration
 
 ### Theme
+
 - **Primary**: Dark Navy (#071d3a, #0a2540)
 - **Accent**: Gold (#f1c44f)
 - **Mode**: Dark theme only
 - **Font**: Geist Sans (Next.js default)
 
 ### Database Tables
+
 1. **users** - Clerk sync + local profile
 2. **vans** - Van inventory with seating
 3. **drivers** - Driver assignment
@@ -160,6 +177,7 @@ Get `user_xxx` from:
 6. **adminLogs** - Audit trail of admin actions
 
 ### Authentication
+
 - Clerk (managed auth provider)
 - Role-based: `admin` or `user`
 - Automatic sync via webhooks
@@ -186,16 +204,19 @@ After deployment, check:
 ## Troubleshooting
 
 ### Users not created
+
 - ✅ Check Clerk webhook is configured
 - ✅ Verify `WEBHOOK_SECRET` in Clerk matches Vercel env
 - ✅ Check Vercel function logs: `/_vercel/insights`
 
 ### Admin can't login
+
 - ✅ Verify user role in database (should be `admin`)
 - ✅ Run init endpoint again if needed
 - ✅ Check Clerk & Vercel env variables match
 
 ### Database connection error
+
 - ✅ Verify `DATABASE_URL` format correct
 - ✅ Check database is accessible from Vercel region
 - ✅ Test connection: `psql $DATABASE_URL`
@@ -203,6 +224,7 @@ After deployment, check:
 ## Next Steps (Optional)
 
 **For Production Hardening**:
+
 - [ ] Add rate limiting on APIs
 - [ ] Enable CORS restrictions
 - [ ] Add request validation middleware
@@ -211,6 +233,7 @@ After deployment, check:
 - [ ] Database backups automation
 
 **Feature Enhancements**:
+
 - [ ] Modal forms for CRUD operations
 - [ ] Form validation with React Hook Form
 - [ ] Toast notifications
@@ -222,6 +245,7 @@ After deployment, check:
 ## Success Checklist
 
 Before going live:
+
 - [ ] All environment variables set in Vercel
 - [ ] Clerk webhook URL configured
 - [ ] Test admin creation works
@@ -237,6 +261,7 @@ Before going live:
 **You're all set!** 🎉 Your app is production-ready and awaiting deployment.
 
 **Questions?** Refer to:
+
 - [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) - Detailed setup
 - [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Step-by-step tasks
 - [README.md](README.md) - Full documentation

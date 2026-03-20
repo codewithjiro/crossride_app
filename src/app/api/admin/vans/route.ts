@@ -18,8 +18,15 @@ export async function GET() {
     return NextResponse.json(allVans);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch vans" },
-      { status: error instanceof Error && error.message.includes("Forbidden") ? 403 : 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to fetch vans",
+      },
+      {
+        status:
+          error instanceof Error && error.message.includes("Forbidden")
+            ? 403
+            : 500,
+      },
     );
   }
 }
@@ -27,21 +34,25 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAdmin();
-    const { name, plateNumber, capacity } = (await req.json()) as CreateVanRequest;
+    const { name, plateNumber, capacity } =
+      (await req.json()) as CreateVanRequest;
 
     if (!name || !plateNumber || !capacity) {
       return NextResponse.json(
         { error: "Missing required fields: name, plateNumber, capacity" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const newVan = await db.insert(vans).values({
-      name,
-      plateNumber,
-      capacity: parseInt(String(capacity), 10),
-      status: "active",
-    }).returning();
+    const newVan = await db
+      .insert(vans)
+      .values({
+        name,
+        plateNumber,
+        capacity: parseInt(String(capacity), 10),
+        status: "active",
+      })
+      .returning();
 
     // Log the action
     await db.insert(adminLogs).values({
@@ -55,8 +66,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(newVan[0], { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create van" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to create van",
+      },
+      { status: 500 },
     );
   }
 }

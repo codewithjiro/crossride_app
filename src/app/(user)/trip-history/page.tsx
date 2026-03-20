@@ -18,10 +18,7 @@ async function TripHistoryTable() {
     where: (bookings, { eq, or, and }) =>
       and(
         eq(bookings.userId, user.id),
-        or(
-          eq(bookings.status, "approved"),
-          eq(bookings.status, "cancelled")
-        )
+        or(eq(bookings.status, "approved"), eq(bookings.status, "cancelled")),
       ),
     with: {
       trip: {
@@ -37,20 +34,23 @@ async function TripHistoryTable() {
   return (
     <div className="space-y-4">
       {pastTrips.length === 0 ? (
-        <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
           <p className="text-gray-400">No trip history yet.</p>
         </Card>
       ) : (
         pastTrips.map((booking, index) => (
-          <Card key={booking.id} className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
+          <Card
+            key={booking.id}
+            className="border-[#f1c44f]/20 bg-[#0a2540] p-6"
+          >
             <div className="flex items-start gap-6">
               {/* Timeline marker */}
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-[#f1c44f] flex items-center justify-center text-[#071d3a] font-bold text-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f1c44f] text-sm font-bold text-[#071d3a]">
                   {index + 1}
                 </div>
                 {index < pastTrips.length - 1 && (
-                  <div className="w-0.5 h-24 bg-[#f1c44f]/20 mt-2" />
+                  <div className="mt-2 h-24 w-0.5 bg-[#f1c44f]/20" />
                 )}
               </div>
 
@@ -60,9 +60,11 @@ async function TripHistoryTable() {
                   <div>
                     <div className="flex items-center gap-2">
                       <MapPin size={18} className="text-[#f1c44f]" />
-                      <h3 className="text-lg font-bold text-white">{booking.trip?.route}</h3>
+                      <h3 className="text-lg font-bold text-white">
+                        {booking.trip?.route}
+                      </h3>
                     </div>
-                    <p className="text-gray-400 text-sm mt-1 ml-6">
+                    <p className="mt-1 ml-6 text-sm text-gray-400">
                       Driver: {booking.trip?.driver?.name || "Unknown"}
                     </p>
                   </div>
@@ -73,20 +75,25 @@ async function TripHistoryTable() {
                         : "bg-red-500/20 text-red-400"
                     }`}
                   >
-                    {booking.status === "approved" ? "Completed" : booking.status}
+                    {booking.status === "approved"
+                      ? "Completed"
+                      : booking.status}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mt-4 ml-6">
-                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="mt-4 ml-6 grid grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Calendar size={14} />
-                    {new Date(booking.trip?.departureTime || "").toLocaleDateString()}
+                    {new Date(
+                      booking.trip?.departureTime || "",
+                    ).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Users size={14} />
-                    {booking.seatsBooked} seat{booking.seatsBooked !== 1 ? "s" : ""}
+                    {booking.seatsBooked} seat
+                    {booking.seatsBooked !== 1 ? "s" : ""}
                   </div>
-                  <div className="text-gray-400 text-sm">
+                  <div className="text-sm text-gray-400">
                     Van: {booking.trip?.van?.name}
                   </div>
                 </div>
@@ -102,15 +109,19 @@ async function TripHistoryTable() {
 export default function TripHistory() {
   return (
     <div className="min-h-screen bg-[#071d3a] p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white">Trip History</h1>
-          <p className="text-gray-400 mt-2">View your completed and cancelled trips</p>
+          <p className="mt-2 text-gray-400">
+            View your completed and cancelled trips
+          </p>
         </div>
 
         {/* Trip History Timeline */}
-        <Suspense fallback={<div className="text-white">Loading trip history...</div>}>
+        <Suspense
+          fallback={<div className="text-white">Loading trip history...</div>}
+        >
           <TripHistoryTable />
         </Suspense>
       </div>

@@ -12,8 +12,11 @@ export async function GET() {
     return NextResponse.json(allDrivers);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch drivers" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch drivers",
+      },
+      { status: 500 },
     );
   }
 }
@@ -28,22 +31,26 @@ interface CreateDriverRequest {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAdmin();
-    const { name, email, phoneNumber, licenseNumber } = (await req.json()) as CreateDriverRequest;
+    const { name, email, phoneNumber, licenseNumber } =
+      (await req.json()) as CreateDriverRequest;
 
     if (!name || !email || !phoneNumber || !licenseNumber) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const newDriver = await db.insert(drivers).values({
-      name,
-      email,
-      phoneNumber,
-      licenseNumber,
-      status: "active",
-    }).returning();
+    const newDriver = await db
+      .insert(drivers)
+      .values({
+        name,
+        email,
+        phoneNumber,
+        licenseNumber,
+        status: "active",
+      })
+      .returning();
 
     // Log the action
     await db.insert(adminLogs).values({
@@ -57,8 +64,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(newDriver[0], { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create driver" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to create driver",
+      },
+      { status: 500 },
     );
   }
 }

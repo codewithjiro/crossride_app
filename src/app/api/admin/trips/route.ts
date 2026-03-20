@@ -19,8 +19,10 @@ export async function GET() {
     return NextResponse.json(allTrips);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch trips" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to fetch trips",
+      },
+      { status: 500 },
     );
   }
 }
@@ -37,13 +39,26 @@ interface CreateTripRequest {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAdmin();
-    const { vanId, driverId, route, departureTime, arrivalTime, seatsAvailable } =
-      (await req.json()) as CreateTripRequest;
+    const {
+      vanId,
+      driverId,
+      route,
+      departureTime,
+      arrivalTime,
+      seatsAvailable,
+    } = (await req.json()) as CreateTripRequest;
 
-    if (!vanId || !driverId || !route || !departureTime || !arrivalTime || !seatsAvailable) {
+    if (
+      !vanId ||
+      !driverId ||
+      !route ||
+      !departureTime ||
+      !arrivalTime ||
+      !seatsAvailable
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -57,7 +72,7 @@ export async function POST(req: NextRequest) {
     if (depTime >= arrTime) {
       return NextResponse.json(
         { error: "Departure time must be before arrival time" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -65,16 +80,21 @@ export async function POST(req: NextRequest) {
     if (seatsInt < 1) {
       return NextResponse.json(
         { error: "Must have at least 1 seat available" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check for scheduling conflicts
-    const conflictCheck = await checkConflicts(vanIdInt, driverIdInt, depTime, arrTime);
+    const conflictCheck = await checkConflicts(
+      vanIdInt,
+      driverIdInt,
+      depTime,
+      arrTime,
+    );
     if (conflictCheck.hasConflict) {
       return NextResponse.json(
         { error: conflictCheck.message ?? "Scheduling conflict detected" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -104,8 +124,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(newTrip[0], { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create trip" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to create trip",
+      },
+      { status: 500 },
     );
   }
 }

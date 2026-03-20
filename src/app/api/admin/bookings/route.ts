@@ -24,8 +24,11 @@ export async function GET() {
     return NextResponse.json(allBookings);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch bookings" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch bookings",
+      },
+      { status: 500 },
     );
   }
 }
@@ -43,14 +46,14 @@ export async function PATCH(req: NextRequest) {
     if (!bookingId || !action) {
       return NextResponse.json(
         { error: "Missing required fields: bookingId, action" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!["approve", "reject", "cancel"].includes(action)) {
       return NextResponse.json(
         { error: "Invalid action. Must be approve, reject, or cancel" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -64,7 +67,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    let newStatus: "approved" | "rejected" | "cancelled" | "pending" = "pending";
+    let newStatus: "approved" | "rejected" | "cancelled" | "pending" =
+      "pending";
     if (action === "approve") {
       newStatus = "approved";
       // Update trip seats
@@ -72,7 +76,8 @@ export async function PATCH(req: NextRequest) {
         await db
           .update(trips)
           .set({
-            seatsReserved: (booking.trip.seatsReserved ?? 0) + booking.seatsBooked,
+            seatsReserved:
+              (booking.trip.seatsReserved ?? 0) + booking.seatsBooked,
           })
           .where(eq(trips.id, booking.trip.id));
       }
@@ -85,7 +90,10 @@ export async function PATCH(req: NextRequest) {
         await db
           .update(trips)
           .set({
-            seatsReserved: Math.max(0, (booking.trip.seatsReserved ?? 0) - booking.seatsBooked),
+            seatsReserved: Math.max(
+              0,
+              (booking.trip.seatsReserved ?? 0) - booking.seatsBooked,
+            ),
           })
           .where(eq(trips.id, booking.trip.id));
       }
@@ -109,8 +117,11 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json(updatedBooking[0] ?? null);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update booking" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to update booking",
+      },
+      { status: 500 },
     );
   }
 }

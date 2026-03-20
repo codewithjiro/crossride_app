@@ -25,14 +25,28 @@ export default function UserProfile() {
       try {
         const response = await fetch("/api/auth/check");
         if (response.ok) {
-          const data = await response.json() as { authenticated: boolean; user?: { id: string; email: string; firstName?: string; lastName?: string; phoneNumber?: string; createdAt?: string } };
+          const data = (await response.json()) as {
+            authenticated: boolean;
+            user?: {
+              id: string;
+              email: string;
+              firstName?: string;
+              lastName?: string;
+              phoneNumber?: string;
+              createdAt?: string;
+            };
+          };
           if (data.authenticated && data.user) {
             setUserProfile({
               id: data.user.id,
-              name: `${data.user.firstName || ""} ${data.user.lastName || ""}`.trim() || "User",
+              name:
+                `${data.user.firstName || ""} ${data.user.lastName || ""}`.trim() ||
+                "User",
               email: data.user.email,
               phoneNumber: data.user.phoneNumber,
-              createdAt: data.user.createdAt ? new Date(data.user.createdAt) : undefined,
+              createdAt: data.user.createdAt
+                ? new Date(data.user.createdAt)
+                : undefined,
             });
           }
         }
@@ -61,7 +75,7 @@ export default function UserProfile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#071d3a] p-8 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#071d3a] p-8">
         <p className="text-white">Loading profile...</p>
       </div>
     );
@@ -69,23 +83,25 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-[#071d3a] p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white">Profile Settings</h1>
-          <p className="text-gray-400 mt-2">Manage your account information</p>
+          <p className="mt-2 text-gray-400">Manage your account information</p>
         </div>
 
         {/* Personal Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-8 lg:col-span-2">
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8 lg:col-span-2">
             <div className="flex items-start gap-4">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-white mb-6">Personal Information</h2>
+                <h2 className="mb-6 text-2xl font-bold text-white">
+                  Personal Information
+                </h2>
 
                 {/* Name */}
                 <div className="mb-6">
-                  <label className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                  <label className="mb-2 flex items-center gap-2 text-sm text-gray-400">
                     <User size={16} />
                     Full Name
                   </label>
@@ -93,16 +109,16 @@ export default function UserProfile() {
                     type="text"
                     value={userProfile?.name ?? ""}
                     disabled
-                    className="w-full px-4 py-2 bg-[#071d3a] border border-[#f1c44f]/20 rounded text-white disabled:opacity-50 cursor-not-allowed"
+                    className="w-full cursor-not-allowed rounded border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white disabled:opacity-50"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="mt-1 text-xs text-gray-500">
                     Update in account settings.
                   </p>
                 </div>
 
                 {/* Email */}
                 <div className="mb-6">
-                  <label className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                  <label className="mb-2 flex items-center gap-2 text-sm text-gray-400">
                     <Mail size={16} />
                     Email Address
                   </label>
@@ -110,14 +126,16 @@ export default function UserProfile() {
                     type="email"
                     value={userProfile?.email ?? ""}
                     disabled
-                    className="w-full px-4 py-2 bg-[#071d3a] border border-[#f1c44f]/20 rounded text-white disabled:opacity-50 cursor-not-allowed"
+                    className="w-full cursor-not-allowed rounded border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white disabled:opacity-50"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Primary email address</p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Primary email address
+                  </p>
                 </div>
 
                 {/* Phone */}
                 <div className="mb-6">
-                  <label className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                  <label className="mb-2 flex items-center gap-2 text-sm text-gray-400">
                     <Phone size={16} />
                     Phone Number
                   </label>
@@ -125,9 +143,11 @@ export default function UserProfile() {
                     type="tel"
                     value={userProfile?.phoneNumber ?? "Not set"}
                     disabled
-                    className="w-full px-4 py-2 bg-[#071d3a] border border-[#f1c44f]/20 rounded text-white disabled:opacity-50 cursor-not-allowed"
+                    className="w-full cursor-not-allowed rounded border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white disabled:opacity-50"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Contact number for bookings</p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Contact number for bookings
+                  </p>
                 </div>
               </div>
             </div>
@@ -135,33 +155,33 @@ export default function UserProfile() {
         </div>
 
         {/* Security Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8">
             <div className="flex items-start gap-4">
-              <Lock className="text-[#f1c44f] mt-1" size={24} />
+              <Lock className="mt-1 text-[#f1c44f]" size={24} />
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-white mb-2">Password</h3>
-                <p className="text-gray-400 text-sm mb-4">
+                <h3 className="mb-2 text-lg font-bold text-white">Password</h3>
+                <p className="mb-4 text-sm text-gray-400">
                   Manage your password and security settings
                 </p>
-                <Button className="text-[#f1c44f] border border-[#f1c44f] hover:bg-[#f1c44f]/10">
+                <Button className="border border-[#f1c44f] text-[#f1c44f] hover:bg-[#f1c44f]/10">
                   Change Password
                 </Button>
               </div>
             </div>
           </Card>
 
-          <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-8">
+          <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8">
             <div className="flex items-start gap-4">
-              <LogOut className="text-red-400 mt-1" size={24} />
+              <LogOut className="mt-1 text-red-400" size={24} />
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-white mb-2">Sign Out</h3>
-                <p className="text-gray-400 text-sm mb-4">
+                <h3 className="mb-2 text-lg font-bold text-white">Sign Out</h3>
+                <p className="mb-4 text-sm text-gray-400">
                   Sign out from your account on this device
                 </p>
-                <Button 
+                <Button
                   onClick={handleSignOut}
-                  className="text-red-400 border border-red-400 hover:bg-red-400/10"
+                  className="border border-red-400 text-red-400 hover:bg-red-400/10"
                 >
                   Sign Out Now
                 </Button>
@@ -171,8 +191,8 @@ export default function UserProfile() {
         </div>
 
         {/* Account Status */}
-        <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-8">
-          <h3 className="text-lg font-bold text-white mb-4">Account Status</h3>
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8">
+          <h3 className="mb-4 text-lg font-bold text-white">Account Status</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Account Type</span>
@@ -185,7 +205,9 @@ export default function UserProfile() {
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Member Since</span>
               <span className="text-white">
-                {userProfile?.createdAt ? userProfile.createdAt.toLocaleDateString() : "Unknown"}
+                {userProfile?.createdAt
+                  ? userProfile.createdAt.toLocaleDateString()
+                  : "Unknown"}
               </span>
             </div>
           </div>

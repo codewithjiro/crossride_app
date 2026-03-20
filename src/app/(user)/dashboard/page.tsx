@@ -35,21 +35,29 @@ async function UpcomingBookings() {
         <p className="text-gray-400">No upcoming bookings yet.</p>
       ) : (
         userBookings.map((booking) => (
-          <Card key={booking.id} className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
+          <Card
+            key={booking.id}
+            className="border-[#f1c44f]/20 bg-[#0a2540] p-6"
+          >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="mb-2 flex items-center gap-3">
                   <MapPin size={20} className="text-[#f1c44f]" />
-                  <h3 className="text-lg font-bold text-white">{booking.trip?.route}</h3>
+                  <h3 className="text-lg font-bold text-white">
+                    {booking.trip?.route}
+                  </h3>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+                <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-2 text-gray-400">
                     <Calendar size={16} />
-                    {new Date(booking.trip?.departureTime || "").toLocaleString()}
+                    {new Date(
+                      booking.trip?.departureTime || "",
+                    ).toLocaleString()}
                   </div>
                   <div className="flex items-center gap-2 text-gray-400">
                     <Users size={16} />
-                    {booking.seatsBooked} seat{booking.seatsBooked !== 1 ? "s" : ""}
+                    {booking.seatsBooked} seat
+                    {booking.seatsBooked !== 1 ? "s" : ""}
                   </div>
                 </div>
               </div>
@@ -58,8 +66,8 @@ async function UpcomingBookings() {
                   booking.status === "approved"
                     ? "bg-green-500/20 text-green-400"
                     : booking.status === "pending"
-                    ? "bg-yellow-500/20 text-yellow-400"
-                    : "bg-red-500/20 text-red-400"
+                      ? "bg-yellow-500/20 text-yellow-400"
+                      : "bg-red-500/20 text-red-400"
                 }`}
               >
                 {booking.status}
@@ -81,20 +89,27 @@ async function TripStats() {
   });
 
   const approvedBookings = userBookings.filter((b) => b.status === "approved");
-  const totalSeatsBooked = userBookings.reduce((sum, b) => sum + b.seatsBooked, 0);
+  const totalSeatsBooked = userBookings.reduce(
+    (sum, b) => sum + b.seatsBooked,
+    0,
+  );
 
   return (
     <>
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
-        <p className="text-gray-400 text-sm">Total Bookings</p>
-        <p className="text-4xl font-bold text-[#f1c44f]">{userBookings.length}</p>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+        <p className="text-sm text-gray-400">Total Bookings</p>
+        <p className="text-4xl font-bold text-[#f1c44f]">
+          {userBookings.length}
+        </p>
       </Card>
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
-        <p className="text-gray-400 text-sm">Approved Trips</p>
-        <p className="text-4xl font-bold text-[#f1c44f]">{approvedBookings.length}</p>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+        <p className="text-sm text-gray-400">Approved Trips</p>
+        <p className="text-4xl font-bold text-[#f1c44f]">
+          {approvedBookings.length}
+        </p>
       </Card>
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
-        <p className="text-gray-400 text-sm">Total Seats Booked</p>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+        <p className="text-sm text-gray-400">Total Seats Booked</p>
         <p className="text-4xl font-bold text-[#f1c44f]">{totalSeatsBooked}</p>
       </Card>
     </>
@@ -104,26 +119,32 @@ async function TripStats() {
 export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-[#071d3a] p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white">Welcome Back!</h1>
-          <p className="text-gray-400 mt-2">Manage your bookings and explore available trips</p>
+          <p className="mt-2 text-gray-400">
+            Manage your bookings and explore available trips
+          </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Suspense fallback={<div className="text-white">Loading stats...</div>}>
+        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <Suspense
+            fallback={<div className="text-white">Loading stats...</div>}
+          >
             <TripStats />
           </Suspense>
         </div>
 
         {/* Upcoming Bookings */}
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-white">Your Upcoming Trips</h2>
-              <p className="text-gray-400 text-sm mt-1">Your next 3 bookings</p>
+              <h2 className="text-2xl font-bold text-white">
+                Your Upcoming Trips
+              </h2>
+              <p className="mt-1 text-sm text-gray-400">Your next 3 bookings</p>
             </div>
             <Link href="/available-trips">
               <Button className="bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90">
@@ -132,7 +153,9 @@ export default function UserDashboard() {
             </Link>
           </div>
 
-          <Suspense fallback={<div className="text-white">Loading bookings...</div>}>
+          <Suspense
+            fallback={<div className="text-white">Loading bookings...</div>}
+          >
             <UpcomingBookings />
           </Suspense>
         </div>

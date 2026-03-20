@@ -17,12 +17,24 @@ async function DriversTable() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-[#f1c44f]/20 bg-[#0a2540]">
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Name</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Email</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Phone</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">License</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Status</th>
-            <th className="px-6 py-3 text-left text-[#f1c44f] font-semibold">Actions</th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Name
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Email
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Phone
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              License
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left font-semibold text-[#f1c44f]">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -34,21 +46,35 @@ async function DriversTable() {
             </tr>
           ) : (
             allDrivers.map((driver) => (
-              <tr key={driver.id} className="border-b border-[#f1c44f]/10 hover:bg-[#0a2540]/50 transition-colors">
-                <td className="px-6 py-4 text-white font-medium">{driver.name}</td>
+              <tr
+                key={driver.id}
+                className="border-b border-[#f1c44f]/10 transition-colors hover:bg-[#0a2540]/50"
+              >
+                <td className="px-6 py-4 font-medium text-white">
+                  {driver.name}
+                </td>
                 <td className="px-6 py-4 text-gray-300">{driver.email}</td>
-                <td className="px-6 py-4 text-gray-300">{driver.phoneNumber}</td>
-                <td className="px-6 py-4 text-gray-300 text-xs">{driver.licenseNumber.slice(0, 6)}...</td>
+                <td className="px-6 py-4 text-gray-300">
+                  {driver.phoneNumber}
+                </td>
+                <td className="px-6 py-4 text-xs text-gray-300">
+                  {driver.licenseNumber.slice(0, 6)}...
+                </td>
                 <td className="px-6 py-4">
-                  <Badge variant={driver.status === "active" ? "default" : "secondary"} className="bg-[#f1c44f]/20 text-[#f1c44f] capitalize">
+                  <Badge
+                    variant={
+                      driver.status === "active" ? "default" : "secondary"
+                    }
+                    className="bg-[#f1c44f]/20 text-[#f1c44f] capitalize"
+                  >
                     {driver.status}
                   </Badge>
                 </td>
-                <td className="px-6 py-4 flex gap-2">
-                  <button className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors text-blue-400">
+                <td className="flex gap-2 px-6 py-4">
+                  <button className="rounded-lg p-2 text-blue-400 transition-colors hover:bg-blue-500/20">
                     <Edit size={18} />
                   </button>
-                  <button className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400">
+                  <button className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/20">
                     <Trash2 size={18} />
                   </button>
                 </td>
@@ -75,8 +101,10 @@ export default function DriversPage() {
         </Button>
       </div>
 
-      <Card className="bg-[#0a2540] border-[#f1c44f]/20">
-        <Suspense fallback={<div className="p-8 text-white">Loading drivers...</div>}>
+      <Card className="border-[#f1c44f]/20 bg-[#0a2540]">
+        <Suspense
+          fallback={<div className="p-8 text-white">Loading drivers...</div>}
+        >
           <DriversTable />
         </Suspense>
       </Card>

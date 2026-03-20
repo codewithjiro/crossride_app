@@ -5,6 +5,7 @@ Quick reference for deploying to Vercel. See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLO
 ## Pre-Deployment (Local)
 
 ### 1. Code Preparation
+
 - [ ] Clone/pull latest code
 - [ ] Run `pnpm install`
 - [ ] Run `pnpm check` (verify no errors)
@@ -12,17 +13,20 @@ Quick reference for deploying to Vercel. See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLO
 - [ ] Commit changes to Git
 
 ### 2. Clerk Setup
+
 - [ ] Create Clerk account at https://dashboard.clerk.com
 - [ ] Create new application
-- [ ] Copy **Publishable Key** (pk_...)
-- [ ] Copy **Secret Key** (sk_...)
+- [ ] Copy **Publishable Key** (pk\_...)
+- [ ] Copy **Secret Key** (sk\_...)
 - [ ] Create Webhook endpoint
   - [ ] URL: `https://your-app.vercel.app/api/webhooks/clerk`
   - [ ] Subscribe to: `user.created`, `user.updated`, `user.deleted`
-  - [ ] Copy **Signing Secret** (whsec_...)
+  - [ ] Copy **Signing Secret** (whsec\_...)
 
 ### 3. Database Setup
+
 Choose ONE:
+
 - [ ] **Vercel Postgres** (recommended)
   - Go to Vercel Dashboard → Storage → Create Database
   - Get `DATABASE_URL`
@@ -34,6 +38,7 @@ Choose ONE:
 ## Deployment to Vercel
 
 ### Step 1: GitHub Push
+
 ```bash
 git init (if new repo)
 git add .
@@ -46,15 +51,18 @@ git push -u origin main
 - [ ] GitHub repo created: https://github.com/YOUR_USERNAME/cross_ride
 
 ### Step 2: Create Vercel Project
+
 - [ ] Go to https://vercel.com/new
 - [ ] Click "Import Git Repository"
 - [ ] Select your `cross_ride` repository
 - [ ] Vercel auto-detects Next.js project
 
 ### Step 3: Add Environment Variables
+
 In Vercel → Settings → Environment Variables, add:
 
 **Production** (`PRODUCTION`):
+
 ```
 DATABASE_URL = postgresql://...  (from step 3 above)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = pk_live_... (or pk_test_...)
@@ -67,12 +75,15 @@ NODE_ENV = production
 - [ ] Marked for "Production" environment
 
 ### Step 4: Deploy
+
 - [ ] Click "Deploy" button
 - [ ] Wait for build to complete (~2-3 minutes)
 - [ ] Check deployment URL: `https://cross-ride.vercel.app`
 
 ### Step 5: Clerk Configuration
+
 Update Clerk Dashboard → **Allowed URLs**:
+
 - [ ] `https://your-app.vercel.app` (production)
 - [ ] `https://your-app-*.vercel.app` (previews)
 - [ ] `http://localhost:3000` (local dev)
@@ -80,12 +91,14 @@ Update Clerk Dashboard → **Allowed URLs**:
 ## Post-Deployment
 
 ### Step 1: Verify Deployment
+
 - [ ] Visit `https://your-app.vercel.app` in browser
 - [ ] Landing page loads correctly
 - [ ] Sign up button works
 - [ ] No console errors
 
 ### Step 2: Create Admin User
+
 Sign up your first account, then:
 
 ```bash
@@ -110,6 +123,7 @@ curl -X POST https://your-app.vercel.app/api/admin/init \
 - [ ] Admin dashboard accessible: `https://your-app.vercel.app/admin/dashboard`
 
 ### Step 3: Test User Flow
+
 - [ ] Create new user account
 - [ ] Verify landing page
 - [ ] Access user dashboard
@@ -118,6 +132,7 @@ curl -X POST https://your-app.vercel.app/api/admin/init \
 - [ ] Check profile page
 
 ### Step 4: Test Admin Flow
+
 - [ ] Login as admin
 - [ ] Vans page loads
 - [ ] Drivers page loads
@@ -129,6 +144,7 @@ curl -X POST https://your-app.vercel.app/api/admin/init \
 ## Production Security
 
 ### Security Checklist
+
 - [ ] Only production values in Vercel (never test/dev keys)
 - [ ] Webhook secret properly configured
 - [ ] Database backups enabled (Vercel Postgres)
@@ -137,15 +153,19 @@ curl -X POST https://your-app.vercel.app/api/admin/init \
 - [ ] Error tracking configured
 
 ### Admin Endpoint Security
+
 The `/api/admin/init` endpoint is currently unrestricted. Options:
 
 **Option A: Disable after first admin** (Recommended)
+
 - Modify endpoint to reject if admin already exists
 
 **Option B: Add environment variable check**
+
 - Require `ADMIN_INIT_SECRET` header
 
 **Option C: Whitelist emails**
+
 - Only allow specific email domains
 
 See [VERCEL_DEPLOYMENT.md#production-checklist](VERCEL_DEPLOYMENT.md#production-checklist) for implementation.
@@ -155,6 +175,7 @@ See [VERCEL_DEPLOYMENT.md#production-checklist](VERCEL_DEPLOYMENT.md#production-
 ## Monitoring & Maintenance
 
 ### Ongoing Tasks
+
 - [ ] Check Vercel Analytics: `https://vercel.com/dashboard`
 - [ ] Monitor database usage
 - [ ] Review Clerk dashboard for user signups
@@ -162,6 +183,7 @@ See [VERCEL_DEPLOYMENT.md#production-checklist](VERCEL_DEPLOYMENT.md#production-
 - [ ] Keep dependencies updated: `pnpm update`
 
 ### Useful URLs
+
 - **Vercel Dashboard**: https://vercel.com/dashboard
 - **Clerk Dashboard**: https://dashboard.clerk.com
 - **Database Studio** (if using Vercel Postgres): Dashboard → Storage
@@ -171,23 +193,27 @@ See [VERCEL_DEPLOYMENT.md#production-checklist](VERCEL_DEPLOYMENT.md#production-
 ## Troubleshooting
 
 **Build Failed?**
+
 - [ ] Check Vercel Build Logs (Deployments tab)
 - [ ] Run `pnpm check` locally
 - [ ] Verify all env vars set
 - [ ] Check for TypeScript errors
 
 **Users Not Syncing?**
+
 - [ ] Verify `CLERK_WEBHOOK_SECRET` matches
 - [ ] Check Clerk webhook status in dashboard
 - [ ] Try signing up again
 
 **Admin Endpoint 401?**
+
 - [ ] Sign up first (create user)
 - [ ] Get your Clerk user ID
 - [ ] Verify userId in request
 - [ ] Check `CLERK_SECRET_KEY` set
 
 **Database Connection Error?**
+
 - [ ] Verify `DATABASE_URL` format
 - [ ] Check database is running
 - [ ] Test connection locally first
@@ -195,14 +221,14 @@ See [VERCEL_DEPLOYMENT.md#production-checklist](VERCEL_DEPLOYMENT.md#production-
 
 ## Quick Links
 
-| Task | Link |
-|------|------|
-| Deploy to Vercel | https://vercel.com/new |
-| Clerk Dashboard | https://dashboard.clerk.com |
-| Add Clerk Webhook | https://dashboard.clerk.com → Webhooks |
-| Vercel Postgres Setup | Vercel → Storage → Postgres |
-| Full Guide | [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) |
-| Setup Help | [SETUP_COMPLETE.md](SETUP_COMPLETE.md) |
+| Task                  | Link                                         |
+| --------------------- | -------------------------------------------- |
+| Deploy to Vercel      | https://vercel.com/new                       |
+| Clerk Dashboard       | https://dashboard.clerk.com                  |
+| Add Clerk Webhook     | https://dashboard.clerk.com → Webhooks       |
+| Vercel Postgres Setup | Vercel → Storage → Postgres                  |
+| Full Guide            | [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) |
+| Setup Help            | [SETUP_COMPLETE.md](SETUP_COMPLETE.md)       |
 
 ---
 

@@ -13,7 +13,7 @@ export async function hashPassword(password: string): Promise<string> {
 // Compare password with hash
 export async function verifyPassword(
   password: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> {
   return compare(password, hashedPassword);
 }

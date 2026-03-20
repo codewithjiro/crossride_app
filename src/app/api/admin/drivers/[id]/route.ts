@@ -15,12 +15,13 @@ interface UpdateDriverRequest {
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAdmin();
     const { id } = await params;
-    const { name, email, phoneNumber, licenseNumber, status } = (await req.json()) as UpdateDriverRequest;
+    const { name, email, phoneNumber, licenseNumber, status } =
+      (await req.json()) as UpdateDriverRequest;
     const driverId = parseInt(id, 10);
 
     // Get existing driver
@@ -58,15 +59,18 @@ export async function PATCH(
     return NextResponse.json(updatedDriver[0]);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update driver" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to update driver",
+      },
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAdmin();
@@ -94,11 +98,17 @@ export async function DELETE(
       description: `Deleted driver: ${driver.name}`,
     });
 
-    return NextResponse.json({ success: true, message: "Driver deleted successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Driver deleted successfully",
+    });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to delete driver" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to delete driver",
+      },
+      { status: 500 },
     );
   }
 }

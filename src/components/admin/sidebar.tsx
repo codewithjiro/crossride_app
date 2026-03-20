@@ -67,22 +67,22 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-[#0a2540] border-r border-[#f1c44f]/20 flex flex-col">
+    <aside className="flex w-64 flex-col border-r border-[#f1c44f]/20 bg-[#0a2540]">
       {/* Logo */}
-      <div className="p-6 border-b border-[#f1c44f]/20">
+      <div className="border-b border-[#f1c44f]/20 p-6">
         <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
         <p className="text-sm text-gray-400">Admin Panel</p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 space-y-2 p-4">
         {menuItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-[#f1c44f]/10 hover:text-[#f1c44f] transition-colors"
+              className="flex items-center gap-3 rounded-lg px-4 py-2 text-gray-300 transition-colors hover:bg-[#f1c44f]/10 hover:text-[#f1c44f]"
             >
               <Icon size={20} />
               <span>{item.label}</span>
@@ -92,7 +92,7 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t border-[#f1c44f]/20">
+      <div className="border-t border-[#f1c44f]/20 p-4">
         <Button
           onClick={handleLogout}
           variant="outline"

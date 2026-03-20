@@ -7,7 +7,7 @@ export async function checkConflicts(
   driverId: number,
   departureTime: Date,
   arrivalTime: Date,
-  tripIdToExclude?: number
+  tripIdToExclude?: number,
 ): Promise<{
   hasConflict: boolean;
   conflictType?: "van" | "driver" | "both";
@@ -31,7 +31,7 @@ export async function checkConflicts(
         // Check for time overlap: new trip starts before existing trip ends
         // AND new trip ends after existing trip starts
         lt(trips.departureTime, arrivalTime),
-        gt(trips.arrivalTime, departureTime)
+        gt(trips.arrivalTime, departureTime),
       ),
     });
 
@@ -42,7 +42,7 @@ export async function checkConflicts(
         ne(trips.status, "cancelled"),
         tripIdToExclude ? ne(trips.id, tripIdToExclude) : undefined,
         lt(trips.departureTime, arrivalTime),
-        gt(trips.arrivalTime, departureTime)
+        gt(trips.arrivalTime, departureTime),
       ),
     });
 
@@ -74,7 +74,8 @@ export async function checkConflicts(
   } catch (error) {
     return {
       hasConflict: true,
-      message: error instanceof Error ? error.message : "Error checking conflicts",
+      message:
+        error instanceof Error ? error.message : "Error checking conflicts",
     };
   }
 }

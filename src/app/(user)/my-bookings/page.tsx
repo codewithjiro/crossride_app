@@ -31,40 +31,51 @@ async function MyBookingsTable() {
   return (
     <div className="space-y-4">
       {userBookings.length === 0 ? (
-        <Card className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
-          <p className="text-gray-400">No bookings yet. Start exploring available trips!</p>
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+          <p className="text-gray-400">
+            No bookings yet. Start exploring available trips!
+          </p>
         </Card>
       ) : (
         userBookings.map((booking) => (
-          <Card key={booking.id} className="bg-[#0a2540] border-[#f1c44f]/20 p-6">
+          <Card
+            key={booking.id}
+            className="border-[#f1c44f]/20 bg-[#0a2540] p-6"
+          >
             <div className="flex items-start justify-between gap-6">
               <div className="flex-1">
                 <div className="flex items-start gap-3">
-                  <MapPin className="text-[#f1c44f] mt-1" size={20} />
+                  <MapPin className="mt-1 text-[#f1c44f]" size={20} />
                   <div>
-                    <h3 className="text-xl font-bold text-white">{booking.trip?.route}</h3>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <h3 className="text-xl font-bold text-white">
+                      {booking.trip?.route}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-400">
                       Driver: {booking.trip?.driver?.name || "Unknown"}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-4 ml-8">
-                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="mt-4 ml-8 grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Calendar size={16} />
-                    {new Date(booking.trip?.departureTime || "").toLocaleString()}
+                    {new Date(
+                      booking.trip?.departureTime || "",
+                    ).toLocaleString()}
                   </div>
-                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Users size={16} />
-                    {booking.seatsBooked} seat{booking.seatsBooked !== 1 ? "s" : ""} booked
+                    {booking.seatsBooked} seat
+                    {booking.seatsBooked !== 1 ? "s" : ""} booked
                   </div>
                 </div>
 
                 <div className="mt-4 ml-8">
                   <p className="text-sm text-gray-400">
-                    Van: {booking.trip?.van?.name} ({booking.trip?.van?.plateNumber})
+                    Van: {booking.trip?.van?.name} (
+                    {booking.trip?.van?.plateNumber})
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="mt-2 text-xs text-gray-500">
                     Booked on {new Date(booking.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -76,14 +87,17 @@ async function MyBookingsTable() {
                     booking.status === "approved"
                       ? "bg-green-500/20 text-green-400"
                       : booking.status === "pending"
-                      ? "bg-yellow-500/20 text-yellow-400"
-                      : "bg-red-500/20 text-red-400"
+                        ? "bg-yellow-500/20 text-yellow-400"
+                        : "bg-red-500/20 text-red-400"
                   }`}
                 >
                   {booking.status}
                 </Badge>
                 {booking.status === "pending" && (
-                  <Button variant="ghost" className="gap-2 text-red-400 hover:text-red-300">
+                  <Button
+                    variant="ghost"
+                    className="gap-2 text-red-400 hover:text-red-300"
+                  >
                     <Trash2 size={16} />
                     Cancel
                   </Button>
@@ -103,15 +117,19 @@ async function MyBookingsTable() {
 export default function MyBookings() {
   return (
     <div className="min-h-screen bg-[#071d3a] p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white">My Bookings</h1>
-          <p className="text-gray-400 mt-2">View and manage all your transportation bookings</p>
+          <p className="mt-2 text-gray-400">
+            View and manage all your transportation bookings
+          </p>
         </div>
 
         {/* Bookings List */}
-        <Suspense fallback={<div className="text-white">Loading bookings...</div>}>
+        <Suspense
+          fallback={<div className="text-white">Loading bookings...</div>}
+        >
           <MyBookingsTable />
         </Suspense>
       </div>

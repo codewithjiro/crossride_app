@@ -48,8 +48,8 @@ export default function UserLayout({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#071d3a]">
-        <div className="text-white text-lg">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-[#071d3a]">
+        <div className="text-lg text-white">Loading...</div>
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function UserLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#071d3a] flex">
+    <div className="flex min-h-screen bg-[#071d3a]">
       <LayoutSidebar />
       <main className="flex-1">{children}</main>
     </div>

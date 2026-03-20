@@ -14,12 +14,13 @@ interface UpdateVanRequest {
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAdmin();
     const { id } = await params;
-    const { name, plateNumber, capacity, status } = (await req.json()) as UpdateVanRequest;
+    const { name, plateNumber, capacity, status } =
+      (await req.json()) as UpdateVanRequest;
     const vanId = parseInt(id, 10);
 
     // Get existing van
@@ -34,7 +35,8 @@ export async function PATCH(
     const updateData: Record<string, unknown> = {};
     if (name !== undefined) updateData.name = name;
     if (plateNumber !== undefined) updateData.plateNumber = plateNumber;
-    if (capacity !== undefined) updateData.capacity = parseInt(String(capacity), 10);
+    if (capacity !== undefined)
+      updateData.capacity = parseInt(String(capacity), 10);
     if (status !== undefined) updateData.status = status;
 
     const updatedVan = await db
@@ -56,15 +58,17 @@ export async function PATCH(
     return NextResponse.json(updatedVan[0]);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update van" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to update van",
+      },
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAdmin();
@@ -92,11 +96,16 @@ export async function DELETE(
       description: `Deleted van: ${van.name}`,
     });
 
-    return NextResponse.json({ success: true, message: "Van deleted successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Van deleted successfully",
+    });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to delete van" },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Failed to delete van",
+      },
+      { status: 500 },
     );
   }
 }

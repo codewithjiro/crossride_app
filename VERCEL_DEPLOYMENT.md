@@ -3,6 +3,7 @@
 Complete guide for deploying CrossRide to Vercel with production-ready database and configuration.
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Database Setup (Vercel Postgres)](#database-setup-vercel-postgres)
 3. [Clerk Configuration](#clerk-configuration)
@@ -39,6 +40,7 @@ Complete guide for deploying CrossRide to Vercel with production-ready database 
 ### Option 2: Other PostgreSQL Providers
 
 Alternative managed PostgreSQL services:
+
 - **Neon**: https://neon.tech (free tier available)
 - **Supabase**: https://supabase.com (PostgreSQL + extras)
 - **Railway**: https://railway.app (simple deployment)
@@ -139,6 +141,7 @@ git push -u origin main
 ### Step 3: Configure Environment Variables
 
 In Vercel project setup:
+
 - Add all variables from [Environment Variables](#environment-variables) section
 - Make sure `DATABASE_URL` is set
 
@@ -147,6 +150,7 @@ In Vercel project setup:
 Click **Deploy** button
 
 Vercel will:
+
 - Build the project
 - Run `pnpm check` (type checking)
 - Deploy to `your-app.vercel.app`
@@ -209,6 +213,7 @@ Visit: `https://your-app.vercel.app`
 ## Production Checklist
 
 ### Security
+
 - [ ] All environment variables set in Vercel (not in code)
 - [ ] `CLERK_SECRET_KEY` is production key (starts with `sk_live_`)
 - [ ] `DATABASE_URL` points to production database
@@ -216,18 +221,21 @@ Visit: `https://your-app.vercel.app`
 - [ ] CORS configured correctly
 
 ### Database
+
 - [ ] Vercel Postgres database created
 - [ ] Schema migrated (`pnpm db:push`)
 - [ ] Regular backups enabled
 - [ ] All tables created successfully
 
 ### Clerk
+
 - [ ] Production keys from Clerk (not test keys)
 - [ ] Webhook configured and verified
 - [ ] Production URLs added to Allowed URLs
 - [ ] Email templates configured (optional)
 
 ### Monitoring
+
 - [ ] Vercel Analytics enabled
 - [ ] Error tracking set up
 - [ ] Log monitoring configured
@@ -240,12 +248,13 @@ Visit: `https://your-app.vercel.app`
 Before production, implement one of these:
 
 **Option 1: Environment Variable Protection**
+
 ```typescript
 // src/app/api/admin/init/route.ts
 const ADMIN_SECRET = process.env.ADMIN_INIT_SECRET;
 
-if (request.headers.get('x-admin-secret') !== ADMIN_SECRET) {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+if (request.headers.get("x-admin-secret") !== ADMIN_SECRET) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 ```
 
@@ -254,11 +263,11 @@ if (request.headers.get('x-admin-secret') !== ADMIN_SECRET) {
 ```typescript
 // Check if admin already exists
 const adminCount = await db.query.users.findMany({
-  where: eq(users.role, 'admin'),
+  where: eq(users.role, "admin"),
 });
 
 if (adminCount.length > 0) {
-  return NextResponse.json({ error: 'Admin already exists' }, { status: 403 });
+  return NextResponse.json({ error: "Admin already exists" }, { status: 403 });
 }
 ```
 
@@ -266,12 +275,12 @@ if (adminCount.length > 0) {
 
 ```typescript
 // Only allow specific email domains
-const allowedDomains = ['company.com', 'admin.company.com'];
-const email = user.emailAddresses[0]?.emailAddress || '';
-const domain = email.split('@')[1];
+const allowedDomains = ["company.com", "admin.company.com"];
+const email = user.emailAddresses[0]?.emailAddress || "";
+const domain = email.split("@")[1];
 
 if (!allowedDomains.includes(domain)) {
-  return NextResponse.json({ error: 'Unauthorized domain' }, { status: 403 });
+  return NextResponse.json({ error: "Unauthorized domain" }, { status: 403 });
 }
 ```
 
@@ -312,11 +321,13 @@ Update Clerk dashboard **Allowed URLs** with all of these.
 ### Build Fails on Vercel
 
 **Check Logs:**
+
 1. Go to Vercel dashboard → Deployments
 2. Click failing deployment
 3. View **Build Logs** tab
 
 **Common Issues:**
+
 - Missing environment variables → Add to Vercel dashboard
 - Type errors → Run `pnpm check` locally to catch first
 - Missing `svix` package → Should install automatically
@@ -328,6 +339,7 @@ Error: P1000 Unknown database error
 ```
 
 Solutions:
+
 1. Verify `DATABASE_URL` is correct in Vercel
 2. Check database is running (Vercel Postgres status)
 3. Try connecting locally with same URL
@@ -343,6 +355,7 @@ Solutions:
 ### Admin Endpoint Returns 401
 
 Solutions:
+
 1. Make sure you're logged in (signed up first)
 2. Check your Clerk user ID: `user_xxx`
 3. Verify userId is passed correctly

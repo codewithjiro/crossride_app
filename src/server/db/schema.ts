@@ -2,7 +2,15 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { relations } from "drizzle-orm";
-import { index, pgTableCreator, varchar, text, timestamp, integer, pgEnum } from "drizzle-orm/pg-core";
+import {
+  index,
+  pgTableCreator,
+  varchar,
+  text,
+  timestamp,
+  integer,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -13,10 +21,28 @@ import { index, pgTableCreator, varchar, text, timestamp, integer, pgEnum } from
 export const createTable = pgTableCreator((name) => `cross_ride_${name}`);
 
 // Enums
-export const vanStatusEnum = pgEnum("van_status", ["active", "maintenance", "inactive"]);
-export const driverStatusEnum = pgEnum("driver_status", ["active", "on_leave", "inactive"]);
-export const tripStatusEnum = pgEnum("trip_status", ["scheduled", "in_progress", "completed", "cancelled"]);
-export const bookingStatusEnum = pgEnum("booking_status", ["pending", "approved", "rejected", "cancelled"]);
+export const vanStatusEnum = pgEnum("van_status", [
+  "active",
+  "maintenance",
+  "inactive",
+]);
+export const driverStatusEnum = pgEnum("driver_status", [
+  "active",
+  "on_leave",
+  "inactive",
+]);
+export const tripStatusEnum = pgEnum("trip_status", [
+  "scheduled",
+  "in_progress",
+  "completed",
+  "cancelled",
+]);
+export const bookingStatusEnum = pgEnum("booking_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "cancelled",
+]);
 export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
 
 // Users Table - Store basic user info
@@ -48,7 +74,10 @@ export const vans = createTable(
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).defaultNow(),
   }),
-  (t) => [index("van_plate_idx").on(t.plateNumber), index("van_status_idx").on(t.status)],
+  (t) => [
+    index("van_plate_idx").on(t.plateNumber),
+    index("van_status_idx").on(t.status),
+  ],
 );
 
 // Drivers Table
@@ -64,7 +93,10 @@ export const drivers = createTable(
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).defaultNow(),
   }),
-  (t) => [index("driver_email_idx").on(t.email), index("driver_status_idx").on(t.status)],
+  (t) => [
+    index("driver_email_idx").on(t.email),
+    index("driver_status_idx").on(t.status),
+  ],
 );
 
 // Trips Table
@@ -72,8 +104,14 @@ export const trips = createTable(
   "trip",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    vanId: d.integer().notNull().references(() => vans.id),
-    driverId: d.integer().notNull().references(() => drivers.id),
+    vanId: d
+      .integer()
+      .notNull()
+      .references(() => vans.id),
+    driverId: d
+      .integer()
+      .notNull()
+      .references(() => drivers.id),
     route: d.varchar({ length: 255 }).notNull(),
     departureTime: d.timestamp({ withTimezone: true }).notNull(),
     arrivalTime: d.timestamp({ withTimezone: true }).notNull(),
@@ -96,8 +134,14 @@ export const bookings = createTable(
   "booking",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    userId: d.varchar({ length: 255 }).notNull().references(() => users.id),
-    tripId: d.integer().notNull().references(() => trips.id),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    tripId: d
+      .integer()
+      .notNull()
+      .references(() => trips.id),
     seatsBooked: d.integer().notNull(),
     status: bookingStatusEnum("status").default("pending").notNull(),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
@@ -115,7 +159,10 @@ export const adminLogs = createTable(
   "admin_log",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    adminId: d.varchar({ length: 255 }).notNull().references(() => users.id),
+    adminId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
     action: d.varchar({ length: 255 }).notNull(),
     entityType: d.varchar({ length: 50 }).notNull(), // "van", "driver", "trip", "booking"
     entityId: d.varchar({ length: 255 }).notNull(),

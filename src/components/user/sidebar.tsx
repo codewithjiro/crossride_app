@@ -59,15 +59,15 @@ export function LayoutSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-[#0a2540] border-r border-[#f1c44f]/20 flex flex-col h-screen">
+    <aside className="flex h-screen w-64 flex-col border-r border-[#f1c44f]/20 bg-[#0a2540]">
       {/* Header */}
-      <div className="p-6 border-b border-[#f1c44f]/20">
+      <div className="border-b border-[#f1c44f]/20 p-6">
         <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
-        <p className="text-gray-400 text-sm mt-1">Passenger Portal</p>
+        <p className="mt-1 text-sm text-gray-400">Passenger Portal</p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-6 space-y-2">
+      <nav className="flex-1 space-y-2 p-6">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -79,7 +79,7 @@ export function LayoutSidebar() {
                 className={`w-full justify-start gap-3 ${
                   isActive
                     ? "bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90"
-                    : "text-gray-400 hover:text-white hover:bg-[#f1c44f]/10"
+                    : "text-gray-400 hover:bg-[#f1c44f]/10 hover:text-white"
                 }`}
               >
                 <Icon size={20} />
@@ -91,9 +91,9 @@ export function LayoutSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-6 border-t border-[#f1c44f]/20 space-y-4">
+      <div className="space-y-4 border-t border-[#f1c44f]/20 p-6">
         <Separator className="bg-[#f1c44f]/20" />
-        <Button 
+        <Button
           onClick={handleSignOut}
           className="w-full gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30"
         >
