@@ -22,9 +22,9 @@ export async function GET() {
       });
     }
 
-    // Generate time slots (5 AM to 11 PM - every hour)
+    // Generate time slots (8 AM to 5 PM - every hour)
     const availableTimes = [];
-    for (let hour = 5; hour <= 23; hour++) {
+    for (let hour = 8; hour <= 17; hour++) {
       const ampm = hour >= 12 ? "PM" : "AM";
       const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
       availableTimes.push({
