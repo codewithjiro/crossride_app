@@ -74,12 +74,39 @@ export async function POST(request: NextRequest) {
           arrivalTime: new Date(arrivalTime),
           seatsAvailable: 15, // Default capacity
           seatsReserved: 0,
-          status: "scheduled", // Will be updated if all bookings approved
+          status: "scheduled",
         })
         .returning();
 
       tripId = newTrip[0].id;
     }
+
+    // Get current trip to check available seats
+    const currentTrip = await db.query.trips.findFirst({
+      where: eq(trips.id, tripId),
+    });
+
+    if (!currentTrip) {
+      return NextResponse.json(
+        { error: "Trip not found" },
+        { status: 404 }
+      );
+    }
+
+    if (currentTrip.seatsAvailable < seatsRequested) {
+      return NextResponse.json(
+        { error: "Not enough available seats" },
+        { status: 400 }
+      );
+    }
+
+    // Reserve seats by reducing seatsAvailable
+    await db
+      .update(trips)
+      .set({
+        seatsAvailable: currentTrip.seatsAvailable - seatsRequested,
+      })
+      .where(eq(trips.id, tripId));
 
     // Create pending booking
     const newBooking = await db

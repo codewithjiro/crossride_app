@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
-import { bookings, users } from "~/server/db/schema";
+import { bookings, users, trips } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function PATCH(
@@ -40,6 +40,50 @@ export async function PATCH(
 
     if (!["approved", "rejected"].includes(body.status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+
+    // Get the booking to find the trip
+    const booking = await db.query.bookings.findFirst({
+      where: eq(bookings.id, bookingId),
+    });
+
+    if (!booking) {
+      return NextResponse.json(
+        { error: "Booking not found" },
+        { status: 404 },
+      );
+    }
+
+    // If rejecting, free up the reserved seats
+    if (body.status === "rejected") {
+      const trip = await db.query.trips.findFirst({
+        where: eq(trips.id, booking.tripId),
+      });
+
+      if (trip) {
+        await db
+          .update(trips)
+          .set({
+            seatsAvailable: trip.seatsAvailable + booking.seatsBooked,
+          })
+          .where(eq(trips.id, booking.tripId));
+      }
+    }
+
+    // If approving, confirm the seatsReserved
+    if (body.status === "approved") {
+      const trip = await db.query.trips.findFirst({
+        where: eq(trips.id, booking.tripId),
+      });
+
+      if (trip) {
+        await db
+          .update(trips)
+          .set({
+            seatsReserved: trip.seatsReserved + booking.seatsBooked,
+          })
+          .where(eq(trips.id, booking.tripId));
+      }
     }
 
     // Update booking status

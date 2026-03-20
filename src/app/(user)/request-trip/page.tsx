@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
@@ -16,42 +16,20 @@ interface BookingRequest {
   seatsRequested: number;
 }
 
-// Generate next 7 days
-const getAvailableDates = () => {
-  const dates = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    dates.push({
-      value: date.toISOString().split("T")[0],
-      label: date.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      }),
-    });
-  }
-  return dates;
-};
-
-// Generate time slots (7 AM to 6 PM)
-const getAvailableTimes = () => {
-  const times = [];
-  for (let hour = 7; hour <= 18; hour++) {
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    times.push({
-      value: `${String(hour).padStart(2, "0")}:00`,
-      label: `${displayHour}:00 ${ampm}`,
-    });
-  }
-  return times;
-};
+interface AvailabilityData {
+  dates: Array<{ value: string; label: string }>;
+  times: Array<{ value: string; label: string }>;
+}
 
 export default function RequestTrip() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [availability, setAvailability] = useState<AvailabilityData | null>(
+    null
+  );
+  const [loadingAvailability, setLoadingAvailability] = useState(true);
+
   const [formData, setFormData] = useState<BookingRequest>({
     vanId: "",
     driverId: "",
@@ -60,11 +38,35 @@ export default function RequestTrip() {
     seatsRequested: 1,
   });
 
-  const availableDates = getAvailableDates();
-  const availableTimes = getAvailableTimes();
-
   const selectedVan = VANS.find((v) => v.id === formData.vanId);
   const selectedDriver = DRIVERS.find((d) => d.id === formData.driverId);
+
+  // Fetch availability from API
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await fetch("/api/bookings/availability");
+        const data = await response.json();
+        if (response.ok) {
+          setAvailability(data);
+          // Set first available date by default
+          if (data.dates.length > 0) {
+            setFormData((prev) => ({ ...prev, date: data.dates[0].value }));
+          }
+          // Set first available time by default
+          if (data.times.length > 0) {
+            setFormData((prev) => ({ ...prev, time: data.times[0].value }));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch availability:", err);
+      } finally {
+        setLoadingAvailability(false);
+      }
+    };
+
+    fetchAvailability();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,56 +199,60 @@ export default function RequestTrip() {
             </div>
           </div>
 
-          {/* Date & Time Selectors */}
+          {/* Calendar Date Picker */}
           <div>
             <label className="mb-4 block text-lg font-bold text-white">
               <Calendar className="mr-2 mb-2 inline" size={20} />
-              Select Date & Time
+              Select Departure Date
             </label>
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Date Dropdown */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-200">
-                  Departure Date
-                </label>
-                <select
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
-                  required
-                >
-                  <option value="">Select a date</option>
-                  {availableDates.map((d) => (
-                    <option key={d.value} value={d.value}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
+            {loadingAvailability ? (
+              <div className="rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-gray-400">
+                Loading dates...
               </div>
+            ) : (
+              <select
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                required
+              >
+                <option value="">Select a date</option>
+                {availability?.dates.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
-              {/* Time Dropdown */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-200">
-                  Departure Time
-                </label>
-                <select
-                  value={formData.time}
-                  onChange={(e) =>
-                    setFormData({ ...formData, time: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
-                  required
-                >
-                  {availableTimes.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
+          {/* Time Grid Picker */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              Select Departure Time
+            </label>
+            {loadingAvailability ? (
+              <div className="rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-gray-400">
+                Loading times...
               </div>
-            </div>
+            ) : (
+              <select
+                value={formData.time}
+                onChange={(e) =>
+                  setFormData({ ...formData, time: e.target.value })
+                }
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                required
+              >
+                {availability?.times.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Seats Selection */}
