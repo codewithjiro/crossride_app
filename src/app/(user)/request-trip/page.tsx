@@ -71,7 +71,9 @@ export default function RequestTrip() {
     null,
   );
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
-  const [vans, setVans] = useState<Array<{ id: number; name: string; plateNumber: string; capacity: number }>>([]);
+  const [vans, setVans] = useState<
+    Array<{ id: number; name: string; plateNumber: string; capacity: number }>
+  >([]);
   const [loadingVans, setLoadingVans] = useState(true);
 
   const RouteMap = dynamic(() => import("~/components/maps/route-map"), {

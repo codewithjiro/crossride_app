@@ -14,7 +14,9 @@ export async function GET() {
     return NextResponse.json({ vans: activeVans });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch vans" },
+      {
+        error: error instanceof Error ? error.message : "Failed to fetch vans",
+      },
       { status: 500 },
     );
   }

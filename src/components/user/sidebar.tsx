@@ -48,7 +48,7 @@ export function LayoutSidebar() {
   };
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 flex-col border-r border-[#f1c44f]/20 bg-[#0a2540] overflow-hidden">
+    <aside className="sticky top-0 flex h-screen w-64 flex-col overflow-hidden border-r border-[#f1c44f]/20 bg-[#0a2540]">
       {/* Header */}
       <div className="border-b border-[#f1c44f]/20 p-6">
         <div className="flex items-center gap-3">

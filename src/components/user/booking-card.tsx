@@ -120,7 +120,9 @@ export function BookingCard({
               Van: {vanName} ({plateNumber})
             </p>
             {department && (
-              <p className="mt-1 text-sm text-gray-300">Department: {department}</p>
+              <p className="mt-1 text-sm text-gray-300">
+                Department: {department}
+              </p>
             )}
             <p className="mt-2 text-xs text-gray-500">
               Booked on {new Date(createdAt).toLocaleDateString()}

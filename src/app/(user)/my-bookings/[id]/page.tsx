@@ -7,7 +7,15 @@ import { db } from "~/server/db";
 import { bookings } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { getCurrentUser } from "~/lib/auth";
-import { MapPin, Calendar, Users, Car, Clock, ArrowLeft, Building2 } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  Users,
+  Car,
+  Clock,
+  ArrowLeft,
+  Building2,
+} from "lucide-react";
 import RoutePreview from "./route-preview";
 
 export const dynamic = "force-dynamic";
@@ -62,7 +70,7 @@ export default async function BookingDetail({
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-white">Trip Details</h1>
             <Badge
-              className={`capitalize text-sm ${
+              className={`text-sm capitalize ${
                 booking.status === "approved"
                   ? "bg-green-500/20 text-green-400"
                   : booking.status === "pending"
@@ -85,11 +93,17 @@ export default async function BookingDetail({
               <h3 className="text-lg font-semibold text-white">Schedule</h3>
               <div className="flex items-center gap-2 text-sm text-gray-300">
                 <Calendar size={16} />
-                Departure: {booking.trip?.departureTime ? new Date(booking.trip.departureTime).toLocaleString() : "TBD"}
+                Departure:{" "}
+                {booking.trip?.departureTime
+                  ? new Date(booking.trip.departureTime).toLocaleString()
+                  : "TBD"}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-300">
                 <Clock size={16} />
-                Arrival: {booking.trip?.arrivalTime ? new Date(booking.trip.arrivalTime).toLocaleString() : "TBD"}
+                Arrival:{" "}
+                {booking.trip?.arrivalTime
+                  ? new Date(booking.trip.arrivalTime).toLocaleString()
+                  : "TBD"}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-300">
                 <Users size={16} /> Seats booked: {booking.seatsBooked}
@@ -100,12 +114,17 @@ export default async function BookingDetail({
                 </div>
               )}
               <p className="text-xs text-gray-500">
-                Booked on {booking.createdAt ? new Date(booking.createdAt).toLocaleString() : ""}
+                Booked on{" "}
+                {booking.createdAt
+                  ? new Date(booking.createdAt).toLocaleString()
+                  : ""}
               </p>
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-white">Vehicle & Driver</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Vehicle & Driver
+              </h3>
               <div className="flex items-center gap-2 text-sm text-gray-300">
                 <Car size={16} /> Van: {booking.trip?.van?.name || "Unknown"}
               </div>
@@ -121,7 +140,9 @@ export default async function BookingDetail({
 
         {pickup && dropoff ? (
           <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
-            <h3 className="mb-3 text-lg font-semibold text-white">Route Preview</h3>
+            <h3 className="mb-3 text-lg font-semibold text-white">
+              Route Preview
+            </h3>
             <RoutePreview pickupLabel={pickup} dropoffLabel={dropoff} />
           </Card>
         ) : (

@@ -1,6 +1,7 @@
 import postgres from "postgres";
 
-const DATABASE_URL = "postgresql://neondb_owner:npg_9yoLDzmTHq5c@ep-fragrant-snow-a1bwj324-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
+const DATABASE_URL =
+  "postgresql://neondb_owner:npg_9yoLDzmTHq5c@ep-fragrant-snow-a1bwj324-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
 
 const sql = postgres(DATABASE_URL);
 
@@ -24,7 +25,10 @@ async function main() {
     WHERE table_name = 'cross_ride_van'
     ORDER BY ordinal_position;
   `;
-  console.log('van columns:', columns.map((c) => c.column_name));
+  console.log(
+    "van columns:",
+    columns.map((c) => c.column_name),
+  );
 
   for (const v of inserts) {
     const res = await sql`
@@ -33,7 +37,7 @@ async function main() {
       ON CONFLICT ("plateNumber") DO NOTHING
       RETURNING id;
     `;
-    console.log(`Upsert ${v.plate}: ${res.length ? 'inserted' : 'exists'}`);
+    console.log(`Upsert ${v.plate}: ${res.length ? "inserted" : "exists"}`);
   }
 
   await sql.end();

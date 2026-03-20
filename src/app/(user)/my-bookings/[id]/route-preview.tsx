@@ -115,18 +115,29 @@ export default function RoutePreview({
     <div className="space-y-3">
       {route && (
         <p className="text-sm text-gray-200">
-          Estimated route: <span className="font-semibold text-white">{route.distanceKm} km</span> ·
-          <span className="font-semibold text-white"> {route.durationMin} mins</span>
+          Estimated route:{" "}
+          <span className="font-semibold text-white">
+            {route.distanceKm} km
+          </span>{" "}
+          ·
+          <span className="font-semibold text-white">
+            {" "}
+            {route.durationMin} mins
+          </span>
         </p>
       )}
       <div className="aspect-[16/9] overflow-hidden rounded-lg border border-gray-700">
         <RouteMap
           pickup={pickup}
           dropoff={dropoff}
-          coords={route?.coords?.length ? route.coords : [
-            { lat: pickup.lat, lon: pickup.lon },
-            { lat: dropoff.lat, lon: dropoff.lon },
-          ]}
+          coords={
+            route?.coords?.length
+              ? route.coords
+              : [
+                  { lat: pickup.lat, lon: pickup.lon },
+                  { lat: dropoff.lat, lon: dropoff.lon },
+                ]
+          }
         />
       </div>
     </div>

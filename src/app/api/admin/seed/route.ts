@@ -105,7 +105,8 @@ export async function POST() {
     console.error("Seed error:", error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Failed to seed database",
+        error:
+          error instanceof Error ? error.message : "Failed to seed database",
       },
       { status: 500 },
     );
@@ -133,7 +134,10 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Failed to check seed status",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to check seed status",
       },
       { status: 500 },
     );
