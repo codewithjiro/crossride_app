@@ -1,0 +1,521 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
+import { VANS, DRIVERS } from "~/lib/data";
+import { MapPin, Users, Calendar, Loader2 } from "lucide-react";
+
+interface BookingRequest {
+  vanId: string;
+  driverId: string;
+  date: string;
+  seatsRequested: number;
+}
+
+export default function RequestTrip() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState<BookingRequest>({
+    vanId: "",
+    driverId: "",
+    date: "",
+    seatsRequested: 1,
+  });
+
+  const selectedVan = VANS.find((v) => v.id === formData.vanId);
+  const selectedDriver = DRIVERS.find((d) => d.id === formData.driverId);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!formData.vanId || !formData.driverId || !formData.date) {
+      setError("Please select a van, driver, and date");
+      return;
+    }
+
+    if (formData.seatsRequested < 1) {
+      setError("Please select at least 1 seat");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vanName: selectedVan?.name,
+          driverName: selectedDriver?.name,
+          departureTime: new Date(formData.date).toISOString(),
+          seatsRequested: formData.seatsRequested,
+          route: `Trip with ${selectedDriver?.name}`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to create booking request");
+        return;
+      }
+
+      // Success - redirect to my bookings
+      router.push("/my-bookings?success=true");
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#071d3a] p-8">
+      <div className="mx-auto max-w-4xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white">Request a Trip</h1>
+          <p className="mt-2 text-gray-400">
+            Book a van and driver for your transportation needs
+          </p>
+        </div>
+
+        {error && (
+          <Card className="mb-6 border-red-500/20 bg-red-500/10 p-4">
+            <p className="text-red-400">{error}</p>
+          </Card>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Select Van */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              <MapPin className="mb-2 inline mr-2" size={20} />
+              Select a Van
+            </label>
+            <div className="grid gap-4 md:grid-cols-3">
+              {VANS.map((van) => (
+                <Card
+                  key={van.id}
+                  className={`cursor-pointer border-2 p-4 transition-all ${
+                    formData.vanId === van.id
+                      ? "border-[#f1c44f] bg-[#f1c44f]/10"
+                      : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
+                  }`}
+                  onClick={() => setFormData({ ...formData, vanId: van.id })}
+                >
+                  <h3 className="font-bold text-white">{van.name}</h3>
+                  <div className="mt-2 flex items-center gap-2 text-sm text-gray-400">
+                    <Users size={16} />
+                    {van.capacity} seats
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">{van.description}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Select Driver */}
+          <div>
+            <label className="mb-4 block text-lg font-bold text-white">
+              Select a Driver
+            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              {DRIVERS.map((driver) => (
+                <Card
+                  key={driver.id}
+                  className={`cursor-pointer border-2 p-4 transition-all ${
+                    formData.driverId === driver.id
+                      ? "border-[#f1c44f] bg-[#f1c44f]/10"
+                      : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
+                  }`}
+                  onClick={() =>
+                    setFormData({ ...formData, driverId: driver.id })
+                  }
+                >
+                  <h3 className="font-bold text-white">{driver.name}</h3>
+                  <p className="text-sm text-gray-400">{driver.role}</p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {driver.experience} experience
+                  </p>
+                  <p className="text-xs text-[#f1c44f]">
+                    {driver.specialization}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Date & Seats */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-200">
+                <Calendar className="mb-2 inline mr-2" size={16} />
+                Preferred Date
+              </label>
+              <input
+                type="datetime-local"
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-200">
+                <Users className="mb-2 inline mr-2" size={16} />
+                Number of Seats
+              </label>
+              <select
+                value={formData.seatsRequested}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    seatsRequested: parseInt(e.target.value),
+                  })
+                }
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f] focus:outline-none"
+                required
+              >
+                {selectedVan ? (
+                  Array.from({ length: selectedVan.capacity }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} {i === 0 ? "seat" : "seats"}
+                    </option>
+                  ))
+                ) : (
+                  <option>Select van first</option>
+                )}
+              </select>
+            </div>
+          </div>
+
+          {/* Summary */}
+          {selectedVan && selectedDriver && formData.date && (
+            <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+              <h3 className="mb-4 font-bold text-white">Request Summary</h3>
+              <div className="space-y-2 text-sm text-gray-400">
+                <p>
+                  <span className="text-gray-300">Van:</span> {selectedVan.name}
+                </p>
+                <p>
+                  <span className="text-gray-300">Driver:</span>{" "}
+                  {selectedDriver.name}
+                </p>
+                <p>
+                  <span className="text-gray-300">Date:</span>{" "}
+                  {new Date(formData.date).toLocaleString()}
+                </p>
+                <p>
+                  <span className="text-gray-300">Seats Requested:</span>{" "}
+                  {formData.seatsRequested}
+                </p>
+              </div>
+            </Card>
+          )}
+
+          {/* Submit Button */}
+          <div className="flex gap-4">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-[#f1c44f] font-semibold text-[#071d3a] hover:bg-[#f1c44f]/90"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Request"
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              onClick={() => router.back()}
+              className="border border-gray-600 bg-transparent text-white hover:bg-gray-600/20"
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function RequestTrip() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    vanId: "1",
+    driverId: "1",
+    route: "",
+    departureTime: "",
+    arrivalTime: "",
+    seatsRequested: "1",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    // Validate
+    if (!formData.route || !formData.departureTime || !formData.arrivalTime) {
+      setError("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    const depTime = new Date(formData.departureTime);
+    const arrTime = new Date(formData.arrivalTime);
+
+    if (depTime >= arrTime) {
+      setError("Arrival time must be after departure time");
+      setLoading(false);
+      return;
+    }
+
+    if (depTime < new Date()) {
+      setError("Departure time must be in the future");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/bookings/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vanId: parseInt(formData.vanId),
+          driverId: parseInt(formData.driverId),
+          route: formData.route,
+          departureTime: formData.departureTime,
+          arrivalTime: formData.arrivalTime,
+          seatsRequested: parseInt(formData.seatsRequested),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to create booking request");
+        return;
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/my-bookings");
+      }, 2000);
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectedVan = VANS.find((v) => v.id === parseInt(formData.vanId));
+  const selectedDriver = DRIVERS.find((d) => d.id === parseInt(formData.driverId));
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#071d3a] to-[#0a2540] p-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Back Button */}
+        <Link
+          href="/dashboard"
+          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#f1c44f] transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Back to Dashboard
+        </Link>
+
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540]/50 p-8 backdrop-blur-sm">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Request a Trip</h1>
+            <p className="text-gray-400">
+              Select your preferred van and driver, then provide trip details
+            </p>
+          </div>
+
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 rounded-lg border border-green-500/20 bg-green-500/10 p-4 text-sm text-green-400">
+              ✓ Booking request submitted! Redirecting to your bookings...
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Van Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-200 mb-3">
+                Select Van
+              </label>
+              <select
+                name="vanId"
+                value={formData.vanId}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-3 text-white focus:border-[#f1c44f] focus:outline-none"
+              >
+                {VANS.map((van) => (
+                  <option key={van.id} value={van.id}>
+                    {van.name} - Capacity: {van.capacity} passengers
+                  </option>
+                ))}
+              </select>
+              {selectedVan && (
+                <p className="mt-2 text-xs text-gray-400">{selectedVan.description}</p>
+              )}
+            </div>
+
+            {/* Driver Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-200 mb-3">
+                Select Driver
+              </label>
+              <select
+                name="driverId"
+                value={formData.driverId}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-3 text-white focus:border-[#f1c44f] focus:outline-none"
+              >
+                {DRIVERS.map((driver) => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.name} - {driver.experience}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Route */}
+            <div>
+              <label className="block text-sm font-medium text-gray-200 mb-3">
+                Route/Destination
+              </label>
+              <input
+                type="text"
+                name="route"
+                value={formData.route}
+                onChange={handleChange}
+                placeholder="e.g., Holy Cross College to Makati"
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-3 text-white placeholder-gray-500 focus:border-[#f1c44f] focus:outline-none"
+                required
+              />
+            </div>
+
+            {/* Date/Time */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-3">
+                  Departure Time
+                </label>
+                <input
+                  type="datetime-local"
+                  name="departureTime"
+                  value={formData.departureTime}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-3 text-white focus:border-[#f1c44f] focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-200 mb-3">
+                  Arrival Time
+                </label>
+                <input
+                  type="datetime-local"
+                  name="arrivalTime"
+                  value={formData.arrivalTime}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-3 text-white focus:border-[#f1c44f] focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Seats Requested */}
+            <div>
+              <label className="block text-sm font-medium text-gray-200 mb-3">
+                Number of Seats
+              </label>
+              <select
+                name="seatsRequested"
+                value={formData.seatsRequested}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-3 text-white focus:border-[#f1c44f] focus:outline-none"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  <option key={num} value={num}>
+                    {num} seat{num > 1 ? "s" : ""}
+                  </option>
+                ))}
+              </select>
+              {selectedVan && (
+                <p className="mt-2 text-xs text-gray-400">
+                  Available capacity: {selectedVan.capacity} seats
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#f1c44f] font-semibold text-[#071d3a] hover:bg-[#f1c44f]/90 disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Booking Request"
+              )}
+            </Button>
+          </form>
+
+          {/* Info Box */}
+          <div className="mt-8 border-t border-gray-600 pt-8">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+              <p className="text-sm text-blue-300">
+                <strong>💡 How it works:</strong> Submit your booking request with preferred van and driver. 
+                Our admin team will review your request and approve or reject it. You'll receive updates on your 
+                <Link href="/my-bookings" className="underline ml-1">My Bookings</Link> page.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}

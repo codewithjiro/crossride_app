@@ -100,7 +100,7 @@ export default function SignIn() {
           {/* Back Button */}
           <Link
             href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#f1c44f] transition-colors"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-[#f1c44f]"
           >
             <ArrowLeft size={16} />
             Back to Home

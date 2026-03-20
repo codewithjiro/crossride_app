@@ -146,9 +146,9 @@ export default function UserDashboard() {
               </h2>
               <p className="mt-1 text-sm text-gray-400">Your next 3 bookings</p>
             </div>
-            <Link href="/available-trips">
+            <Link href="/request-trip">
               <Button className="bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90">
-                Browse More Trips
+                Request a Trip
               </Button>
             </Link>
           </div>
