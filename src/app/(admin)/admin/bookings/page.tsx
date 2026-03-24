@@ -152,14 +152,17 @@ export default function BookingsPage() {
                           </div>
                           <div className="flex items-center gap-2 text-xs text-gray-500">
                             Requested:{" "}
-                            {new Date(booking.createdAt).toLocaleString("en-US", {
-                              month: "numeric",
-                              day: "numeric",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: true,
-                            })}
+                            {new Date(booking.createdAt).toLocaleString(
+                              "en-US",
+                              {
+                                month: "numeric",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              },
+                            )}
                           </div>
                         </div>
                       </div>

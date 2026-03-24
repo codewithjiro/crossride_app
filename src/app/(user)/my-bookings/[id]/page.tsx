@@ -107,14 +107,17 @@ export default async function BookingDetail({
                 <Calendar size={16} />
                 Departure:{" "}
                 {booking.trip?.departureTime
-                  ? new Date(booking.trip.departureTime).toLocaleString("en-US", {
-                      month: "numeric",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })
+                  ? new Date(booking.trip.departureTime).toLocaleString(
+                      "en-US",
+                      {
+                        month: "numeric",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      },
+                    )
                   : "TBD"}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-300">

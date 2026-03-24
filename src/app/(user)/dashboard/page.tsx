@@ -51,16 +51,17 @@ async function UpcomingBookings() {
                 <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-2 text-gray-400">
                     <Calendar size={16} />
-                    {new Date(
-                      booking.trip?.departureTime || "",
-                    ).toLocaleString("en-US", {
-                      month: "numeric",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
+                    {new Date(booking.trip?.departureTime || "").toLocaleString(
+                      "en-US",
+                      {
+                        month: "numeric",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      },
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-gray-400">
                     <Users size={16} />
