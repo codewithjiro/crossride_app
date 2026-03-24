@@ -1,103 +1,524 @@
 # CrossRide 🚗
 
-A modern transportation management platform built with Next.js, featuring separate admin and user dashboards with real-time booking management and trip scheduling.
+A comprehensive, enterprise-grade transportation management platform designed for reliable and efficient shuttle service operations. Built with cutting-edge technologies, CrossRide provides seamless coordination between administrators and passengers with real-time booking capabilities, intelligent trip scheduling, and complete audit trails.
 
-## Features
+---
 
-### 👨‍💼 Admin Dashboard
+## 📋 Table of Contents
 
-- **Van Management**: Add, edit, delete vehicles with capacity tracking
-- **Driver Management**: Manage driver information and availability
-- **Trip Scheduling**: Create and schedule routes with conflict detection
-- **Booking Approval**: Review and approve/reject passenger bookings
-- **Activity Logs**: Complete audit trail of all admin actions
-- **Settings**: Configure system parameters
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [System Architecture](#system-architecture)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Core Features](#core-features)
+- [Environment Configuration](#environment-configuration)
+- [Database](#database)
+- [Deployment](#deployment)
+- [Development](#development)
+- [Contributing](#contributing)
 
-### 👤 User Dashboard
+---
 
-- **Browse Trips**: View available transportation options with real-time seat availability
-- **Book Trips**: Easy booking interface with instant confirmation
-- **Manage Bookings**: View, track, and cancel your bookings
-- **Trip History**: View past completed trips
-- **Profile Management**: Update personal information
+## Overview
+
+CrossRide is a modern transportation management system that simplifies the complex processes of fleet management, driver coordination, and passenger booking. With separate role-based portals for administrators and users, along with advanced features like trip conflict detection, cascade cancellations, and real-time status synchronization, CrossRide ensures operational efficiency and user satisfaction.
+
+**Key Highlights:**
+- ✅ Enterprise-grade security with role-based access control
+- ✅ Real-time bidirectional status synchronization
+- ✅ Intelligent conflict detection and management
+- ✅ Professional UI/UX with intuitive navigation
+- ✅ Complete audit trail for all administrative actions
+- ✅ Responsive design optimized for all devices
+
+---
+
+## Key Features
+
+### 🏢 Admin Dashboard
+
+**Fleet Management**
+- Add, edit, and manage vehicle inventory with capacity specifications
+- Track vehicle status and maintenance history
+- Assign drivers to vehicles with schedule management
+
+**Driver Portal**
+- Maintain comprehensive driver profiles and contact information
+- Monitor driver assignments and trip schedules
+- Track driver performance metrics
+
+**Trip Management**
+- Create and schedule routes with advanced conflict detection
+- Monitor trip status in real-time (Pending → Scheduled → In Progress → Completed)
+- Cancel trips with automatic cascade to related bookings
+- Add detailed cancellation reasons for audit trails
+- View historical data and analytics
+
+**Booking Administration**
+- Review pending booking requests with detailed passenger information
+- Approve or reject bookings with audit tracking
+- Monitor booking status across all phases
+- Sort bookings by creation date (newest first)
+- Responsive dashboard showing booking metrics
+
+**System Monitoring**
+- Real-time dashboard with key performance indicators
+- Activity logs with complete timestamp and user tracking
+- Quick access to critical metrics (total bookings, scheduled trips, total seats booked)
+
+### 👥 User Portal
+
+**Trip Discovery & Booking**
+- Browse available trips with real-time seat availability
+- Filter and search trips by date, time, and route
+- Instant booking confirmation with email notifications
+- Secure reservation management
+
+**Booking Management**
+- Organized bookings view with status categories:
+  - **Pending**: Awaiting admin approval (yellow)
+  - **Approved**: Confirmed by administrator (green)
+  - **Completed**: Successfully completed (blue)
+- Advanced filtering system (All, Pending, Approved, Completed)
+- One-click cancellation for pending bookings
+- View cancellation reasons with detailed explanations
+
+**Trip History**
+- Complete historical record of past trips
+- Filter options: All, Completed, Cancelled
+- Dynamic trip timeline with visual categorization
+- Cancellation reason visibility
+
+**Personal Dashboard**
+- Quick statistics: Total bookings, approved trips, total seats booked
+- Visual dashboard cards with status icons
+- Next 3 upcoming bookings preview
+- Quick actions for requesting new trips
+
+**Account Management**
+- Profile information updates
+- Contact details management
+- Preference settings
 
 ### 🔐 Security & Authentication
 
-- **Clerk Authentication**: Secure user authentication and role-based access
-- **Role-Based Access Control**: Separate admin and user access levels
-- **Admin Initialization**: Secure endpoint for creating admin users
-- **Webhook Integration**: Automatic user syncing with Clerk
+- **Clerk Authentication**: Industry-standard secure authentication system
+- **Role-Based Access Control**: Enforced authorization on admin and user routes
+- **Session Management**: Secure cookie-based sessions with automatic expiration
+- **Logout Confirmation**: Modal confirmation before signing out
+- **Protected Endpoints**: All sensitive operations require authentication
+- **Webhook Integration**: Real-time user synchronization with Clerk
 
-## Tech Stack
+---
 
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Clerk
-- **Deployment**: Vercel
-- **UI Components**: shadcn/ui
+## Technology Stack
+
+### Frontend
+- **Framework**: Next.js 15 (with Turbopack)
+- **Language**: TypeScript (strict mode)
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS with custom design system
+- **Components**: shadcn/ui base components
 - **Icons**: Lucide React
 
-## Quick Start
+### Backend & Database
+- **API**: Next.js Server Actions & Route Handlers
+- **Database**: PostgreSQL (Neon for cloud)
+- **ORM**: Drizzle ORM with full TypeScript support
+- **Validation**: Client and server-side request validation
 
-### 1. Clone Repository
+### Authentication
+- **Service**: Clerk (clerk.com)
+- **Methods**: Email/Password, OAuth, Social Login
+- **Integration**: Webhook-based automatic syncing
+
+### Development Tools
+- **Package Manager**: pnpm
+- **Code Quality**: ESLint with TypeScript
+- **Formatting**: Prettier
+- **Build Tool**: Turbopack (Next.js native)
+- **Version Control**: Git
+
+### Deployment
+- **Platform**: Vercel (recommended)
+- **Alternative Platforms**: Docker, self-hosted with Node.js
+
+---
+
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Frontend (React 19)                  │
+│  ┌────────────────┐  ┌──────────────┐  ┌────────────┐  │
+│  │ Admin Portal   │  │ User Portal  │  │ Auth Pages │  │
+│  └────────────────┘  └──────────────┘  └────────────┘  │
+└────────────────────────┬──────────────────────────────┘
+                         │ API Calls
+┌────────────────────────▼──────────────────────────────┐
+│         Next.js API Routes & Server Actions           │
+│  ┌──────────────────────────────────────────────────┐ │
+│  │ /api/admin/*  │ /api/bookings/* │ /api/auth/*   │ │
+│  └──────────────────────────────────────────────────┘ │
+└────────────────────────┬──────────────────────────────┘
+                         │ Database Queries
+┌────────────────────────▼──────────────────────────────┐
+│        PostgreSQL Database (via Drizzle ORM)          │
+│  Tables: users, vans, drivers, trips, bookings, logs  │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js**: v18.17 or later
+- **pnpm**: v8.0 or later
+- **PostgreSQL**: v14 or later (local) or Neon account
+- **Clerk Account**: Free tier available at clerk.com
+
+### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/your-username/cross_ride.git
+git clone https://github.com/yourusername/cross_ride.git
 cd cross_ride
 ```
 
-### 2. Install Dependencies
+### Step 2: Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-### 3. Setup Environment Variables
+### Step 3: Configure Environment Variables
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your:
+Update `.env.local` with your configuration:
 
-- PostgreSQL connection string (local development)
-- Clerk publishable key
-- Clerk secret key
+```env
+# Database (Neon PostgreSQL)
+DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
-### 4. Initialize Database
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_publishable_key"
+CLERK_SECRET_KEY="your_secret_key"
+CLERK_WEBHOOK_SECRET="your_webhook_secret"
 
-```bash
-pnpm db:push
+# Application
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-### 5. Start Development Server
+### Step 4: Setup Database
+
+```bash
+# Apply schema migrations
+pnpm db:push
+
+# (Optional) Seed initial data
+pnpm db:seed
+```
+
+### Step 5: Start Development Server
 
 ```bash
 pnpm dev
 ```
 
-Visit `http://localhost:3000`
+Visit **http://localhost:3000** in your browser.
+
+### Default Test Credentials
+
+After initialization, create admin and user accounts through the UI:
+
+| Role  | Email | Password |
+|-------|-------|----------|
+| Admin | Your email | Your password |
+| User  | Another email | Password |
+
+---
+
+## Project Structure
+
+```
+cross_ride/
+├── src/
+│   ├── app/                          # Next.js 15 App Router
+│   │   ├── (admin)/                  # Admin portal routes
+│   │   │   ├── admin/
+│   │   │   │   ├── bookings/         # Booking management
+│   │   │   │   ├── dashboard/        # Admin overview
+│   │   │   │   ├── drivers/          # Driver management
+│   │   │   │   ├── trips/            # Trip scheduling
+│   │   │   │   ├── vans/             # Vehicle management
+│   │   │   │   └── settings/         # System settings
+│   │   │   └── layout.tsx            # Admin layout wrapper
+│   │   ├── (user)/                   # User portal routes
+│   │   │   ├── dashboard/            # User Home
+│   │   │   ├── my-bookings/          # Booking management
+│   │   │   ├── trip-history/         # Past trips
+│   │   │   ├── available-trips/      # Trip discovery
+│   │   │   ├── profile/              # User settings
+│   │   │   ├── request-trip/         # Custom trip request
+│   │   │   └── layout.tsx            # User layout wrapper
+│   │   ├── (public)/                 # Landing pages
+│   │   │   └── page.tsx              # Homepage
+│   │   ├── sign-in/                  # Authentication
+│   │   ├── sign-up/
+│   │   ├── api/                      # Backend API routes
+│   │   │   ├── admin/                # Admin endpoints
+│   │   │   ├── auth/                 # Authentication
+│   │   │   ├── bookings/             # Booking operations
+│   │   │   └── webhooks/             # Clerk webhooks
+│   │   └── layout.tsx                # Root layout
+│   ├── components/
+│   │   ├── admin/                    # Admin components
+│   │   ├── user/                     # User components
+│   │   ├── ui/                       # Base UI components
+│   │   └── marketing/                # Landing components
+│   ├── lib/
+│   │   ├── auth.ts                   # Authentication utilities
+│   │   ├── utils.ts                  # Helper functions
+│   │   └── conflicts.ts              # Trip conflict detection
+│   ├── server/
+│   │   └── db/
+│   │       ├── index.ts              # Database client
+│   │       └── schema.ts             # Drizzle schema definitions
+│   ├── styles/
+│   │   └── globals.css               # Global styles
+│   ├── middleware.ts                 # Authentication middleware
+│   └── env.js                        # Environment validation
+├── public/
+│   └── images/                       # Static assets
+├── drizzle/                          # Database migrations
+├── package.json
+├── tsconfig.json                     # TypeScript config
+├── tailwind.config.ts                # Tailwind configuration
+├── next.config.js                    # Next.js configuration
+└── README.md
+```
+
+---
+
+## Core Features
+
+### Trip Cancellation System
+- Admin can cancel trips with detailed reason tracking
+- Automatic cascade cancellation to all related bookings
+- Reasons visible to passengers on booking cards and trip history
+- Complete audit trail for compliance
+
+### Status Synchronization
+- **Bidirectional Sync**: When user completes booking, trip status updates automatically
+- **Cascade Updates**: Group cancellations automatically sync across related records
+- **Real-time Notification**: Users see status changes instantly
+
+### Advanced Filtering & Search
+- **My Bookings**: Filter by status (All, Pending, Approved, Completed)
+- **Trip History**: Timeline view with filtered categorization
+- **Bookings Table**: Sort by creation date (newest first)
+- Dynamic badge counting on filter buttons
+
+### Professional UI/UX
+- **Status Indicators**: Color-coded badges (Yellow→Pending, Green→Approved, Blue→Completed, Red→Cancelled)
+- **Icon Integration**: Lucide React icons for visual clarity
+- **Modal Confirmations**: Critical actions require user confirmation
+- **Time Formatting**: 12-hour format with AM/PM indicators
+- **Responsive Design**: Works seamlessly on desktop, tablet, mobile
+
+---
+
+## Environment Configuration
+
+### Required Variables
+
+```env
+# PostgreSQL Connection
+DATABASE_URL=postgresql://...
+
+# Clerk Keys
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
+CLERK_SECRET_KEY=sk_...
+CLERK_WEBHOOK_SECRET=whsec_...
+```
+
+### Optional Variables
+
+```env
+# Application URL
+NEXT_PUBLIC_APP_URL=https://yourdomain.com
+```
+
+See `.env.example` for complete reference.
+
+---
+
+## Database
+
+### Schema Overview
+
+**Tables:**
+- `users` - User accounts with role designation
+- `vans` - Vehicle inventory with capacity and status
+- `drivers` - Driver profiles with contact information
+- `trips` - Scheduled routes with conflict detection
+- `bookings` - Passenger reservations with status tracking
+- `logs` - Complete audit trail of all system actions
+
+### Key Relationships
+
+```
+users ──→ bookings ──→ trips
+          ↓
+        vans (assigned to trips)
+drivers → trips
+```
+
+### Migrations
+
+Migrations are stored in `drizzle/` directory and applied via:
+
+```bash
+pnpm db:push      # Apply all pending migrations
+pnpm db:generate  # Generate new migration files
+```
+
+---
 
 ## Deployment
 
-### 🚀 Deploy to Vercel
+### 🚀 Vercel (Recommended)
 
-**See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete deployment guide.**
+See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete guide.
 
-Quick steps:
-
+**Quick Steps:**
 1. Push code to GitHub
-2. Go to https://vercel.com/new
-3. Import your GitHub repository
-4. Add environment variables (Vercel dashboard)
-5. Click Deploy
+2. Create new project on vercel.com
+3. Import repository and connect
+4. Add environment variables in Vercel dashboard
+5. Deploy automatically on push
 
-Database options for Vercel:
+### Database Options
+- ✅ **Neon PostgreSQL** (easiest for Vercel)
+- ✅ **Vercel Postgres** (integrated service)
+- ✅ **Supabase** (open-source alternative)
+- ✅ **Railway** (Docker-friendly)
 
-- **Vercel Postgres** (integrated)
-- **Neon** (neon.tech)
-- **Supabase** (supabase.com)
-- **Railway** (railway.app)
+### Self-Hosted
+- Install Node.js 18+
+- Run `pnpm build`
+- Start with `pnpm start`
+- Use reverse proxy (Nginx) for SSL
+
+---
+
+## Development
+
+### Available Scripts
+
+```bash
+# Development
+pnpm dev              # Start dev server (http://localhost:3000)
+pnpm build            # Production build
+pnpm start            # Start production server
+
+# Database
+pnpm db:push          # Apply migrations
+pnpm db:generate      # Generate new migration
+pnpm db:studio        # Open Drizzle Studio
+
+# Code Quality
+pnpm lint             # Run ESLint
+pnpm format           # Format with Prettier
+pnpm type-check       # TypeScript checking
+```
+
+### Code Standards
+
+- **TypeScript**: Strict mode enabled
+- **Formatting**: Prettier configuration in `.prettierrc`
+- **Linting**: ESLint with TypeScript support
+- **Naming**: camelCase for variables/functions, PascalCase for components
+- **File Structure**: Organize by feature/domain
+
+### Testing
+
+Recommended testing tools:
+- **Unit Tests**: Jest + Testing Library (not yet implemented)
+- **E2E Tests**: Playwright or Cypress (not yet implemented)
+
+To add testing:
+```bash
+pnpm add -D jest @testing-library/react
+```
+
+---
+
+## Contributing
+
+### Development Workflow
+
+1. Create feature branch: `git checkout -b feature/amazing-feature`
+2. Make changes following code standards
+3. Test thoroughly: `pnpm dev` and manual testing
+4. Commit with clear messages: `git commit -m "feat: add amazing feature"`
+5. Push and create Pull Request
+
+### Commit Convention
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `refactor:` - Code refactoring
+- `docs:` - Documentation
+- `style:` - Code style (formatting)
+- `perf:` - Performance improvement
+- `test:` - Adding tests
+
+### Reporting Issues
+
+Please include:
+- Step-by-step reproduction
+- Expected vs actual behavior
+- Screenshots if applicable
+- Browser/OS information
+
+---
+
+## License
+
+This project is proprietary and confidential.
+
+---
+
+## Support
+
+For issues or questions:
+- 📧 Email: support@crossride.local
+- 💬 Discussions: GitHub Discussions
+- 🐛 Bugs: GitHub Issues
+
+---
+
+## Acknowledgments
+
+Built with modern technologies:
+- Vercel for hosting and deployment
+- Clerk for authentication
+- PostreSQL/Neon for data persistence
+- shadcn/ui for component foundation
+- Tailwind CSS for styling
+
+---
+
+**Last Updated**: March 24, 2026  
+**Version**: 1.0.0  
+**Status**: Production Ready
 - **Render** (render.com)
 
 ## Project Structure
