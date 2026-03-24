@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 interface SignInResponse {
   success: boolean;
@@ -22,6 +23,7 @@ export default function SignIn() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -78,36 +80,21 @@ export default function SignIn() {
     }
   };
 
-  // Demo credentials
-  const fillDemoAdmin = () => {
-    setFormData({
-      email: "admin@crossride.com",
-      password: "password123",
-    });
-  };
-
-  const fillDemoUser = () => {
-    setFormData({
-      email: "user@crossride.com",
-      password: "password123",
-    });
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#071d3a] to-[#0a2540] px-4 py-12">
       <div className="w-full max-w-md">
         <div className="rounded-lg border border-[#f1c44f]/20 bg-[#0a2540]/50 p-8 backdrop-blur-sm">
-          {/* Back Button */}
-          <Link
-            href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-[#f1c44f]"
-          >
-            <ArrowLeft size={16} />
-            Back to Home
-          </Link>
-
           {/* Header */}
           <div className="mb-8 text-center">
+            <div className="mb-4 flex justify-center">
+              <Image
+                src="/images/logohcc-150x150.png"
+                alt="CrossRide Logo"
+                width={60}
+                height={60}
+                className="rounded"
+              />
+            </div>
             <h1 className="mb-2 text-3xl font-bold text-white">CrossRide</h1>
             <p className="text-sm text-gray-300">Sign in to your account</p>
           </div>
@@ -135,7 +122,7 @@ export default function SignIn() {
                 value={formData.email}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="you@example.com"
+                placeholder="Enter your email address"
                 required
               />
             </div>
@@ -147,16 +134,25 @@ export default function SignIn() {
               >
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="••••••"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 pr-10 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-3 right-3 mt-1 text-gray-400 transition-colors hover:text-[#f1c44f]"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <Button
@@ -168,25 +164,6 @@ export default function SignIn() {
             </Button>
           </form>
 
-          {/* Demo Accounts */}
-          <div className="mt-6 border-t border-gray-600 pt-6">
-            <p className="mb-3 text-center text-xs text-gray-400">
-              DEMO ACCOUNTS
-            </p>
-            <button
-              onClick={fillDemoAdmin}
-              className="mb-2 w-full rounded-lg border border-blue-500/30 bg-blue-600/20 px-3 py-2 text-xs font-medium text-blue-300 hover:bg-blue-600/30"
-            >
-              Fill Admin (admin@crossride.com)
-            </button>
-            <button
-              onClick={fillDemoUser}
-              className="w-full rounded-lg border border-green-500/30 bg-green-600/20 px-3 py-2 text-xs font-medium text-green-300 hover:bg-green-600/30"
-            >
-              Fill User (user@crossride.com)
-            </button>
-          </div>
-
           {/* Sign Up Link */}
           <p className="mt-6 text-center text-sm text-gray-400">
             Don't have an account?{" "}
@@ -197,6 +174,17 @@ export default function SignIn() {
               Sign Up
             </Link>
           </p>
+
+          {/* Back Button */}
+          <div className="mt-6 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-[#f1c44f]"
+            >
+              <ArrowLeft size={16} />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

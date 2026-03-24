@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft, Phone, Eye, EyeOff } from "lucide-react";
 
 const COUNTRY_CODES = [
   { code: "+1", country: "United States", flag: "🇺🇸" },
@@ -27,6 +28,8 @@ export default function SignUp() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -120,17 +123,17 @@ export default function SignUp() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#071d3a] to-[#0a2540] px-4 py-12">
       <div className="w-full max-w-md">
         <div className="rounded-lg border border-[#f1c44f]/20 bg-[#0a2540]/50 p-8 backdrop-blur-sm">
-          {/* Back Button */}
-          <Link
-            href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-[#f1c44f]"
-          >
-            <ArrowLeft size={16} />
-            Back to Home
-          </Link>
-
           {/* Header */}
           <div className="mb-8 text-center">
+            <div className="mb-4 flex justify-center">
+              <Image
+                src="/images/logohcc-150x150.png"
+                alt="CrossRide Logo"
+                width={60}
+                height={60}
+                className="rounded"
+              />
+            </div>
             <h1 className="mb-2 text-3xl font-bold text-white">CrossRide</h1>
             <p className="text-sm text-gray-300">Create your account</p>
           </div>
@@ -158,7 +161,7 @@ export default function SignUp() {
                 value={formData.firstName}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="John"
+                placeholder="Enter your first name"
               />
             </div>
 
@@ -176,7 +179,7 @@ export default function SignUp() {
                 value={formData.lastName}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="Doe"
+                placeholder="Enter your last name"
               />
             </div>
 
@@ -194,7 +197,7 @@ export default function SignUp() {
                 value={formData.email}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="you@example.com"
+                placeholder="Enter your email address"
                 required
               />
             </div>
@@ -206,16 +209,25 @@ export default function SignUp() {
               >
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="••••••"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 pr-10 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-3 right-3 mt-1 text-gray-400 transition-colors hover:text-[#f1c44f]"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div>
@@ -225,16 +237,29 @@ export default function SignUp() {
               >
                 Confirm Password
               </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                placeholder="••••••"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="mt-1 w-full rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 pr-10 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
+                  placeholder="Enter your password again"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute top-3 right-3 mt-1 text-gray-400 transition-colors hover:text-[#f1c44f]"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div>
@@ -262,7 +287,7 @@ export default function SignUp() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   className="mt-1 flex-1 rounded-lg border border-gray-600 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-400 focus:border-[#f1c44f] focus:outline-none"
-                  placeholder="702 123 456"
+                  placeholder="Enter your phone number"
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">
@@ -289,6 +314,17 @@ export default function SignUp() {
               Sign In
             </Link>
           </p>
+
+          {/* Back Button */}
+          <div className="mt-6 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-[#f1c44f]"
+            >
+              <ArrowLeft size={16} />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

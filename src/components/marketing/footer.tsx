@@ -13,7 +13,7 @@ export function Footer() {
           <div>
             <h3 className="text-secondary mb-4 text-lg font-bold">About Us</h3>
             <p className="text-foreground/90 max-w-md text-sm leading-relaxed">
-              Holy Cross Academy is the first private Catholic school in Sta.
+              Holy Cross College is the first private Catholic school in Sta.
               Ana, Pampanga, founded on November 29, 1945 by the late Very Rev.
               Msgr. Fernando C. Lansangan with the support of dedicated
               civic-minded citizens.
