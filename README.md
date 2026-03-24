@@ -26,6 +26,7 @@ A comprehensive, enterprise-grade transportation management platform designed fo
 CrossRide is a modern transportation management system that simplifies the complex processes of fleet management, driver coordination, and passenger booking. With separate role-based portals for administrators and users, along with advanced features like trip conflict detection, cascade cancellations, and real-time status synchronization, CrossRide ensures operational efficiency and user satisfaction.
 
 **Key Highlights:**
+
 - ✅ Enterprise-grade security with role-based access control
 - ✅ Real-time bidirectional status synchronization
 - ✅ Intelligent conflict detection and management
@@ -40,16 +41,19 @@ CrossRide is a modern transportation management system that simplifies the compl
 ### 🏢 Admin Dashboard
 
 **Fleet Management**
+
 - Add, edit, and manage vehicle inventory with capacity specifications
 - Track vehicle status and maintenance history
 - Assign drivers to vehicles with schedule management
 
 **Driver Portal**
+
 - Maintain comprehensive driver profiles and contact information
 - Monitor driver assignments and trip schedules
 - Track driver performance metrics
 
 **Trip Management**
+
 - Create and schedule routes with advanced conflict detection
 - Monitor trip status in real-time (Pending → Scheduled → In Progress → Completed)
 - Cancel trips with automatic cascade to related bookings
@@ -57,6 +61,7 @@ CrossRide is a modern transportation management system that simplifies the compl
 - View historical data and analytics
 
 **Booking Administration**
+
 - Review pending booking requests with detailed passenger information
 - Approve or reject bookings with audit tracking
 - Monitor booking status across all phases
@@ -64,6 +69,7 @@ CrossRide is a modern transportation management system that simplifies the compl
 - Responsive dashboard showing booking metrics
 
 **System Monitoring**
+
 - Real-time dashboard with key performance indicators
 - Activity logs with complete timestamp and user tracking
 - Quick access to critical metrics (total bookings, scheduled trips, total seats booked)
@@ -71,12 +77,14 @@ CrossRide is a modern transportation management system that simplifies the compl
 ### 👥 User Portal
 
 **Trip Discovery & Booking**
+
 - Browse available trips with real-time seat availability
 - Filter and search trips by date, time, and route
 - Instant booking confirmation with email notifications
 - Secure reservation management
 
 **Booking Management**
+
 - Organized bookings view with status categories:
   - **Pending**: Awaiting admin approval (yellow)
   - **Approved**: Confirmed by administrator (green)
@@ -86,18 +94,21 @@ CrossRide is a modern transportation management system that simplifies the compl
 - View cancellation reasons with detailed explanations
 
 **Trip History**
+
 - Complete historical record of past trips
 - Filter options: All, Completed, Cancelled
 - Dynamic trip timeline with visual categorization
 - Cancellation reason visibility
 
 **Personal Dashboard**
+
 - Quick statistics: Total bookings, approved trips, total seats booked
 - Visual dashboard cards with status icons
 - Next 3 upcoming bookings preview
 - Quick actions for requesting new trips
 
 **Account Management**
+
 - Profile information updates
 - Contact details management
 - Preference settings
@@ -116,6 +127,7 @@ CrossRide is a modern transportation management system that simplifies the compl
 ## Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 (with Turbopack)
 - **Language**: TypeScript (strict mode)
 - **UI Library**: React 19
@@ -124,17 +136,20 @@ CrossRide is a modern transportation management system that simplifies the compl
 - **Icons**: Lucide React
 
 ### Backend & Database
+
 - **API**: Next.js Server Actions & Route Handlers
 - **Database**: PostgreSQL (Neon for cloud)
 - **ORM**: Drizzle ORM with full TypeScript support
 - **Validation**: Client and server-side request validation
 
 ### Authentication
+
 - **Service**: Clerk (clerk.com)
 - **Methods**: Email/Password, OAuth, Social Login
 - **Integration**: Webhook-based automatic syncing
 
 ### Development Tools
+
 - **Package Manager**: pnpm
 - **Code Quality**: ESLint with TypeScript
 - **Formatting**: Prettier
@@ -142,6 +157,7 @@ CrossRide is a modern transportation management system that simplifies the compl
 - **Version Control**: Git
 
 ### Deployment
+
 - **Platform**: Vercel (recommended)
 - **Alternative Platforms**: Docker, self-hosted with Node.js
 
@@ -237,10 +253,10 @@ Visit **http://localhost:3000** in your browser.
 
 After initialization, create admin and user accounts through the UI:
 
-| Role  | Email | Password |
-|-------|-------|----------|
-| Admin | Your email | Your password |
-| User  | Another email | Password |
+| Role  | Email         | Password      |
+| ----- | ------------- | ------------- |
+| Admin | Your email    | Your password |
+| User  | Another email | Password      |
 
 ---
 
@@ -309,23 +325,27 @@ cross_ride/
 ## Core Features
 
 ### Trip Cancellation System
+
 - Admin can cancel trips with detailed reason tracking
 - Automatic cascade cancellation to all related bookings
 - Reasons visible to passengers on booking cards and trip history
 - Complete audit trail for compliance
 
 ### Status Synchronization
+
 - **Bidirectional Sync**: When user completes booking, trip status updates automatically
 - **Cascade Updates**: Group cancellations automatically sync across related records
 - **Real-time Notification**: Users see status changes instantly
 
 ### Advanced Filtering & Search
+
 - **My Bookings**: Filter by status (All, Pending, Approved, Completed)
 - **Trip History**: Timeline view with filtered categorization
 - **Bookings Table**: Sort by creation date (newest first)
 - Dynamic badge counting on filter buttons
 
 ### Professional UI/UX
+
 - **Status Indicators**: Color-coded badges (Yellow→Pending, Green→Approved, Blue→Completed, Red→Cancelled)
 - **Icon Integration**: Lucide React icons for visual clarity
 - **Modal Confirmations**: Critical actions require user confirmation
@@ -364,6 +384,7 @@ See `.env.example` for complete reference.
 ### Schema Overview
 
 **Tables:**
+
 - `users` - User accounts with role designation
 - `vans` - Vehicle inventory with capacity and status
 - `drivers` - Driver profiles with contact information
@@ -398,6 +419,7 @@ pnpm db:generate  # Generate new migration files
 See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete guide.
 
 **Quick Steps:**
+
 1. Push code to GitHub
 2. Create new project on vercel.com
 3. Import repository and connect
@@ -405,12 +427,14 @@ See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete guide.
 5. Deploy automatically on push
 
 ### Database Options
+
 - ✅ **Neon PostgreSQL** (easiest for Vercel)
 - ✅ **Vercel Postgres** (integrated service)
 - ✅ **Supabase** (open-source alternative)
 - ✅ **Railway** (Docker-friendly)
 
 ### Self-Hosted
+
 - Install Node.js 18+
 - Run `pnpm build`
 - Start with `pnpm start`
@@ -450,10 +474,12 @@ pnpm type-check       # TypeScript checking
 ### Testing
 
 Recommended testing tools:
+
 - **Unit Tests**: Jest + Testing Library (not yet implemented)
 - **E2E Tests**: Playwright or Cypress (not yet implemented)
 
 To add testing:
+
 ```bash
 pnpm add -D jest @testing-library/react
 ```
@@ -483,6 +509,7 @@ pnpm add -D jest @testing-library/react
 ### Reporting Issues
 
 Please include:
+
 - Step-by-step reproduction
 - Expected vs actual behavior
 - Screenshots if applicable
@@ -499,6 +526,7 @@ This project is proprietary and confidential.
 ## Support
 
 For issues or questions:
+
 - 📧 Email: support@crossride.local
 - 💬 Discussions: GitHub Discussions
 - 🐛 Bugs: GitHub Issues
@@ -508,6 +536,7 @@ For issues or questions:
 ## Acknowledgments
 
 Built with modern technologies:
+
 - Vercel for hosting and deployment
 - Clerk for authentication
 - PostreSQL/Neon for data persistence
@@ -519,6 +548,7 @@ Built with modern technologies:
 **Last Updated**: March 24, 2026  
 **Version**: 1.0.0  
 **Status**: Production Ready
+
 - **Render** (render.com)
 
 ## Project Structure
