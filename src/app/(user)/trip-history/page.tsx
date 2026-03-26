@@ -100,7 +100,7 @@ function TripHistoryTable({
                 <Badge
                   className={`capitalize ${
                     booking.status === "completed"
-                      ? "bg-blue-500/20 text-blue-300"
+                      ? "bg-green-500/20 text-green-300"
                       : "bg-red-500/20 text-red-400"
                   }`}
                 >

@@ -73,6 +73,7 @@ export const vans = createTable(
     name: d.varchar({ length: 255 }).notNull(),
     plateNumber: d.varchar({ length: 20 }).notNull().unique(),
     capacity: d.integer().notNull(),
+    image: d.varchar({ length: 500 }), // Van image (UploadThing URL)
     status: vanStatusEnum("status").default("active").notNull(),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).defaultNow(),
@@ -92,6 +93,10 @@ export const drivers = createTable(
     email: d.varchar({ length: 255 }).notNull().unique(),
     phoneNumber: d.varchar({ length: 20 }).notNull(),
     licenseNumber: d.varchar({ length: 50 }).notNull().unique(),
+    role: d.varchar({ length: 100 }), // e.g., "Senior Driver", "Professional Driver"
+    experience: d.varchar({ length: 100 }), // e.g., "10+ Years"
+    specialization: d.varchar({ length: 255 }), // e.g., "Fleet Coordinator", "Safety Specialist"
+    profileImage: d.varchar({ length: 500 }), // Driver profile picture (UploadThing URL)
     status: driverStatusEnum("status").default("active").notNull(),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).defaultNow(),

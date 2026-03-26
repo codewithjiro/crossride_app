@@ -155,6 +155,24 @@ export function UsersManager({ initialUsers }: UsersManagerProps) {
         </p>
       </div>
 
+      {/* Stats */}
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+          <p className="text-sm text-gray-400">Total Users</p>
+          <p className="text-4xl font-bold text-[#f1c44f]">{users.length}</p>
+        </Card>
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+          <p className="text-sm text-gray-400">Admins</p>
+          <p className="text-4xl font-bold text-red-400">{adminUsers.length}</p>
+        </Card>
+        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
+          <p className="text-sm text-gray-400">Regular Users</p>
+          <p className="text-4xl font-bold text-blue-400">
+            {regularUsers.length}
+          </p>
+        </Card>
+      </div>
+
       {/* Admins Section */}
       {adminUsers.length > 0 && (
         <div className="mb-8">
@@ -199,24 +217,6 @@ export function UsersManager({ initialUsers }: UsersManagerProps) {
           <p className="text-gray-400">No users found.</p>
         </Card>
       )}
-
-      {/* Stats */}
-      <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
-          <p className="text-sm text-gray-400">Total Users</p>
-          <p className="text-4xl font-bold text-[#f1c44f]">{users.length}</p>
-        </Card>
-        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
-          <p className="text-sm text-gray-400">Admins</p>
-          <p className="text-4xl font-bold text-red-400">{adminUsers.length}</p>
-        </Card>
-        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
-          <p className="text-sm text-gray-400">Regular Users</p>
-          <p className="text-4xl font-bold text-blue-400">
-            {regularUsers.length}
-          </p>
-        </Card>
-      </div>
     </div>
   );
 }

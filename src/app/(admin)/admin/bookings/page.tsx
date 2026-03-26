@@ -318,10 +318,14 @@ export default function BookingsPage() {
       )}
 
       {/* Empty State */}
-      {bookings.length === 0 && (
-        <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-8 text-center">
-          <p className="text-gray-400">No bookings yet.</p>
-        </Card>
+      {bookings.length === 0 && !loading && (
+        <div className="mt-12 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#f1c44f]/30 bg-[#0a2540]/50 px-8 py-16 text-center">
+          <Bell size={64} className="mb-6 text-[#f1c44f]" />
+          <h3 className="text-2xl font-bold text-white">No Bookings Yet</h3>
+          <p className="mt-3 max-w-md text-gray-400">
+            All booking requests will appear here for review and management
+          </p>
+        </div>
       )}
     </div>
   );

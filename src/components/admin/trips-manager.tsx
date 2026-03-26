@@ -6,6 +6,7 @@ import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { CheckCircle2 } from "lucide-react";
 import { TripsTable } from "~/components/admin/trips-table";
+import { TripDetailsModal } from "~/components/admin/trip-details-modal";
 import { ConfirmationDialog } from "~/components/ui/confirmation-dialog";
 
 // We can't import types directly from schema since they're not exported.
@@ -67,10 +68,19 @@ export function TripsManager({
 }: TripsManagerProps) {
   const [trips, setTrips] = useState<TripWithRelations[]>(initialTrips);
   const [loading, setLoading] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState<TripWithRelations | null>(
+    null,
+  );
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+
+  const handleViewDetails = (trip: TripWithRelations) => {
+    setSelectedTrip(trip);
+    setIsDetailsModalOpen(true);
+  };
 
   const handleCancel = (tripId: number) => {
     setTripToDelete(tripId);
@@ -157,6 +167,7 @@ export function TripsManager({
                   trips={trips.filter((t) => t.status === "scheduled")}
                   loading={loading}
                   onCancel={handleCancel}
+                  onViewDetails={handleViewDetails}
                 />
               </div>
             </Card>
@@ -179,6 +190,7 @@ export function TripsManager({
                   trips={trips.filter((t) => t.status === "cancelled")}
                   loading={loading}
                   onCancel={handleCancel}
+                  onViewDetails={handleViewDetails}
                 />
               </div>
             </Card>
@@ -197,12 +209,19 @@ export function TripsManager({
                   trips={trips.filter((t) => t.status === "completed")}
                   loading={loading}
                   onCancel={handleCancel}
+                  onViewDetails={handleViewDetails}
                 />
               </div>
             </Card>
           </div>
         )}
       </div>
+
+      <TripDetailsModal
+        trip={selectedTrip}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
 
       <ConfirmationDialog
         isOpen={deleteConfirmOpen}

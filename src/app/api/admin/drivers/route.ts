@@ -26,13 +26,25 @@ interface CreateDriverRequest {
   email: string;
   phoneNumber: string;
   licenseNumber: string;
+  role?: string;
+  experience?: string;
+  specialization?: string;
+  profileImage?: string; // base64 or data URL
 }
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAdmin();
-    const { name, email, phoneNumber, licenseNumber } =
-      (await req.json()) as CreateDriverRequest;
+    const {
+      name,
+      email,
+      phoneNumber,
+      licenseNumber,
+      role,
+      experience,
+      specialization,
+      profileImage,
+    } = (await req.json()) as CreateDriverRequest;
 
     if (!name || !email || !phoneNumber || !licenseNumber) {
       return NextResponse.json(
@@ -48,6 +60,10 @@ export async function POST(req: NextRequest) {
         email,
         phoneNumber,
         licenseNumber,
+        role: role || null,
+        experience: experience || null,
+        specialization: specialization || null,
+        profileImage: profileImage || null,
         status: "active",
       })
       .returning();

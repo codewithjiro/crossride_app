@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { DRIVERS } from "~/lib/data";
 import {
   MapPin,
   Users,
@@ -17,6 +16,7 @@ import {
   Info,
   ChevronLeft,
   ChevronRight,
+  Briefcase,
 } from "lucide-react";
 
 interface BookingRequest {
@@ -48,16 +48,21 @@ const DEPARTMENTS = [
   "School of Business and Accountancy",
   "Primary Education",
   "Secondary Education",
-  "Senior Highschool Department",
+  "Senior Highschool",
 ];
 
-// Map van names to their images
-const getVanImage = (vanName: string): string => {
-  if (vanName.includes("Grandia")) {
+// Map van names to their images - fallback to placeholder if no uploaded image
+const getVanImage = (van: { name: string; image?: string | null }): string => {
+  // Use uploaded image if available
+  if (van.image) {
+    return van.image;
+  }
+  // Fallback to placeholder based on name
+  if (van.name.includes("Grandia")) {
     return "/images/grandia.png";
-  } else if (vanName.includes("L300")) {
+  } else if (van.name.includes("L300")) {
     return "/images/L300.png";
-  } else if (vanName.includes("Deluxe") || vanName.includes("Commuter")) {
+  } else if (van.name.includes("Deluxe") || van.name.includes("Commuter")) {
     return "/images/deluxe.png";
   }
   return "/images/deluxe.png"; // default fallback
@@ -97,9 +102,26 @@ export default function RequestTrip() {
   );
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [vans, setVans] = useState<
-    Array<{ id: number; name: string; plateNumber: string; capacity: number }>
+    Array<{
+      id: number;
+      name: string;
+      plateNumber: string;
+      capacity: number;
+      image?: string | null;
+    }>
+  >([]);
+  const [drivers, setDrivers] = useState<
+    Array<{
+      id: number;
+      name: string;
+      role?: string;
+      experience?: string;
+      specialization?: string;
+      profileImage?: string;
+    }>
   >([]);
   const [loadingVans, setLoadingVans] = useState(true);
+  const [loadingDrivers, setLoadingDrivers] = useState(true);
 
   const RouteMap = dynamic(() => import("~/components/maps/route-map"), {
     ssr: false,
@@ -122,7 +144,9 @@ export default function RequestTrip() {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   const selectedVan = vans.find((v) => String(v.id) === formData.vanId);
-  const selectedDriver = DRIVERS.find((d) => d.id === formData.driverId);
+  const selectedDriver = drivers.find(
+    (d) => String(d.id) === formData.driverId,
+  );
 
   // Fetch availability from API
   useEffect(() => {
@@ -169,6 +193,24 @@ export default function RequestTrip() {
     loadVans();
   }, []);
 
+  // Fetch active drivers from database
+  useEffect(() => {
+    const loadDrivers = async () => {
+      try {
+        const res = await fetch("/api/drivers");
+        const data = await res.json();
+        if (res.ok && Array.isArray(data)) {
+          setDrivers(data);
+        }
+      } catch (err) {
+        console.error("Failed to load drivers", err);
+      } finally {
+        setLoadingDrivers(false);
+      }
+    };
+    loadDrivers();
+  }, []);
+
   // Fetch unavailable vans and drivers for selected date
   useEffect(() => {
     if (!formData.date) {
@@ -211,7 +253,7 @@ export default function RequestTrip() {
         const data = await res.json();
         if (res.ok) setPickupResults(data.results || []);
       } catch (err) {
-        if (err?.name !== "AbortError") {
+        if (err instanceof Error && err.name !== "AbortError") {
           console.error("Pickup search failed", err);
         }
       }
@@ -561,21 +603,33 @@ export default function RequestTrip() {
                 </div>
 
                 {/* Time Grid */}
-                <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-5">
+                <div className="mb-4 grid gap-3 sm:grid-cols-4 lg:grid-cols-5">
                   {availability?.times.map((time) => {
                     const isSelected = formData.time === time.value;
+
+                    // Check if time has already passed for today
+                    const today = new Date().toISOString().split("T")[0];
+                    const isToday = formData.date === today;
+                    const hourStr = time.value.split(":")[0] || "0";
+                    const hour = parseInt(hourStr, 10);
+                    const currentHour = new Date().getHours();
+                    const isPastTime = isToday && hour <= currentHour;
 
                     return (
                       <button
                         key={time.value}
                         type="button"
                         onClick={() =>
+                          !isPastTime &&
                           setFormData({ ...formData, time: time.value })
                         }
+                        disabled={isPastTime}
                         className={`rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
-                          isSelected
-                            ? "bg-[#f1c44f] text-[#071d3a] shadow-lg shadow-[#f1c44f]/50"
-                            : "border-2 border-[#f1c44f]/30 text-white hover:border-[#f1c44f] hover:bg-[#f1c44f]/10"
+                          isPastTime
+                            ? "cursor-not-allowed border-2 border-gray-600/50 bg-gray-900/40 text-gray-500 opacity-50"
+                            : isSelected
+                              ? "bg-[#f1c44f] text-[#071d3a] shadow-lg shadow-[#f1c44f]/50"
+                              : "border-2 border-[#f1c44f]/30 text-white hover:border-[#f1c44f] hover:bg-[#f1c44f]/10"
                         }`}
                       >
                         {time.label}
@@ -583,6 +637,28 @@ export default function RequestTrip() {
                     );
                   })}
                 </div>
+
+                {/* No Available Times Message */}
+                {formData.date === new Date().toISOString().split("T")[0] &&
+                  availability?.times.every((time) => {
+                    const hourStr = time.value.split(":")[0] || "0";
+                    const hour = parseInt(hourStr, 10);
+                    const currentHour = new Date().getHours();
+                    return hour <= currentHour;
+                  }) && (
+                    <div className="rounded-lg border-l-4 border-amber-500 bg-amber-500/10 p-4">
+                      <div className="flex gap-2">
+                        <Info
+                          size={20}
+                          className="mt-0.5 flex-shrink-0 text-amber-400"
+                        />
+                        <p className="text-sm text-amber-300">
+                          No available times for today. Please select a
+                          different date.
+                        </p>
+                      </div>
+                    </div>
+                  )}
               </div>
             )}
           </div>
@@ -593,22 +669,21 @@ export default function RequestTrip() {
               <MapPin className="mr-2 mb-2 inline" size={20} />
               Select a Van
             </label>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {(loadingVans ? [] : vans).map((van) => {
-                // Van is unavailable only if it has a trip on the SELECTED date
                 const isUnavailableOnSelectedDate =
                   formData.date && unavailableVanIds.includes(van.id);
 
                 return (
                   <Card
                     key={van.id}
-                    className={`border-2 transition-all duration-300 ${
+                    className={`group flex cursor-pointer flex-col overflow-hidden border-2 transition-all duration-300 ${
                       isUnavailableOnSelectedDate
-                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-60"
-                        : `cursor-pointer p-4 ${
+                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-50"
+                        : `${
                             formData.vanId === String(van.id)
-                              ? "scale-105 border-[#f1c44f] bg-[#f1c44f]/10 shadow-lg shadow-[#f1c44f]/30"
-                              : "border-[#f1c44f]/20 bg-[#0a2540] hover:scale-105 hover:border-[#f1c44f] hover:bg-[#0a2540]/80 hover:shadow-lg hover:shadow-[#f1c44f]/20"
+                              ? "border-[#f1c44f] bg-gradient-to-br from-[#f1c44f]/10 to-[#0a2540]/50 shadow-lg shadow-[#f1c44f]/30"
+                              : "border-[#f1c44f]/20 bg-gradient-to-br from-[#0a2540]/50 to-[#0a2540]/30 hover:border-[#f1c44f]/60 hover:shadow-lg hover:shadow-[#f1c44f]/20"
                           }`
                     }`}
                     onClick={() =>
@@ -616,34 +691,45 @@ export default function RequestTrip() {
                       setFormData({ ...formData, vanId: String(van.id) })
                     }
                   >
-                    <div className="mb-4 h-40 w-full overflow-hidden rounded-lg bg-black/30">
+                    <div className="relative h-48 w-full overflow-hidden bg-gradient-to-b from-black/40 to-black/60">
                       <Image
-                        src={getVanImage(van.name)}
+                        src={getVanImage(van)}
                         alt={van.name}
                         width={400}
                         height={300}
-                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                       />
-                    </div>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-white">{van.name}</h3>
-                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-400">
-                          <Users size={16} />
-                          {van.capacity} seats · Plate {van.plateNumber}
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">
-                          {van.description}
-                        </p>
-                        {isUnavailableOnSelectedDate && (
-                          <p className="mt-2 text-xs font-semibold text-red-400">
-                            ❌ Not available on{" "}
-                            {formData.date
-                              ? new Date(formData.date).toLocaleDateString()
-                              : "selected date"}
+                      {isUnavailableOnSelectedDate && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                          <p className="text-sm font-bold text-red-400">
+                            Not Available
                           </p>
-                        )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col justify-between p-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-white">
+                          {van.name}
+                        </h3>
+                        <div className="mt-3 space-y-1 text-sm text-gray-300">
+                          <p className="flex items-center gap-2">
+                            <Users size={16} className="text-[#f1c44f]" />
+                            {van.capacity} seats
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Briefcase size={16} className="text-[#f1c44f]" />
+                            Plate: {van.plateNumber}
+                          </p>
+                        </div>
                       </div>
+                      {formData.vanId === String(van.id) && (
+                        <div className="mt-3 rounded-lg bg-[#f1c44f]/20 px-3 py-2 text-center">
+                          <p className="text-xs font-semibold text-[#f1c44f]">
+                            ✓ Selected
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </Card>
                 );
@@ -657,55 +743,61 @@ export default function RequestTrip() {
               Select a Driver
             </label>
             <div className="grid gap-4 md:grid-cols-2">
-              {DRIVERS.map((driver) => {
+              {drivers.map((driver) => {
                 const isUnavailableOnSelectedDate =
-                  formData.date &&
-                  unavailableDriverIds.includes(parseInt(driver.id));
+                  formData.date && unavailableDriverIds.includes(driver.id);
 
                 return (
                   <Card
                     key={driver.id}
-                    className={`border-2 p-4 transition-all ${
+                    className={`cursor-pointer border-2 p-4 transition-all duration-300 ${
                       isUnavailableOnSelectedDate
-                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-60"
-                        : `cursor-pointer ${
-                            formData.driverId === driver.id
-                              ? "border-[#f1c44f] bg-[#f1c44f]/10"
-                              : "border-[#f1c44f]/20 bg-[#0a2540] hover:border-[#f1c44f]/40"
+                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-50"
+                        : `${
+                            formData.driverId === String(driver.id)
+                              ? "border-[#f1c44f] bg-[#f1c44f]/5 shadow-lg shadow-[#f1c44f]/20"
+                              : "border-[#f1c44f]/20 bg-[#0a2540]/50 hover:border-[#f1c44f]/40 hover:bg-[#0a2540]/70"
                           }`
                     }`}
                     onClick={() =>
                       !isUnavailableOnSelectedDate &&
-                      setFormData({ ...formData, driverId: driver.id })
+                      setFormData({ ...formData, driverId: String(driver.id) })
                     }
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-gray-800">
-                        <img
-                          src={driver.image}
+                    <div className="flex items-start gap-4">
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-800">
+                        <Image
+                          src={
+                            driver.profileImage || "/images/default-profile.jpg"
+                          }
                           alt={driver.name}
-                          className="h-20 w-20 object-cover"
+                          width={64}
+                          height={64}
+                          className="h-full w-full object-cover"
                         />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-white">{driver.name}</h3>
                         <p className="text-sm text-gray-400">{driver.role}</p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {driver.experience} experience
-                        </p>
-                        <p className="text-xs text-[#f1c44f]">
-                          {driver.specialization}
-                        </p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {driver.experience && (
+                            <span className="rounded bg-blue-500/20 px-2 py-0.5 text-xs text-blue-300">
+                              {driver.experience}
+                            </span>
+                          )}
+                          {driver.specialization && (
+                            <span className="rounded bg-[#f1c44f]/20 px-2 py-0.5 text-xs text-[#f1c44f]">
+                              {driver.specialization}
+                            </span>
+                          )}
+                        </div>
+                        {isUnavailableOnSelectedDate && (
+                          <p className="mt-2 text-xs font-semibold text-red-400">
+                            Unavailable
+                          </p>
+                        )}
                       </div>
                     </div>
-                    {isUnavailableOnSelectedDate && (
-                      <p className="mt-2 text-xs font-semibold text-red-400">
-                        ❌ Not available on{" "}
-                        {formData.date
-                          ? new Date(formData.date).toLocaleDateString()
-                          : "selected date"}
-                      </p>
-                    )}
                   </Card>
                 );
               })}
@@ -911,7 +1003,7 @@ export default function RequestTrip() {
                   at{" "}
                   {(() => {
                     const [hours, minutes] = formData.time.split(":");
-                    const hour = parseInt(hours, 10);
+                    const hour = parseInt(hours || "0", 10);
                     const ampm = hour >= 12 ? "PM" : "AM";
                     const displayHour = hour % 12 || 12;
                     return `${displayHour}:${minutes} ${ampm}`;

@@ -74,10 +74,11 @@ export default async function BookingDetail({
               <h1 className="text-3xl font-bold text-white">Trip Details</h1>
               <Badge
                 className={`text-sm capitalize ${
-                  booking.status === "approved"
+                  booking.status === "approved" ||
+                  booking.status === "completed"
                     ? "bg-green-500/20 text-green-400"
                     : booking.status === "pending"
-                      ? "bg-yellow-500/20 text-yellow-400"
+                      ? "bg-amber-500/20 text-amber-400"
                       : "bg-red-500/20 text-red-400"
                 }`}
               >

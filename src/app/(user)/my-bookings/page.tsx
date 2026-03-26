@@ -158,8 +158,8 @@ export default function MyBookings() {
             onClick={() => setActiveFilter("pending")}
             className={`flex items-center gap-2 rounded-lg px-6 py-2 font-medium transition-all ${
               activeFilter === "pending"
-                ? "bg-yellow-500 text-[#071d3a]"
-                : "border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
+                ? "bg-amber-500 text-[#071d3a]"
+                : "border border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
             }`}
           >
             <AlertCircle size={18} />
@@ -180,8 +180,8 @@ export default function MyBookings() {
             onClick={() => setActiveFilter("completed")}
             className={`flex items-center gap-2 rounded-lg px-6 py-2 font-medium transition-all ${
               activeFilter === "completed"
-                ? "bg-blue-500 text-white"
-                : "border border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                ? "bg-green-500 text-white"
+                : "border border-green-500/30 text-green-400 hover:bg-green-500/10"
             }`}
           >
             <CheckCircle2 size={18} />

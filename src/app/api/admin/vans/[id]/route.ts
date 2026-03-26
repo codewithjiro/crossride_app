@@ -10,6 +10,7 @@ interface UpdateVanRequest {
   plateNumber?: string;
   capacity?: string | number;
   status?: string;
+  image?: string; // base64 or data URL
 }
 
 export async function PATCH(
@@ -19,7 +20,7 @@ export async function PATCH(
   try {
     const user = await requireAdmin();
     const { id } = await params;
-    const { name, plateNumber, capacity, status } =
+    const { name, plateNumber, capacity, status, image } =
       (await req.json()) as UpdateVanRequest;
     const vanId = parseInt(id, 10);
 
@@ -38,6 +39,7 @@ export async function PATCH(
     if (capacity !== undefined)
       updateData.capacity = parseInt(String(capacity), 10);
     if (status !== undefined) updateData.status = status;
+    if (image !== undefined) updateData.image = image;
 
     const updatedVan = await db
       .update(vans)

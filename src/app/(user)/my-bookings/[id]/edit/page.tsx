@@ -51,12 +51,17 @@ const DEPARTMENTS = [
   "Senior High Department",
 ];
 
-const getVanImage = (vanName: string): string => {
-  if (vanName.includes("Grandia")) {
+const getVanImage = (van: { name: string; image?: string | null }): string => {
+  // Use uploaded image if available
+  if (van.image) {
+    return van.image;
+  }
+  // Fallback to placeholder based on name
+  if (van.name.includes("Grandia")) {
     return "/images/grandia.png";
-  } else if (vanName.includes("L300")) {
+  } else if (van.name.includes("L300")) {
     return "/images/L300.png";
-  } else if (vanName.includes("Deluxe") || vanName.includes("Commuter")) {
+  } else if (van.name.includes("Deluxe") || van.name.includes("Commuter")) {
     return "/images/deluxe.png";
   }
   return "/images/deluxe.png";
@@ -116,7 +121,13 @@ export default function EditBooking({
   );
 
   const [vans, setVans] = useState<
-    Array<{ id: number; name: string; plateNumber: string; capacity: number }>
+    Array<{
+      id: number;
+      name: string;
+      plateNumber: string;
+      capacity: number;
+      image?: string | null;
+    }>
   >([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
@@ -769,7 +780,7 @@ export default function EditBooking({
                   >
                     <div className="mb-4 h-40 w-full overflow-hidden rounded-lg bg-black/30">
                       <Image
-                        src={getVanImage(van.name)}
+                        src={getVanImage(van)}
                         alt={van.name}
                         width={400}
                         height={300}

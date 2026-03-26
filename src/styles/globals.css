@@ -26,8 +26,11 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+  }
+
+  html[data-scroll-behavior="smooth"] {
+    scroll-behavior: smooth;
   }
 
   * {
@@ -53,5 +56,31 @@
 
   a {
     @apply text-inherit;
+  }
+}
+
+@layer components {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #f1c44f #0a2540;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #0a2540;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #f1c44f;
+    border-radius: 10px;
+    border: 2px solid #0a2540;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #f5d76e;
   }
 }

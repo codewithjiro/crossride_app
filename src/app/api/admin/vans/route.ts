@@ -8,6 +8,7 @@ interface CreateVanRequest {
   name: string;
   plateNumber: string;
   capacity: string | number;
+  image?: string; // base64 or data URL
 }
 
 export async function GET() {
@@ -34,7 +35,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAdmin();
-    const { name, plateNumber, capacity } =
+    const { name, plateNumber, capacity, image } =
       (await req.json()) as CreateVanRequest;
 
     if (!name || !plateNumber || !capacity) {
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
         name,
         plateNumber,
         capacity: parseInt(String(capacity), 10),
+        image: image || null,
         status: "active",
       })
       .returning();

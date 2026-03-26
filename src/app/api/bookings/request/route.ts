@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
-import { bookings, trips, users } from "~/server/db/schema";
+import { bookings, trips, users, vans } from "~/server/db/schema";
 import { eq, and, gte, lt, or } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
@@ -134,6 +134,15 @@ export async function POST(request: NextRequest) {
     if (existingTrip) {
       tripId = existingTrip.id;
     } else {
+      // Get van's actual capacity
+      const van = await db.query.vans.findFirst({
+        where: eq(vans.id, vanId),
+      });
+
+      if (!van) {
+        return NextResponse.json({ error: "Van not found" }, { status: 404 });
+      }
+
       // Create new pending trip (will be scheduled after admin approval)
       const newTrip = await db
         .insert(trips)
@@ -143,7 +152,7 @@ export async function POST(request: NextRequest) {
           route,
           departureTime: new Date(departureTime),
           arrivalTime: new Date(arrivalTime),
-          seatsAvailable: 15, // Default capacity
+          seatsAvailable: van.capacity, // Use van's actual capacity
           seatsReserved: 0,
           status: "pending",
         })
@@ -175,11 +184,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Reserve seats by reducing seatsAvailable
+    // Reserve seats by reducing seatsAvailable and increasing seatsReserved
     await db
       .update(trips)
       .set({
         seatsAvailable: currentTrip.seatsAvailable - seatsRequested,
+        seatsReserved: currentTrip.seatsReserved + seatsRequested,
       })
       .where(eq(trips.id, tripId));
 

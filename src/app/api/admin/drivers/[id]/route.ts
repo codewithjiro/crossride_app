@@ -10,6 +10,10 @@ interface UpdateDriverRequest {
   email?: string;
   phoneNumber?: string;
   licenseNumber?: string;
+  role?: string;
+  experience?: string;
+  specialization?: string;
+  profileImage?: string;
   status?: string;
 }
 
@@ -20,8 +24,17 @@ export async function PATCH(
   try {
     const user = await requireAdmin();
     const { id } = await params;
-    const { name, email, phoneNumber, licenseNumber, status } =
-      (await req.json()) as UpdateDriverRequest;
+    const {
+      name,
+      email,
+      phoneNumber,
+      licenseNumber,
+      role,
+      experience,
+      specialization,
+      profileImage,
+      status,
+    } = (await req.json()) as UpdateDriverRequest;
     const driverId = parseInt(id, 10);
 
     // Get existing driver
@@ -38,6 +51,11 @@ export async function PATCH(
     if (email !== undefined) updateData.email = email;
     if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
     if (licenseNumber !== undefined) updateData.licenseNumber = licenseNumber;
+    if (role !== undefined) updateData.role = role;
+    if (experience !== undefined) updateData.experience = experience;
+    if (specialization !== undefined)
+      updateData.specialization = specialization;
+    if (profileImage !== undefined) updateData.profileImage = profileImage;
     if (status !== undefined) updateData.status = status;
 
     const updatedDriver = await db

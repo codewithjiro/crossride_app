@@ -121,13 +121,11 @@ export function BookingCard({
           </div>
           <Badge
             className={`px-3 py-1 text-sm font-semibold whitespace-nowrap capitalize ${
-              status === "approved"
+              status === "approved" || status === "completed"
                 ? "border border-green-500/30 bg-green-500/20 text-green-300"
                 : status === "pending"
-                  ? "border border-yellow-500/30 bg-yellow-500/20 text-yellow-300"
-                  : status === "completed"
-                    ? "border border-blue-500/30 bg-blue-500/20 text-blue-300"
-                    : "border border-red-500/30 bg-red-500/20 text-red-300"
+                  ? "border border-amber-500/30 bg-amber-500/20 text-amber-300"
+                  : "border border-red-500/30 bg-red-500/20 text-red-300"
             }`}
           >
             {status}

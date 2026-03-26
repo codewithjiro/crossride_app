@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, MapPin, Users } from "lucide-react";
+import { Trash2, MapPin, Users, Eye } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 
@@ -50,9 +50,15 @@ interface TripsTableProps {
   trips: TripWithRelations[];
   loading: boolean;
   onCancel: (id: number) => void | Promise<void>;
+  onViewDetails: (trip: TripWithRelations) => void;
 }
 
-export function TripsTable({ trips, loading, onCancel }: TripsTableProps) {
+export function TripsTable({
+  trips,
+  loading,
+  onCancel,
+  onViewDetails,
+}: TripsTableProps) {
   if (trips.length === 0) {
     return <div className="p-8 text-center text-gray-400">No trips found</div>;
   }
@@ -64,7 +70,7 @@ export function TripsTable({ trips, loading, onCancel }: TripsTableProps) {
       case "scheduled":
         return "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30";
       case "completed":
-        return "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30";
+        return "bg-green-500/20 text-green-300 hover:bg-green-500/30";
       case "cancelled":
         return "bg-red-500/20 text-red-300 hover:bg-red-500/30";
       default:
@@ -132,9 +138,16 @@ export function TripsTable({ trips, loading, onCancel }: TripsTableProps) {
               {formatDate(trip.departureTime)}
             </td>
             <td className="px-6 py-4">
-              <div className="flex items-center gap-2 text-white">
-                <Users size={16} className="text-[#f1c44f]" />
-                {trip.seatsAvailable}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-white">
+                  <Users size={16} className="text-[#f1c44f]" />
+                  <span className="font-semibold">
+                    {trip.seatsAvailable}/{trip.van?.capacity || "N/A"}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-400">
+                  {trip.seatsReserved} reserved
+                </span>
               </div>
             </td>
             <td className="px-6 py-4">
@@ -156,6 +169,15 @@ export function TripsTable({ trips, loading, onCancel }: TripsTableProps) {
             </td>
             <td className="px-6 py-4 text-right">
               <div className="flex items-center justify-end gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => onViewDetails(trip)}
+                  className="gap-2 border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                  variant="outline"
+                >
+                  <Eye size={16} />
+                  View
+                </Button>
                 <Button
                   size="sm"
                   onClick={() => onCancel(trip.id)}
