@@ -35,7 +35,7 @@ export function ConfirmationDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-lg border border-[#f1c44f]/20 bg-[#0a2540] p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">{title}</h2>

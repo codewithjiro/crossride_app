@@ -91,83 +91,85 @@ export function LayoutSidebar() {
   };
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 flex-col overflow-hidden border-r border-[#f1c44f]/20 bg-[#0a2540]">
-      {/* Header */}
-      <div className="border-b border-[#f1c44f]/20 p-6">
-        <div className="flex items-center gap-3">
-          <div className="relative h-10 w-10">
-            <Image
-              src="/images/logohcc-150x150.png"
-              alt="Holy Cross College Logo"
-              fill
-              sizes="40px"
-              className="rounded-full object-contain"
-              priority
-            />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
-            <p className="mt-1 text-sm text-gray-400">Passenger Portal</p>
+    <>
+      <aside className="sticky top-0 flex h-screen w-64 flex-col overflow-hidden border-r border-[#f1c44f]/20 bg-[#0a2540]">
+        {/* Header */}
+        <div className="border-b border-[#f1c44f]/20 p-6">
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10">
+              <Image
+                src="/images/logohcc-150x150.png"
+                alt="Holy Cross College Logo"
+                fill
+                sizes="40px"
+                className="rounded-full object-contain"
+                priority
+              />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
+              <p className="mt-1 text-sm text-gray-400">Passenger Portal</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-2 p-6">
-        {navigationItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
+        {/* Navigation */}
+        <nav className="flex-1 space-y-2 p-6">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
 
-          return (
-            <Link key={item.href} href={item.href}>
-              <Button
-                variant="ghost"
-                className={`w-full justify-start gap-3 ${
-                  isActive
-                    ? "bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90"
-                    : "text-gray-400 hover:bg-[#f1c44f]/10 hover:text-white"
-                }`}
-              >
-                <Icon size={20} />
-                <span className="flex-1 text-left">{item.label}</span>
-                {item.href === "/my-bookings" && pendingCount > 0 && (
-                  <span className="ml-auto inline-flex items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
-                    {pendingCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
-          );
-        })}
+            return (
+              <Link key={item.href} href={item.href}>
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start gap-3 ${
+                    isActive
+                      ? "bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90"
+                      : "text-gray-400 hover:bg-[#f1c44f]/10 hover:text-white"
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.href === "/my-bookings" && pendingCount > 0 && (
+                    <span className="ml-auto inline-flex items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                      {pendingCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            );
+          })}
 
-        {/* Request Trip Button - Below Profile */}
-        <Link href="/request-trip" className="block pt-4">
+          {/* Request Trip Button - Below Profile */}
+          <Link href="/request-trip" className="block pt-4">
+            <Button
+              variant="ghost"
+              className={`w-full justify-center gap-2 font-semibold ${
+                pathname === "/request-trip"
+                  ? "bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90"
+                  : "text-gray-400 hover:bg-[#f1c44f]/10 hover:text-white"
+              }`}
+            >
+              <Plus size={20} />
+              Request a Trip
+            </Button>
+          </Link>
+        </nav>
+
+        {/* Footer */}
+        <div className="space-y-4 border-t border-[#f1c44f]/20 p-6">
+          <Separator className="bg-[#f1c44f]/20" />
           <Button
-            variant="ghost"
-            className={`w-full justify-center gap-2 font-semibold ${
-              pathname === "/request-trip"
-                ? "bg-[#f1c44f] text-[#071d3a] hover:bg-[#f1c44f]/90"
-                : "text-gray-400 hover:bg-[#f1c44f]/10 hover:text-white"
-            }`}
+            onClick={() => setLogoutConfirmOpen(true)}
+            disabled={isLoggingOut}
+            className="w-full gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-50"
           >
-            <Plus size={20} />
-            Request a Trip
+            <LogOut size={20} />
+            Sign Out
           </Button>
-        </Link>
-      </nav>
-
-      {/* Footer */}
-      <div className="space-y-4 border-t border-[#f1c44f]/20 p-6">
-        <Separator className="bg-[#f1c44f]/20" />
-        <Button
-          onClick={() => setLogoutConfirmOpen(true)}
-          disabled={isLoggingOut}
-          className="w-full gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-50"
-        >
-          <LogOut size={20} />
-          Sign Out
-        </Button>
-      </div>
+        </div>
+      </aside>
 
       <ConfirmationDialog
         isOpen={logoutConfirmOpen}
@@ -180,6 +182,6 @@ export function LayoutSidebar() {
         onConfirm={handleConfirmLogout}
         onCancel={handleCancelLogout}
       />
-    </aside>
+    </>
   );
 }
