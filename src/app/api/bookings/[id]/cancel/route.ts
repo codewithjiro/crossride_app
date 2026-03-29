@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { requireAuth } from "~/lib/auth";
 
 // Force dynamic to prevent caching
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function PATCH(
   _req: NextRequest,
