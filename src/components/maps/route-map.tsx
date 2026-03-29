@@ -117,3 +117,4 @@ export default function RouteMap({ pickup, dropoff, coords }: RouteMapProps) {
       <MapLayers pickup={pickup} dropoff={dropoff} positions={positions} />
     </MapContainer>
   );
+}
