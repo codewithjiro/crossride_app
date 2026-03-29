@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "~/server/db";
 import { bookings, trips } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -6,11 +7,12 @@ import { requireAuth } from "~/lib/auth";
 
 export async function PATCH(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth();
-    const bookingId = Number(params.id);
+    const { id } = await params;
+    const bookingId = Number(id);
 
     if (!bookingId || Number.isNaN(bookingId)) {
       return NextResponse.json(
@@ -59,6 +61,11 @@ export async function PATCH(
       .update(bookings)
       .set({ status: "cancelled" })
       .where(eq(bookings.id, bookingId));
+
+    revalidatePath("/my-bookings");
+    revalidatePath("/my-bookings/");
+    revalidatePath("/dashboard");
+    revalidatePath("/admin/bookings");
 
     return NextResponse.json({ success: true });
   } catch (error) {

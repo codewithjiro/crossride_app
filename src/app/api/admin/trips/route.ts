@@ -13,6 +13,11 @@ export async function GET() {
       with: {
         van: true,
         driver: true,
+        bookings: {
+          with: {
+            user: true,
+          },
+        },
       },
     });
 

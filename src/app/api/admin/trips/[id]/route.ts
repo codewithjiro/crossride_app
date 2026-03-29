@@ -1,10 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "~/server/db";
 import { trips, bookings, adminLogs } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "~/lib/auth";
-import { checkConflicts } from "~/lib/conflicts";
+import { checkConflicts, checkDuplicateTrip } from "~/lib/conflicts";
 
 interface UpdateTripRequest {
   vanId?: string | number;
@@ -78,8 +79,29 @@ export async function PATCH(
       if (conflictCheck.hasConflict) {
         return NextResponse.json(
           { error: conflictCheck.message ?? "Scheduling conflict detected" },
-          { status: 400 },
+          { status: 409 }, // 409 Conflict
         );
+      }
+
+      // Also check for duplicate trips if route or times changed
+      if (route ?? departureTime ?? arrivalTime) {
+        const duplicateCheck = await checkDuplicateTrip(
+          newVanId,
+          route ?? existingTrip.route,
+          newDepTime,
+          newArrTime,
+          tripId,
+        );
+        if (duplicateCheck.isDuplicate) {
+          return NextResponse.json(
+            {
+              error: `Cannot update trip: ${duplicateCheck.message}`,
+              conflictingTripId: duplicateCheck.existingTripId,
+              conflictingTripStatus: duplicateCheck.existingTripStatus,
+            },
+            { status: 409 }, // 409 Conflict
+          );
+        }
       }
     }
 
@@ -117,6 +139,10 @@ export async function PATCH(
       changes: JSON.stringify({ before: existingTrip, after: updateData }),
       description: `Updated trip: ${route ?? existingTrip.route}`,
     });
+
+    revalidatePath("/admin/trips");
+    revalidatePath("/admin/bookings");
+    revalidatePath("/admin/dashboard");
 
     return NextResponse.json(updatedTrip[0]);
   } catch (error) {

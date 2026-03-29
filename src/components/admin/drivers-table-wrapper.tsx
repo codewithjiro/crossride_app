@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Edit, Trash2, Mail, Phone } from "lucide-react";
 import { Card } from "~/components/ui/card";
@@ -9,21 +10,53 @@ import { EditDriverModal } from "./edit-driver-modal";
 
 interface Driver {
   id: number;
-  name: string;
+  firstName: string;
+  middleName?: string;
+  surname: string;
   email: string;
   phoneNumber: string;
   licenseNumber: string;
-  role?: string;
   experience?: string;
   specialization?: string;
   profileImage?: string;
 }
 
-export function DriversTableWrapper({ drivers }: { drivers: Driver[] }) {
+export function DriversTableWrapper({
+  drivers: initialDrivers,
+}: {
+  drivers: Driver[];
+}) {
+  const router = useRouter();
+  const [drivers, setDrivers] = useState<Driver[]>(initialDrivers);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<Driver | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Refetch drivers when refreshKey changes
+  useEffect(() => {
+    if (refreshKey === 0) return;
+
+    const fetchDrivers = async () => {
+      try {
+        const response = await fetch("/api/admin/drivers");
+        if (response.ok) {
+          const data = await response.json();
+          setDrivers(data);
+        }
+      } catch (err) {
+        console.error("Error fetching drivers:", err);
+      }
+    };
+
+    fetchDrivers();
+  }, [refreshKey]);
+
+  const triggerRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
+    router.refresh();
+  };
 
   const handleEdit = (driver: Driver) => {
     setEditingDriver(driver);
@@ -48,7 +81,7 @@ export function DriversTableWrapper({ drivers }: { drivers: Driver[] }) {
         return;
       }
 
-      window.location.reload();
+      setDrivers(drivers.filter((d) => d.id !== driverToDelete.id));
     } catch (err) {
       alert("Error deleting driver");
     } finally {
@@ -56,6 +89,13 @@ export function DriversTableWrapper({ drivers }: { drivers: Driver[] }) {
       setDeleteConfirmOpen(false);
       setDriverToDelete(null);
     }
+  };
+
+  const handleRefreshDrivers = () => {
+    setEditingDriver(null);
+    setDrivers(
+      drivers.map((d) => (d.id === editingDriver?.id ? editingDriver : d)),
+    );
   };
 
   const handleCancelDelete = () => {
@@ -86,26 +126,26 @@ export function DriversTableWrapper({ drivers }: { drivers: Driver[] }) {
               {driver.profileImage ? (
                 <Image
                   src={driver.profileImage}
-                  alt={driver.name}
+                  alt={`${driver.firstName} ${driver.surname}`}
                   width={300}
                   height={400}
                   className="h-full w-full object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[#1a3a5c] text-4xl font-bold text-[#f1c44f]">
-                  {driver.name.charAt(0).toUpperCase()}
+                  {driver.firstName.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
 
             {/* Driver Info */}
             <div className="mb-4 space-y-2">
-              <h3 className="text-lg font-bold text-white">{driver.name}</h3>
+              <h3 className="text-lg font-bold text-white">
+                {driver.firstName}{" "}
+                {driver.middleName ? `${driver.middleName} ` : ""}
+                {driver.surname}
+              </h3>
               <div className="space-y-1 text-sm text-gray-400">
-                <p>
-                  <span className="text-gray-300">Role:</span>{" "}
-                  {driver.role || "—"}
-                </p>
                 <p>
                   <span className="text-gray-300">Experience:</span>{" "}
                   {driver.experience || "—"}
@@ -151,13 +191,16 @@ export function DriversTableWrapper({ drivers }: { drivers: Driver[] }) {
         isOpen={editingDriver !== null}
         driver={editingDriver}
         onClose={() => setEditingDriver(null)}
-        onSuccess={() => setEditingDriver(null)}
+        onSuccess={() => {
+          triggerRefresh();
+          setEditingDriver(null);
+        }}
       />
 
       <ConfirmationDialog
         isOpen={deleteConfirmOpen}
         title="Delete Driver"
-        description={`Are you sure you want to delete ${driverToDelete?.name}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${driverToDelete?.firstName} ${driverToDelete?.surname}? This action cannot be undone.`}
         confirmText="Delete Driver"
         cancelText="Cancel"
         isDangerous={true}

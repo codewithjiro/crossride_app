@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
 import { bookings, users, trips } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
+import { checkConflicts, checkDuplicateTrip } from "~/lib/conflicts";
 
 export async function PATCH(
   request: NextRequest,
@@ -71,20 +73,70 @@ export async function PATCH(
       }
     }
 
-    // If approving, change trip to scheduled (seats already reserved at request time)
+    // If approving, validate driver is assigned, then change trip to scheduled
     if (body.status === "approved") {
       const trip = await db.query.trips.findFirst({
         where: eq(trips.id, booking.tripId),
       });
 
-      if (trip) {
-        await db
-          .update(trips)
-          .set({
-            status: "scheduled",
-          })
-          .where(eq(trips.id, booking.tripId));
+      if (!trip) {
+        return NextResponse.json({ error: "Trip not found" }, { status: 404 });
       }
+
+      // Validate that driver is assigned before allowing approval
+      if (!trip.driverId) {
+        return NextResponse.json(
+          { error: "Cannot approve booking without assigned driver" },
+          { status: 400 },
+        );
+      }
+
+      // Final validation: Check for scheduling conflicts
+      // This ensures no conflicts occurred since the driver was assigned
+      const conflictCheck = await checkConflicts(
+        trip.vanId,
+        trip.driverId,
+        trip.departureTime,
+        trip.arrivalTime,
+        trip.id, // Exclude current trip from conflict check
+      );
+
+      if (conflictCheck.hasConflict) {
+        return NextResponse.json(
+          {
+            error: `Cannot approve: ${conflictCheck.message} A scheduling conflict was detected. Please reassign the driver or reject this booking.`,
+          },
+          { status: 409 }, // 409 Conflict
+        );
+      }
+
+      // Final validation: Check for duplicate trips
+      const duplicateCheck = await checkDuplicateTrip(
+        trip.vanId,
+        trip.route,
+        trip.departureTime,
+        trip.arrivalTime,
+        trip.id, // Exclude current trip from duplicate check
+      );
+
+      if (duplicateCheck.isDuplicate) {
+        return NextResponse.json(
+          {
+            error: `Cannot approve: Duplicate trip detected. ${duplicateCheck.message}`,
+            conflictingTripId: duplicateCheck.existingTripId,
+            conflictingTripStatus: duplicateCheck.existingTripStatus,
+          },
+          { status: 409 }, // 409 Conflict
+        );
+      }
+
+      // All validations passed, update trip status to scheduled
+      await db
+        .update(trips)
+        .set({
+          status: "scheduled",
+        })
+        .where(eq(trips.id, booking.tripId));
     }
 
     // Update booking status
@@ -96,6 +148,9 @@ export async function PATCH(
       })
       .where(eq(bookings.id, bookingId))
       .returning();
+
+    revalidatePath("/admin/bookings");
+    revalidatePath("/my-bookings");
 
     return NextResponse.json({
       success: true,

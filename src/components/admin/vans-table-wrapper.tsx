@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Edit, Trash2 } from "lucide-react";
 import { Card } from "~/components/ui/card";
@@ -15,11 +16,38 @@ interface Van {
   image?: string;
 }
 
-export function VansTableWrapper({ vans }: { vans: Van[] }) {
+export function VansTableWrapper({ vans: initialVans }: { vans: Van[] }) {
+  const router = useRouter();
+  const [vans, setVans] = useState<Van[]>(initialVans);
   const [editingVan, setEditingVan] = useState<Van | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [vanToDelete, setVanToDelete] = useState<Van | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Refetch vans when refreshKey changes
+  useEffect(() => {
+    if (refreshKey === 0) return;
+
+    const fetchVans = async () => {
+      try {
+        const response = await fetch("/api/admin/vans");
+        if (response.ok) {
+          const data = await response.json();
+          setVans(data);
+        }
+      } catch (err) {
+        console.error("Error fetching vans:", err);
+      }
+    };
+
+    fetchVans();
+  }, [refreshKey]);
+
+  const triggerRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
+    router.refresh();
+  };
 
   const handleEdit = (van: Van) => {
     setEditingVan(van);
@@ -44,7 +72,7 @@ export function VansTableWrapper({ vans }: { vans: Van[] }) {
         return;
       }
 
-      window.location.reload();
+      setVans(vans.filter((v) => v.id !== vanToDelete.id));
     } catch (err) {
       alert("Error deleting van");
     } finally {
@@ -130,7 +158,10 @@ export function VansTableWrapper({ vans }: { vans: Van[] }) {
         isOpen={editingVan !== null}
         van={editingVan}
         onClose={() => setEditingVan(null)}
-        onSuccess={() => setEditingVan(null)}
+        onSuccess={() => {
+          triggerRefresh();
+          setEditingVan(null);
+        }}
       />
 
       <ConfirmationDialog

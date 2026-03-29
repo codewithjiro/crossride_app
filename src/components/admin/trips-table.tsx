@@ -8,7 +8,7 @@ import { Badge } from "~/components/ui/badge";
 type DbTrip = {
   id: number;
   vanId: number;
-  driverId: number;
+  driverId: number | null; // Can be null - assigned by admin
   route: string;
   departureTime: Date | string;
   arrivalTime: Date | string;
@@ -51,6 +51,7 @@ interface TripsTableProps {
   loading: boolean;
   onCancel: (id: number) => void | Promise<void>;
   onViewDetails: (trip: TripWithRelations) => void;
+  onAssignDriver?: (trip: TripWithRelations) => void;
 }
 
 export function TripsTable({
@@ -58,6 +59,7 @@ export function TripsTable({
   loading,
   onCancel,
   onViewDetails,
+  onAssignDriver,
 }: TripsTableProps) {
   if (trips.length === 0) {
     return <div className="p-8 text-center text-gray-400">No trips found</div>;
@@ -132,7 +134,15 @@ export function TripsTable({
               {trip.van?.plateNumber || "N/A"}
             </td>
             <td className="px-6 py-4 text-gray-300">
-              {trip.driver?.name || "N/A"}
+              {trip.driver ? (
+                <span className="font-medium text-white">
+                  {trip.driver.firstName}{" "}
+                  {trip.driver.middleName ? `${trip.driver.middleName} ` : ""}
+                  {trip.driver.surname}
+                </span>
+              ) : (
+                <span className="text-red-400 italic">Not assigned</span>
+              )}
             </td>
             <td className="px-6 py-4 text-gray-300">
               {formatDate(trip.departureTime)}
@@ -168,7 +178,19 @@ export function TripsTable({
               </div>
             </td>
             <td className="px-6 py-4 text-right">
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {!trip.driverId &&
+                  trip.status === "pending" &&
+                  onAssignDriver && (
+                    <Button
+                      size="sm"
+                      onClick={() => onAssignDriver(trip)}
+                      className="gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                      variant="outline"
+                    >
+                      Assign Driver
+                    </Button>
+                  )}
                 <Button
                   size="sm"
                   onClick={() => onViewDetails(trip)}

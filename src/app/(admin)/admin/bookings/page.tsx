@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -15,8 +16,35 @@ import {
   XCircle,
 } from "lucide-react";
 
+interface Driver {
+  id: number;
+  firstName: string;
+  middleName?: string;
+  surname: string;
+  email: string;
+  phone: string;
+  license: string;
+  experience: number;
+  specialization: string;
+  profileImage?: string;
+  status: string;
+}
+
+interface Trip {
+  id: number;
+  route: string;
+  departureTime: string;
+  driverId: number | null;
+  vanId: number;
+  van: {
+    name: string;
+  };
+  driver: Driver | null;
+}
+
 interface BookingDetail {
   id: number;
+  tripId: number;
   seatsBooked: number;
   status: "pending" | "approved" | "rejected" | "cancelled";
   createdAt: string;
@@ -26,21 +54,13 @@ interface BookingDetail {
     email: string;
     profileImage?: string;
   };
-  trip: {
-    route: string;
-    departureTime: string;
-    van: {
-      name: string;
-    };
-    driver: {
-      name: string;
-    };
-  };
+  trip: Trip;
 }
 
 export const dynamic = "force-dynamic";
 
 export default function BookingsPage() {
+  const router = useRouter();
   const [bookings, setBookings] = useState<BookingDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
@@ -68,10 +88,12 @@ export default function BookingsPage() {
     }
   };
 
-  const handleApproveReject = async (
-    bookingId: number,
-    status: "approved" | "rejected",
-  ) => {
+  const handleApproveClick = (booking: BookingDetail) => {
+    // Navigate to approval page instead of opening a modal
+    router.push(`/admin/bookings/${booking.id}/approve`);
+  };
+
+  const handleReject = async (bookingId: number) => {
     setActionLoading(bookingId);
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
@@ -79,17 +101,19 @@ export default function BookingsPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: "rejected" }),
       });
 
       if (response.ok) {
         // Update local state
         setBookings((prev) =>
-          prev.map((b) => (b.id === bookingId ? { ...b, status } : b)),
+          prev.map((b) =>
+            b.id === bookingId ? { ...b, status: "rejected" } : b,
+          ),
         );
       }
     } catch (error) {
-      console.error("Failed to update booking:", error);
+      console.error("Failed to reject booking:", error);
     } finally {
       setActionLoading(null);
     }
@@ -166,7 +190,19 @@ export default function BookingsPage() {
                           <div className="flex items-center gap-2 text-gray-300">
                             <span className="text-sm">
                               Driver:{" "}
-                              <strong>{booking.trip?.driver?.name}</strong>
+                              <strong>
+                                {booking.trip?.driver ? (
+                                  <>
+                                    {booking.trip.driver.firstName}{" "}
+                                    {booking.trip.driver.middleName}{" "}
+                                    {booking.trip.driver.surname}
+                                  </>
+                                ) : (
+                                  <span className="text-red-400">
+                                    Not assigned
+                                  </span>
+                                )}
+                              </strong>
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-300">
@@ -196,9 +232,7 @@ export default function BookingsPage() {
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() =>
-                        handleApproveReject(booking.id, "approved")
-                      }
+                      onClick={() => handleApproveClick(booking)}
                       disabled={actionLoading === booking.id}
                       className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
                     >
@@ -210,9 +244,7 @@ export default function BookingsPage() {
                       Approve
                     </Button>
                     <Button
-                      onClick={() =>
-                        handleApproveReject(booking.id, "rejected")
-                      }
+                      onClick={() => handleReject(booking.id)}
                       disabled={actionLoading === booking.id}
                       className="flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                     >
@@ -263,6 +295,13 @@ export default function BookingsPage() {
                       <p className="text-sm text-gray-400">
                         {booking.trip?.route}
                       </p>
+                      {booking.trip?.driver && (
+                        <p className="mt-1 text-xs text-green-400">
+                          Driver: {booking.trip.driver.firstName}{" "}
+                          {booking.trip.driver.middleName}{" "}
+                          {booking.trip.driver.surname}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <Badge className="bg-green-500/20 text-green-400">

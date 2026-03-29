@@ -66,7 +66,7 @@ export default function UserLayout({
       <SessionManager
         inactivityTimeoutMinutes={30}
         warningMinutesBefore={5}
-        logoutOnClose={true}
+        logoutOnClose={false}
         enableWarning={true}
       />
     </div>

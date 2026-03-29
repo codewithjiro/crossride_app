@@ -52,13 +52,13 @@ export function LayoutSidebar() {
         const response = await fetch("/api/bookings");
         const data = await response.json();
         if (response.ok && Array.isArray(data)) {
-          const pending = data.filter(
-            (b: { status: string }) => b.status === "pending",
+          const approved = data.filter(
+            (b: { status: string }) => b.status === "approved",
           ).length;
-          setPendingCount(pending);
+          setPendingCount(approved);
         }
       } catch (error) {
-        console.error("Failed to fetch pending count:", error);
+        console.error("Failed to fetch approved count:", error);
       }
     };
 

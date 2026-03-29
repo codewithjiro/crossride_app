@@ -22,11 +22,12 @@ export async function GET() {
 }
 
 interface CreateDriverRequest {
-  name: string;
+  firstName: string;
+  middleName?: string;
+  surname: string;
   email: string;
   phoneNumber: string;
   licenseNumber: string;
-  role?: string;
   experience?: string;
   specialization?: string;
   profileImage?: string; // base64 or data URL
@@ -36,17 +37,18 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireAdmin();
     const {
-      name,
+      firstName,
+      middleName,
+      surname,
       email,
       phoneNumber,
       licenseNumber,
-      role,
       experience,
       specialization,
       profileImage,
     } = (await req.json()) as CreateDriverRequest;
 
-    if (!name || !email || !phoneNumber || !licenseNumber) {
+    if (!firstName || !surname || !email || !phoneNumber || !licenseNumber) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -56,11 +58,12 @@ export async function POST(req: NextRequest) {
     const newDriver = await db
       .insert(drivers)
       .values({
-        name,
+        firstName,
+        middleName: middleName || null,
+        surname,
         email,
         phoneNumber,
         licenseNumber,
-        role: role || null,
         experience: experience || null,
         specialization: specialization || null,
         profileImage: profileImage || null,
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
       action: "CREATE",
       entityType: "driver",
       entityId: String(newDriver[0]?.id),
-      description: `Created new driver: ${name}`,
+      description: `Created new driver: ${firstName} ${surname}`,
     });
 
     return NextResponse.json(newDriver[0], { status: 201 });

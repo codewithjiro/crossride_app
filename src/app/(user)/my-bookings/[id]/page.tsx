@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Building2,
   Pencil,
+  Hourglass,
 } from "lucide-react";
 import RoutePreview from "./route-preview";
 
@@ -168,8 +169,22 @@ export default async function BookingDetail({
               <div className="text-sm text-gray-300">
                 Plate: {booking.trip?.van?.plateNumber || "Unknown"}
               </div>
-              <div className="text-sm text-gray-300">
-                Driver: {booking.trip?.driver?.name || "Unknown"}
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                {booking.trip?.driver?.firstName ? (
+                  <>
+                    <Car size={16} /> Driver: {booking.trip.driver.firstName}{" "}
+                    {booking.trip.driver.middleName
+                      ? booking.trip.driver.middleName + " "
+                      : ""}
+                    {booking.trip.driver.surname}
+                  </>
+                ) : booking.status === "pending" ? (
+                  <>
+                    <Hourglass size={16} /> Pending Assignment
+                  </>
+                ) : (
+                  <>Unknown</>
+                )}
               </div>
             </div>
           </div>

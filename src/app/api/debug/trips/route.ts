@@ -15,7 +15,12 @@ export async function GET() {
           columns: { id: true, name: true },
         },
         driver: {
-          columns: { id: true, name: true },
+          columns: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            surname: true,
+          },
         },
       },
     });
@@ -36,7 +41,7 @@ export async function GET() {
         vanId: t.vanId,
         vanName: t.van.name,
         driverId: t.driverId,
-        driverName: t.driver.name,
+        driverName: `${t.driver.firstName} ${t.driver.middleName ? `${t.driver.middleName} ` : ""}${t.driver.surname}`,
         status: t.status,
         departureTime: t.departureTime,
         departureTimeISO: t.departureTime.toISOString(),

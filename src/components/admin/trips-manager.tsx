@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { CheckCircle2 } from "lucide-react";
 import { TripsTable } from "~/components/admin/trips-table";
 import { TripDetailsModal } from "~/components/admin/trip-details-modal";
+import { AssignDriverModal } from "~/components/admin/assign-driver-modal";
 import { ConfirmationDialog } from "~/components/ui/confirmation-dialog";
 
 // We can't import types directly from schema since they're not exported.
@@ -17,7 +19,7 @@ import { ConfirmationDialog } from "~/components/ui/confirmation-dialog";
 type DbTrip = {
   id: number;
   vanId: number;
-  driverId: number;
+  driverId: number | null; // Can be null - driver assigned by admin
   route: string;
   departureTime: Date | string;
   arrivalTime: Date | string;
@@ -41,18 +43,45 @@ type DbVan = {
 
 type DbDriver = {
   id: number;
-  name: string;
+  firstName: string;
+  middleName?: string;
+  surname: string;
   email: string;
   phoneNumber: string;
   licenseNumber: string;
+  experience?: string;
+  specialization?: string;
+  profileImage?: string;
   status: string;
   createdAt: Date | string;
   updatedAt: Date | string | null;
 };
 
+type DbUser = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  profileImage?: string;
+};
+
+type DbBooking = {
+  id: number;
+  userId: string;
+  tripId: number;
+  seatsBooked: number;
+  department?: string | null;
+  status: string;
+  createdAt: Date | string;
+  updatedAt: Date | string | null;
+  user: DbUser;
+};
+
 interface TripWithRelations extends DbTrip {
   van: DbVan | null;
   driver: DbDriver | null;
+  bookings?: DbBooking[];
 }
 
 interface TripsManagerProps {
@@ -66,12 +95,16 @@ export function TripsManager({
   vans,
   drivers,
 }: TripsManagerProps) {
+  const router = useRouter();
   const [trips, setTrips] = useState<TripWithRelations[]>(initialTrips);
   const [loading, setLoading] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<TripWithRelations | null>(
     null,
   );
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isAssignDriverModalOpen, setIsAssignDriverModalOpen] = useState(false);
+  const [tripForDriverAssignment, setTripForDriverAssignment] =
+    useState<TripWithRelations | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -80,6 +113,20 @@ export function TripsManager({
   const handleViewDetails = (trip: TripWithRelations) => {
     setSelectedTrip(trip);
     setIsDetailsModalOpen(true);
+  };
+
+  const handleAssignDriver = (trip: TripWithRelations) => {
+    setTripForDriverAssignment(trip);
+    setIsAssignDriverModalOpen(true);
+  };
+
+  const handleAssignDriverSuccess = () => {
+    // Refetch trips to get the updated one
+    setIsAssignDriverModalOpen(false);
+    setTripForDriverAssignment(null);
+    // Trigger a refresh - you could also refetch the trips here
+    setTrips([...trips]);
+    router.refresh();
   };
 
   const handleCancel = (tripId: number) => {
@@ -123,6 +170,7 @@ export function TripsManager({
             : t,
         ),
       );
+      router.refresh();
     } catch (error) {
       alert("Error cancelling trip");
       console.error(error);
@@ -168,6 +216,8 @@ export function TripsManager({
                   loading={loading}
                   onCancel={handleCancel}
                   onViewDetails={handleViewDetails}
+                  onAssignDriver={handleAssignDriver}
+                  onAssignDriver={handleAssignDriver}
                 />
               </div>
             </Card>
@@ -210,6 +260,7 @@ export function TripsManager({
                   loading={loading}
                   onCancel={handleCancel}
                   onViewDetails={handleViewDetails}
+                  onAssignDriver={handleAssignDriver}
                 />
               </div>
             </Card>
@@ -221,6 +272,14 @@ export function TripsManager({
         trip={selectedTrip}
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
+      />
+
+      <AssignDriverModal
+        trip={tripForDriverAssignment}
+        drivers={drivers}
+        isOpen={isAssignDriverModalOpen}
+        onClose={() => setIsAssignDriverModalOpen(false)}
+        onSuccess={handleAssignDriverSuccess}
       />
 
       <ConfirmationDialog

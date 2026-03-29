@@ -35,18 +35,43 @@ export default function RoutePreview({
   useEffect(() => {
     let cancelled = false;
 
-    const fetchGeocode = async (q: string) => {
-      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
-      if (!res.ok) return null;
+    const fetchWithRetry = async (
+      url: string,
+      retries = 2,
+    ): Promise<Response | null> => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          return res;
+        } catch (err: any) {
+          if (i < retries - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 800));
+          }
+        }
+      }
+      return null;
+    };
+
+    const fetchGeocode = async (q: string): Promise<GeoPoint | null> => {
+      const res = await fetchWithRetry(
+        `/api/geocode?q=${encodeURIComponent(q)}`,
+      );
+      if (!res?.ok) return null;
       const data = await res.json();
       return (data.results?.[0] as GeoPoint | undefined) ?? null;
     };
 
-    const fetchRoute = async (from: GeoPoint, to: GeoPoint) => {
-      const res = await fetch(
+    const fetchRoute = async (
+      from: GeoPoint,
+      to: GeoPoint,
+    ): Promise<RouteInfo | null> => {
+      const res = await fetchWithRetry(
         `/api/route?from=${from.lat},${from.lon}&to=${to.lat},${to.lon}`,
       );
-      if (!res.ok) return null;
+      if (!res?.ok) return null;
       const data = await res.json();
       return data.route as RouteInfo | null;
     };
@@ -105,8 +130,21 @@ export default function RoutePreview({
 
   if (error || !pickup || !dropoff) {
     return (
-      <div className="rounded-lg border border-gray-700 bg-[#0b2a4a] p-4 text-sm text-red-300">
-        {error || "Route preview unavailable."}
+      <div className="space-y-3">
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
+          {error ||
+            "Route map unavailable. Try viewing the route details again."}
+        </div>
+        <div className="space-y-2 rounded-lg border border-gray-700 bg-[#0b2a4a] p-4">
+          <div className="text-sm text-gray-400">
+            <p className="font-semibold text-gray-300">Pickup:</p>
+            <p className="text-gray-400">{pickupLabel}</p>
+          </div>
+          <div className="text-sm text-gray-400">
+            <p className="font-semibold text-gray-300">Destination:</p>
+            <p className="text-gray-400">{dropoffLabel}</p>
+          </div>
+        </div>
       </div>
     );
   }

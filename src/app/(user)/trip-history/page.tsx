@@ -21,7 +21,12 @@ interface TripHistoryBooking {
   trip: {
     route: string;
     departureTime: Date | string;
-    driver: { name: string } | null;
+    driver: {
+      firstName: string;
+      middleName?: string;
+      surname: string;
+      profileImage?: string;
+    } | null;
     van: { name: string } | null;
     status?: string;
     cancelReason?: string | null;
@@ -93,17 +98,46 @@ function TripHistoryTable({
 
             {/* Trip details */}
             <div className="flex-1">
-              <div className="flex items-start justify-between">
-                <div>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <MapPin size={18} className="text-[#f1c44f]" />
                     <h3 className="text-lg font-bold text-white">
                       {booking.trip?.route}
                     </h3>
                   </div>
-                  <p className="mt-1 ml-6 text-sm text-gray-400">
-                    Driver: {booking.trip?.driver?.name || "Unknown"}
-                  </p>
+
+                  {/* Driver info with profile */}
+                  {booking.trip?.driver ? (
+                    <div className="mt-3 ml-6 flex items-center gap-3 rounded-lg bg-[#0a2540]/50 p-3">
+                      <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-[#f1c44f]/30 bg-gray-800">
+                        <img
+                          src={
+                            booking.trip.driver.profileImage ||
+                            "/profile/default_profile.jpg"
+                          }
+                          alt={`${booking.trip.driver.firstName} ${booking.trip.driver.surname}`}
+                          className="h-10 w-10 object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-xs tracking-wide text-gray-500 uppercase">
+                          Driver
+                        </p>
+                        <p className="text-sm font-semibold text-white">
+                          {booking.trip.driver.firstName}{" "}
+                          {booking.trip.driver.middleName
+                            ? booking.trip.driver.middleName + " "
+                            : ""}
+                          {booking.trip.driver.surname}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-3 ml-6 text-sm text-gray-400">
+                      Driver: Not assigned
+                    </p>
+                  )}
                 </div>
                 <Badge
                   className={`capitalize ${

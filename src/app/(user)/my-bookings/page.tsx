@@ -17,8 +17,11 @@ interface BookingDetail {
     status?: string;
     cancelReason?: string;
     driver?: {
-      name: string;
-    };
+      firstName: string;
+      middleName?: string;
+      surname: string;
+      profileImage?: string;
+    } | null;
     van?: {
       name: string;
       plateNumber: string;
@@ -36,7 +39,9 @@ export default function MyBookings() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch("/api/bookings");
+        const response = await fetch("/api/bookings", {
+          cache: "no-store",
+        });
         const data = await response.json();
         if (response.ok && Array.isArray(data)) {
           setBookings(data);
@@ -83,6 +88,13 @@ export default function MyBookings() {
 
   const filteredBookings = getFilteredBookings();
 
+  const getDriverDisplay = (driver: any): string => {
+    if (!driver) {
+      return "Waiting for admin to assign driver";
+    }
+    return `${driver.firstName} ${driver.middleName ? driver.middleName + " " : ""}${driver.surname}`;
+  };
+
   const renderBookingCards = (bookingList: BookingDetail[]) =>
     bookingList.map((booking) => (
       <BookingCard
@@ -91,7 +103,8 @@ export default function MyBookings() {
         status={booking.status}
         route={booking.trip?.route || "Unknown Route"}
         seatsBooked={booking.seatsBooked}
-        driverName={booking.trip?.driver?.name || "Unknown"}
+        driver={booking.trip?.driver || null}
+        driverName={getDriverDisplay(booking.trip?.driver)}
         departureTime={booking.trip?.departureTime || ""}
         vanName={booking.trip?.van?.name || "Unknown"}
         plateNumber={booking.trip?.van?.plateNumber || "Unknown"}

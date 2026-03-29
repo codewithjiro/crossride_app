@@ -1,16 +1,18 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "~/server/db";
 import { drivers, adminLogs } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "~/lib/auth";
 
 interface UpdateDriverRequest {
-  name?: string;
+  firstName?: string;
+  middleName?: string;
+  surname?: string;
   email?: string;
   phoneNumber?: string;
   licenseNumber?: string;
-  role?: string;
   experience?: string;
   specialization?: string;
   profileImage?: string;
@@ -25,11 +27,12 @@ export async function PATCH(
     const user = await requireAdmin();
     const { id } = await params;
     const {
-      name,
+      firstName,
+      middleName,
+      surname,
       email,
       phoneNumber,
       licenseNumber,
-      role,
       experience,
       specialization,
       profileImage,
@@ -47,11 +50,12 @@ export async function PATCH(
     }
 
     const updateData: Record<string, unknown> = {};
-    if (name !== undefined) updateData.name = name;
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (middleName !== undefined) updateData.middleName = middleName;
+    if (surname !== undefined) updateData.surname = surname;
     if (email !== undefined) updateData.email = email;
     if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
     if (licenseNumber !== undefined) updateData.licenseNumber = licenseNumber;
-    if (role !== undefined) updateData.role = role;
     if (experience !== undefined) updateData.experience = experience;
     if (specialization !== undefined)
       updateData.specialization = specialization;
@@ -65,14 +69,17 @@ export async function PATCH(
       .returning();
 
     // Log the action
+    const fullName = `${firstName || existingDriver.firstName} ${surname || existingDriver.surname}`;
     await db.insert(adminLogs).values({
       adminId: user.id,
       action: "UPDATE",
       entityType: "driver",
       entityId: driverId.toString(),
       changes: JSON.stringify({ before: existingDriver, after: updateData }),
-      description: `Updated driver: ${name ?? existingDriver.name}`,
+      description: `Updated driver: ${fullName}`,
     });
+
+    revalidatePath("/admin/drivers");
 
     return NextResponse.json(updatedDriver[0]);
   } catch (error) {
@@ -113,7 +120,7 @@ export async function DELETE(
       action: "DELETE",
       entityType: "driver",
       entityId: driverId.toString(),
-      description: `Deleted driver: ${driver.name}`,
+      description: `Deleted driver: ${driver.firstName} ${driver.surname}`,
     });
 
     return NextResponse.json({

@@ -3,7 +3,16 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { X, MapPin, Calendar, Clock, Users, Car } from "lucide-react";
+import {
+  X,
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  Car,
+  Mail,
+  Phone,
+} from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 
@@ -49,9 +58,31 @@ type DbDriver = {
   profileImage?: string;
 };
 
+type DbUser = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  profileImage?: string;
+};
+
+type DbBooking = {
+  id: number;
+  userId: string;
+  tripId: number;
+  seatsBooked: number;
+  department?: string | null;
+  status: string;
+  createdAt: Date | string;
+  updatedAt: Date | string | null;
+  user: DbUser;
+};
+
 interface TripWithRelations extends DbTrip {
   van: DbVan | null;
   driver: DbDriver | null;
+  bookings?: DbBooking[];
 }
 
 interface TripDetailsModalProps {
@@ -292,21 +323,26 @@ export function TripDetailsModal({
                     {trip.driver?.profileImage ? (
                       <Image
                         src={trip.driver.profileImage}
-                        alt={trip.driver.name}
+                        alt={`${trip.driver.firstName} ${trip.driver.surname}`}
                         width={56}
                         height={56}
                         className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-lg font-bold text-[#f1c44f]">
-                        {trip.driver?.name?.charAt(0)?.toUpperCase() || "?"}
+                        {trip.driver?.firstName?.charAt(0)?.toUpperCase() ||
+                          "?"}
                       </div>
                     )}
                   </div>
                   <div>
                     <p className="text-xs text-gray-400">Driver</p>
                     <p className="font-medium text-white">
-                      {trip.driver?.name || "N/A"}
+                      {trip.driver?.firstName}{" "}
+                      {trip.driver?.middleName
+                        ? `${trip.driver.middleName} `
+                        : ""}
+                      {trip.driver?.surname || "N/A"}
                     </p>
                     {trip.driver?.email && (
                       <p className="text-xs text-gray-400">
@@ -340,6 +376,69 @@ export function TripDetailsModal({
               </p>
             </Card>
           </div>
+
+          {/* Passenger Information Section */}
+          {trip.bookings && trip.bookings.length > 0 ? (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">
+                Passenger Information
+              </h3>
+              <div className="space-y-3">
+                {trip.bookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-4"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="flex items-center gap-2 font-semibold text-white">
+                          <Users size={16} className="text-purple-400" />
+                          {booking.user.firstName} {booking.user.lastName}
+                        </p>
+                        <div className="mt-3 space-y-2">
+                          {booking.user.email && (
+                            <div className="flex items-center gap-3 text-sm text-gray-300">
+                              <Mail size={14} className="text-purple-400" />
+                              <span>{booking.user.email}</span>
+                            </div>
+                          )}
+                          {booking.user.phoneNumber && (
+                            <div className="flex items-center gap-3 text-sm text-gray-300">
+                              <Phone size={14} className="text-purple-400" />
+                              <span>{booking.user.phoneNumber}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-3 text-sm text-gray-300">
+                            <Users size={14} className="text-purple-400" />
+                            <span>Seats Booked: {booking.seatsBooked}</span>
+                          </div>
+                          {booking.department && (
+                            <div className="flex items-center gap-3 text-sm text-gray-300">
+                              <span className="inline-block h-3 w-3 rounded-full bg-purple-400" />
+                              <span>Department: {booking.department}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <Badge
+                        className={`h-fit capitalize ${
+                          booking.status === "approved"
+                            ? "bg-emerald-500/20 text-emerald-300"
+                            : booking.status === "completed"
+                              ? "bg-green-500/20 text-green-300"
+                              : booking.status === "rejected"
+                                ? "bg-red-500/20 text-red-300"
+                                : "bg-amber-500/20 text-amber-300"
+                        }`}
+                      >
+                        {booking.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {/* Locations Section */}
           {pickup || dropoff ? (

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
-import { DRIVERS } from "~/lib/data";
 import {
   MapPin,
   Calendar,
@@ -23,6 +23,12 @@ interface BookingCardProps {
   status: "pending" | "approved" | "completed" | "rejected" | "cancelled";
   route: string;
   seatsBooked: number;
+  driver: {
+    firstName: string;
+    middleName?: string;
+    surname: string;
+    profileImage?: string;
+  } | null;
   driverName: string;
   departureTime: string;
   vanName: string;
@@ -39,6 +45,7 @@ export function BookingCard({
   status,
   route,
   seatsBooked,
+  driver,
   driverName,
   departureTime,
   vanName,
@@ -49,6 +56,7 @@ export function BookingCard({
   tripStatus,
   cancelReason,
 }: BookingCardProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -69,8 +77,15 @@ export function BookingCard({
         return;
       }
 
-      // Success - refresh page
-      window.location.reload();
+      // Call the callback if provided, then refresh
+      if (onCompleted) {
+        onCompleted();
+      }
+      
+      // Small delay to ensure server cache is updated
+      setTimeout(() => {
+        router.refresh();
+      }, 100);
     } catch (err) {
       setError("An error occurred. Please try again.");
       console.error(err);
@@ -95,7 +110,10 @@ export function BookingCard({
         return;
       }
 
-      window.location.reload();
+      // Small delay to ensure server cache is updated
+      setTimeout(() => {
+        router.refresh();
+      }, 100);
     } catch (err) {
       setError("An error occurred. Please try again.");
       console.error(err);
@@ -162,36 +180,43 @@ export function BookingCard({
       <div className="px-6 py-4">
         {/* Driver Info */}
         <div className="mb-6 flex items-center gap-4 border-b border-[#f1c44f]/10 pb-4">
-          {(() => {
-            const driver = DRIVERS.find((d) => d.name === driverName);
-            return (
-              <>
-                <div className="flex-shrink-0">
-                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-800">
-                    {driver?.image ? (
-                      <img
-                        src={driver.image}
-                        alt={driverName}
-                        className="h-16 w-16 object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-16 items-center justify-center bg-[#f1c44f]/20">
-                        <Users size={24} className="text-[#f1c44f]" />
-                      </div>
-                    )}
-                  </div>
+          {driver ? (
+            <>
+              <div className="flex-shrink-0">
+                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-800">
+                  {driver.profileImage ? (
+                    <img
+                      src={driver.profileImage}
+                      alt={`${driver.firstName} ${driver.surname}`}
+                      className="h-16 w-16 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center bg-[#f1c44f]/20">
+                      <Users size={24} className="text-[#f1c44f]" />
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                    Driver
-                  </p>
-                  <p className="text-sm font-semibold text-white">
-                    {driverName}
-                  </p>
-                </div>
-              </>
-            );
-          })()}
+              </div>
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                  Driver
+                </p>
+                <p className="text-sm font-semibold text-white">{driverName}</p>
+              </div>
+            </>
+          ) : (
+            <div className="flex w-full items-center gap-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+              <Clock size={20} className="flex-shrink-0 text-amber-400" />
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-amber-400 uppercase">
+                  Driver Assignment
+                </p>
+                <p className="text-sm font-semibold text-amber-100">
+                  Waiting for admin to assign driver
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Details Grid */}
@@ -273,15 +298,12 @@ export function BookingCard({
 
         <div className="flex items-center gap-2">
           {status === "pending" && (
-            <Button
-              asChild
-              className="gap-2 bg-[#f1c44f] font-semibold text-[#071d3a] hover:bg-[#f1c44f]/90"
-            >
-              <Link href={`/my-bookings/${id}/edit`}>
+            <Link href={`/my-bookings/${id}/edit`}>
+              <Button className="gap-2 bg-[#f1c44f] font-semibold text-[#071d3a] hover:bg-[#f1c44f]/90">
                 <Pencil size={16} />
                 Edit
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           )}
 
           {status === "approved" && (

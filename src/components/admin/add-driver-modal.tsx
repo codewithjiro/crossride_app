@@ -5,6 +5,27 @@ import { Card } from "~/components/ui/card";
 import { X, Trash2 } from "lucide-react";
 import { DriverImageUpload } from "./driver-image-upload";
 
+const SPECIALIZATION_OPTIONS = [
+  "Fleet Coordinator",
+  "Safety Specialist",
+  "Senior Driver",
+  "Premium Driver",
+  "Logistics Specialist",
+];
+
+interface Driver {
+  id: number;
+  firstName: string;
+  middleName?: string;
+  surname: string;
+  email: string;
+  phoneNumber: string;
+  licenseNumber: string;
+  experience?: string;
+  specialization?: string;
+  profileImage?: string;
+}
+
 export function AddDriverModal({
   isOpen,
   onClose,
@@ -18,11 +39,12 @@ export function AddDriverModal({
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    middleName: "",
+    surname: "",
     email: "",
     phoneNumber: "",
     licenseNumber: "",
-    role: "",
     experience: "",
     specialization: "",
     profileImage: "",
@@ -43,7 +65,17 @@ export function AddDriverModal({
       const response = await fetch("/api/admin/drivers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          middleName: formData.middleName || undefined,
+          surname: formData.surname,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          licenseNumber: formData.licenseNumber,
+          experience: formData.experience || undefined,
+          specialization: formData.specialization || undefined,
+          profileImage: formData.profileImage || undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -52,19 +84,19 @@ export function AddDriverModal({
       }
 
       setFormData({
-        name: "",
+        firstName: "",
+        middleName: "",
+        surname: "",
         email: "",
         phoneNumber: "",
         licenseNumber: "",
-        role: "",
         experience: "",
         specialization: "",
         profileImage: "",
       });
       setImagePreview(null);
-      onClose();
       onSuccess();
-      window.location.reload();
+      onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -88,19 +120,51 @@ export function AddDriverModal({
           onSubmit={handleSubmit}
           className="custom-scrollbar max-h-[calc(100vh-200px)] space-y-3 overflow-y-auto pr-6"
         >
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-300">
+                First Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.firstName}
+                onChange={(e) =>
+                  setFormData({ ...formData, firstName: e.target.value })
+                }
+                className="w-full rounded-lg border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-500 focus:border-[#f1c44f]/50 focus:outline-none"
+                placeholder="e.g., Jiro"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-300">
+                Middle Name
+              </label>
+              <input
+                type="text"
+                value={formData.middleName}
+                onChange={(e) =>
+                  setFormData({ ...formData, middleName: e.target.value })
+                }
+                className="w-full rounded-lg border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-500 focus:border-[#f1c44f]/50 focus:outline-none"
+                placeholder="e.g., Carlos"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-300">
-              Name *
+              Surname *
             </label>
             <input
               type="text"
               required
-              value={formData.name}
+              value={formData.surname}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, surname: e.target.value })
               }
               className="w-full rounded-lg border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-500 focus:border-[#f1c44f]/50 focus:outline-none"
-              placeholder="e.g., Jiro Gonzales"
+              placeholder="e.g., Gonzales"
             />
           </div>
 
@@ -154,21 +218,6 @@ export function AddDriverModal({
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-300">
-              Role
-            </label>
-            <input
-              type="text"
-              value={formData.role}
-              onChange={(e) =>
-                setFormData({ ...formData, role: e.target.value })
-              }
-              className="w-full rounded-lg border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-500 focus:border-[#f1c44f]/50 focus:outline-none"
-              placeholder="e.g., Senior Driver"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-300">
               Experience
             </label>
             <input
@@ -186,15 +235,26 @@ export function AddDriverModal({
             <label className="mb-1 block text-sm font-medium text-gray-300">
               Specialization
             </label>
-            <input
-              type="text"
+            <select
               value={formData.specialization}
               onChange={(e) =>
                 setFormData({ ...formData, specialization: e.target.value })
               }
-              className="w-full rounded-lg border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white placeholder-gray-500 focus:border-[#f1c44f]/50 focus:outline-none"
-              placeholder="e.g., Fleet Coordinator"
-            />
+              className="w-full rounded-lg border border-[#f1c44f]/20 bg-[#071d3a] px-4 py-2 text-white focus:border-[#f1c44f]/50 focus:outline-none"
+            >
+              <option value="" className="bg-[#071d3a] text-white">
+                -- Select Specialization --
+              </option>
+              {SPECIALIZATION_OPTIONS.map((spec) => (
+                <option
+                  key={spec}
+                  value={spec}
+                  className="bg-[#071d3a] text-white"
+                >
+                  {spec}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

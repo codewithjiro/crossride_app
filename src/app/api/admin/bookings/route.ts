@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "~/server/db";
 import { bookings, trips, adminLogs } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -114,6 +115,9 @@ export async function PATCH(req: NextRequest) {
       entityId: bookingId,
       description: `${action.charAt(0).toUpperCase() + action.slice(1)} booking #${bookingId}`,
     });
+
+    revalidatePath("/admin/bookings");
+    revalidatePath("/my-bookings");
 
     return NextResponse.json(updatedBooking[0] ?? null);
   } catch (error) {

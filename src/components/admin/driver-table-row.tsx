@@ -7,8 +7,9 @@ import { ConfirmationDialog } from "~/components/ui/confirmation-dialog";
 
 interface Driver {
   id: number;
-  name: string;
-  role?: string;
+  firstName: string;
+  middleName?: string;
+  surname: string;
   experience?: string;
   specialization?: string;
   email: string;
@@ -36,7 +37,7 @@ export function DriverTableRow({
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await onDelete(driver.id, driver.name);
+      await onDelete(driver.id, `${driver.firstName} ${driver.surname}`);
     } finally {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);
@@ -54,23 +55,21 @@ export function DriverTableRow({
           {driver.profileImage ? (
             <Image
               src={driver.profileImage}
-              alt={driver.name}
+              alt={`${driver.firstName} ${driver.surname}`}
               width={64}
               height={64}
               className="h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[#1a3a5c] text-xl font-semibold text-[#f1c44f]">
-              {driver.name.charAt(0).toUpperCase()}
+              {driver.firstName.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
       </td>
       <td className="px-6 py-4 align-middle font-medium text-white">
-        {driver.name}
-      </td>
-      <td className="px-6 py-4 align-middle text-gray-300">
-        {driver.role || "—"}
+        {driver.firstName} {driver.middleName ? `${driver.middleName} ` : ""}
+        {driver.surname}
       </td>
       <td className="px-6 py-4 align-middle text-gray-300">
         {driver.experience || "—"}
@@ -102,7 +101,7 @@ export function DriverTableRow({
       <ConfirmationDialog
         isOpen={isDeleteDialogOpen}
         title="Delete Driver"
-        description={`Are you sure you want to delete ${driver.name}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${driver.firstName} ${driver.surname}? This action cannot be undone.`}
         confirmText="Delete Driver"
         cancelText="Cancel"
         isDangerous={true}

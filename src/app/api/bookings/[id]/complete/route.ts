@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
 import { bookings, users, trips } from "~/server/db/schema";
@@ -6,7 +7,7 @@ import { eq } from "drizzle-orm";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const cookieStore = await cookies();
@@ -25,7 +26,8 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const bookingId = parseInt(params.id);
+    const { id } = await params;
+    const bookingId = parseInt(id);
 
     if (!bookingId) {
       return NextResponse.json(
@@ -74,6 +76,11 @@ export async function PATCH(
         .set({ status: "completed" })
         .where(eq(trips.id, booking.tripId));
     }
+
+    revalidatePath("/my-bookings");
+    revalidatePath("/my-bookings/");
+    revalidatePath("/dashboard");
+    revalidatePath("/admin/bookings");
 
     return NextResponse.json({
       success: true,

@@ -21,7 +21,6 @@ import {
 
 interface BookingRequest {
   vanId: string;
-  driverId: string;
   date: string;
   time: string;
   seatsRequested: number;
@@ -82,9 +81,6 @@ export default function RequestTrip() {
   );
   const [loadingAvailability, setLoadingAvailability] = useState(true);
   const [unavailableVanIds, setUnavailableVanIds] = useState<number[]>([]);
-  const [unavailableDriverIds, setUnavailableDriverIds] = useState<number[]>(
-    [],
-  );
 
   const [pickupQuery, setPickupQuery] = useState(
     "Holy Cross College, Santa Ana, Pampanga, 2022",
@@ -110,18 +106,7 @@ export default function RequestTrip() {
       image?: string | null;
     }>
   >([]);
-  const [drivers, setDrivers] = useState<
-    Array<{
-      id: number;
-      name: string;
-      role?: string;
-      experience?: string;
-      specialization?: string;
-      profileImage?: string;
-    }>
-  >([]);
   const [loadingVans, setLoadingVans] = useState(true);
-  const [loadingDrivers, setLoadingDrivers] = useState(true);
 
   const RouteMap = dynamic(() => import("~/components/maps/route-map"), {
     ssr: false,
@@ -134,7 +119,6 @@ export default function RequestTrip() {
 
   const [formData, setFormData] = useState<BookingRequest>({
     vanId: "",
-    driverId: "",
     date: "",
     time: "08:00",
     seatsRequested: 1,
@@ -144,9 +128,6 @@ export default function RequestTrip() {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   const selectedVan = vans.find((v) => String(v.id) === formData.vanId);
-  const selectedDriver = drivers.find(
-    (d) => String(d.id) === formData.driverId,
-  );
 
   // Fetch availability from API
   useEffect(() => {
@@ -193,29 +174,10 @@ export default function RequestTrip() {
     loadVans();
   }, []);
 
-  // Fetch active drivers from database
-  useEffect(() => {
-    const loadDrivers = async () => {
-      try {
-        const res = await fetch("/api/drivers");
-        const data = await res.json();
-        if (res.ok && Array.isArray(data)) {
-          setDrivers(data);
-        }
-      } catch (err) {
-        console.error("Failed to load drivers", err);
-      } finally {
-        setLoadingDrivers(false);
-      }
-    };
-    loadDrivers();
-  }, []);
-
-  // Fetch unavailable vans and drivers for selected date
+  // Fetch unavailable vans for selected date
   useEffect(() => {
     if (!formData.date) {
       setUnavailableVanIds([]);
-      setUnavailableDriverIds([]);
       return;
     }
 
@@ -227,10 +189,9 @@ export default function RequestTrip() {
         const data = await response.json();
         if (response.ok) {
           setUnavailableVanIds(data.unavailableVanIds || []);
-          setUnavailableDriverIds(data.unavailableDriverIds || []);
         }
       } catch (err) {
-        console.error("Failed to fetch unavailable vans and drivers:", err);
+        console.error("Failed to fetch unavailable vans:", err);
       }
     };
 
@@ -320,8 +281,8 @@ export default function RequestTrip() {
     e.preventDefault();
     setError("");
 
-    if (!formData.vanId || !formData.driverId || !formData.date) {
-      setError("Please select a van, driver, and date");
+    if (!formData.vanId || !formData.date) {
+      setError("Please select a van and date");
       return;
     }
 
@@ -353,7 +314,6 @@ export default function RequestTrip() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           vanId: parseInt(formData.vanId),
-          driverId: parseInt(formData.driverId),
           route:
             `Pickup: ${selectedPickup.label} → Dropoff: ${selectedDropoff.label}` +
             (routeInfo
@@ -433,7 +393,8 @@ export default function RequestTrip() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white">Request a Trip</h1>
           <p className="mt-2 text-gray-400">
-            Book a van and driver for your transportation needs
+            Book a van for your transportation needs. A driver will be assigned
+            by admin.
           </p>
         </div>
 
@@ -737,73 +698,6 @@ export default function RequestTrip() {
             </div>
           </div>
 
-          {/* Select Driver */}
-          <div>
-            <label className="mb-4 block text-lg font-bold text-white">
-              Select a Driver
-            </label>
-            <div className="grid gap-4 md:grid-cols-2">
-              {drivers.map((driver) => {
-                const isUnavailableOnSelectedDate =
-                  formData.date && unavailableDriverIds.includes(driver.id);
-
-                return (
-                  <Card
-                    key={driver.id}
-                    className={`cursor-pointer border-2 p-4 transition-all duration-300 ${
-                      isUnavailableOnSelectedDate
-                        ? "cursor-not-allowed border-red-600/50 bg-red-900/20 opacity-50"
-                        : `${
-                            formData.driverId === String(driver.id)
-                              ? "border-[#f1c44f] bg-[#f1c44f]/5 shadow-lg shadow-[#f1c44f]/20"
-                              : "border-[#f1c44f]/20 bg-[#0a2540]/50 hover:border-[#f1c44f]/40 hover:bg-[#0a2540]/70"
-                          }`
-                    }`}
-                    onClick={() =>
-                      !isUnavailableOnSelectedDate &&
-                      setFormData({ ...formData, driverId: String(driver.id) })
-                    }
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-800">
-                        <Image
-                          src={
-                            driver.profileImage || "/images/default-profile.jpg"
-                          }
-                          alt={driver.name}
-                          width={64}
-                          height={64}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-white">{driver.name}</h3>
-                        <p className="text-sm text-gray-400">{driver.role}</p>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {driver.experience && (
-                            <span className="rounded bg-blue-500/20 px-2 py-0.5 text-xs text-blue-300">
-                              {driver.experience}
-                            </span>
-                          )}
-                          {driver.specialization && (
-                            <span className="rounded bg-[#f1c44f]/20 px-2 py-0.5 text-xs text-[#f1c44f]">
-                              {driver.specialization}
-                            </span>
-                          )}
-                        </div>
-                        {isUnavailableOnSelectedDate && (
-                          <p className="mt-2 text-xs font-semibold text-red-400">
-                            Unavailable
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Seats Selection */}
           <div>
             <label className="mb-4 block text-lg font-bold text-white">
@@ -981,16 +875,12 @@ export default function RequestTrip() {
           )}
 
           {/* Summary */}
-          {selectedVan && selectedDriver && formData.date && (
+          {selectedVan && formData.date && (
             <Card className="border-[#f1c44f]/20 bg-[#0a2540] p-6">
               <h3 className="mb-4 font-bold text-white">Request Summary</h3>
               <div className="space-y-2 text-sm text-gray-400">
                 <p>
                   <span className="text-gray-300">Van:</span> {selectedVan.name}
-                </p>
-                <p>
-                  <span className="text-gray-300">Driver:</span>{" "}
-                  {selectedDriver.name}
                 </p>
                 <p>
                   <span className="text-gray-300">Date:</span>{" "}
@@ -1012,6 +902,10 @@ export default function RequestTrip() {
                 <p>
                   <span className="text-gray-300">Seats Requested:</span>{" "}
                   {formData.seatsRequested}
+                </p>
+                <p className="mt-3 border-t border-gray-600 pt-3 text-xs text-gray-500">
+                  ⏳ A driver will be assigned by the admin after your request
+                  is reviewed and approved.
                 </p>
               </div>
             </Card>

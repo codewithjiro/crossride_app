@@ -54,9 +54,8 @@ export function AddVanModal({
 
       setFormData({ name: "", plateNumber: "", capacity: "", image: "" });
       setImagePreview(null);
-      onClose();
       onSuccess();
-      window.location.reload();
+      onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {

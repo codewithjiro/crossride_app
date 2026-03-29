@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "~/server/db";
 import { vans, adminLogs } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -56,6 +57,8 @@ export async function PATCH(
       changes: JSON.stringify({ before: existingVan, after: updateData }),
       description: `Updated van: ${name ?? existingVan.name}`,
     });
+
+    revalidatePath("/admin/vans");
 
     return NextResponse.json(updatedVan[0]);
   } catch (error) {

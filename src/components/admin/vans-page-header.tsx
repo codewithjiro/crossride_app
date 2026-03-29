@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { AddVanModal } from "~/components/admin/add-van-modal";
 
-export function VansPageHeader() {
+export function VansPageHeader({ onVanAdded }: { onVanAdded?: () => void }) {
   const [isAddVanOpen, setIsAddVanOpen] = useState(false);
 
   return (
@@ -27,7 +27,10 @@ export function VansPageHeader() {
       <AddVanModal
         isOpen={isAddVanOpen}
         onClose={() => setIsAddVanOpen(false)}
-        onSuccess={() => setIsAddVanOpen(false)}
+        onSuccess={() => {
+          setIsAddVanOpen(false);
+          onVanAdded?.();
+        }}
       />
     </>
   );

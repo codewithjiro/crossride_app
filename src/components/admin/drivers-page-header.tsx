@@ -5,7 +5,11 @@ import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { AddDriverModal } from "~/components/admin/add-driver-modal";
 
-export function DriversPageHeader() {
+export function DriversPageHeader({
+  onDriverAdded,
+}: {
+  onDriverAdded?: () => void;
+}) {
   const [isAddDriverOpen, setIsAddDriverOpen] = useState(false);
 
   return (
@@ -27,7 +31,10 @@ export function DriversPageHeader() {
       <AddDriverModal
         isOpen={isAddDriverOpen}
         onClose={() => setIsAddDriverOpen(false)}
-        onSuccess={() => setIsAddDriverOpen(false)}
+        onSuccess={() => {
+          setIsAddDriverOpen(false);
+          onDriverAdded?.();
+        }}
       />
     </>
   );

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { db } from "~/server/db";
 import { users, adminLogs } from "~/server/db/schema";
 import { getCurrentUser } from "~/lib/auth";
@@ -46,6 +47,8 @@ export async function PATCH(request: Request) {
       entityId: userId,
       description: `Promoted ${userToPromote.firstName} ${userToPromote.lastName} (${userToPromote.email}) to admin`,
     });
+
+    revalidatePath("/admin/users");
 
     return Response.json({
       success: true,

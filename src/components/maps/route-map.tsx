@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -27,35 +27,36 @@ function FitBounds({ coords }: { coords: Array<[number, number]> }) {
   const map = useMap();
   useEffect(() => {
     if (!coords.length) return;
-    const bounds = L.latLngBounds(coords);
-    map.fitBounds(bounds, { padding: [20, 20] });
+    try {
+      const bounds = L.latLngBounds(coords);
+      map.fitBounds(bounds, { padding: [20, 20] });
+    } catch (err) {
+      console.error("Error fitting bounds:", err);
+    }
   }, [coords, map]);
   return null;
 }
 
-interface RouteMapProps {
+function MapLayers({
+  pickup,
+  dropoff,
+  positions,
+}: {
   pickup: { lat: number; lon: number };
   dropoff: { lat: number; lon: number };
-  coords: Array<{ lat: number; lon: number }>;
-}
+  positions: Array<[number, number]>;
+}) {
+  const map = useMap();
+  const [ready, setReady] = useState(false);
 
-export default function RouteMap({ pickup, dropoff, coords }: RouteMapProps) {
-  const positions = useMemo(
-    () => coords.map((c) => [c.lat, c.lon] as [number, number]),
-    [coords],
-  );
+  useEffect(() => {
+    setReady(true);
+  }, [map]);
 
-  const center: [number, number] = positions.length
-    ? positions[Math.floor(positions.length / 2)]
-    : [(pickup.lat + dropoff.lat) / 2, (pickup.lon + dropoff.lon) / 2];
+  if (!ready) return null;
 
   return (
-    <MapContainer
-      center={center}
-      zoom={13}
-      scrollWheelZoom={false}
-      className="h-full w-full"
-    >
+    <>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -86,6 +87,33 @@ export default function RouteMap({ pickup, dropoff, coords }: RouteMapProps) {
               ]
         }
       />
-    </MapContainer>
+    </>
   );
 }
+
+interface RouteMapProps {
+  pickup: { lat: number; lon: number };
+  dropoff: { lat: number; lon: number };
+  coords: Array<{ lat: number; lon: number }>;
+}
+
+export default function RouteMap({ pickup, dropoff, coords }: RouteMapProps) {
+  const positions = useMemo(
+    () => coords.map((c) => [c.lat, c.lon] as [number, number]),
+    [coords],
+  );
+
+  const center: [number, number] = positions.length
+    ? positions[Math.floor(positions.length / 2)]
+    : [(pickup.lat + dropoff.lat) / 2, (pickup.lon + dropoff.lon) / 2];
+
+  return (
+    <MapContainer
+      center={center}
+      zoom={13}
+      scrollWheelZoom={false}
+      className="h-full w-full"
+    >
+      <MapLayers pickup={pickup} dropoff={dropoff} positions={positions} />
+    </MapContainer>
+  );

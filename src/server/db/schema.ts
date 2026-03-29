@@ -89,11 +89,12 @@ export const drivers = createTable(
   "driver",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    name: d.varchar({ length: 255 }).notNull(),
+    firstName: d.varchar({ length: 255 }).notNull(),
+    middleName: d.varchar({ length: 255 }),
+    surname: d.varchar({ length: 255 }).notNull(),
     email: d.varchar({ length: 255 }).notNull().unique(),
     phoneNumber: d.varchar({ length: 20 }).notNull(),
     licenseNumber: d.varchar({ length: 50 }).notNull().unique(),
-    role: d.varchar({ length: 100 }), // e.g., "Senior Driver", "Professional Driver"
     experience: d.varchar({ length: 100 }), // e.g., "10+ Years"
     specialization: d.varchar({ length: 255 }), // e.g., "Fleet Coordinator", "Safety Specialist"
     profileImage: d.varchar({ length: 500 }), // Driver profile picture (UploadThing URL)
@@ -116,10 +117,7 @@ export const trips = createTable(
       .integer()
       .notNull()
       .references(() => vans.id),
-    driverId: d
-      .integer()
-      .notNull()
-      .references(() => drivers.id),
+    driverId: d.integer().references(() => drivers.id), // Nullable - assigned by admin after request approval
     route: d.varchar({ length: 255 }).notNull(),
     departureTime: d.timestamp({ withTimezone: true }).notNull(),
     arrivalTime: d.timestamp({ withTimezone: true }).notNull(),

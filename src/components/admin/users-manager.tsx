@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -13,6 +14,7 @@ interface UsersManagerProps {
 }
 
 export function UsersManager({ initialUsers }: UsersManagerProps) {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [loading, setLoading] = useState(false);
   const [promoteConfirmOpen, setPromoteConfirmOpen] = useState(false);
@@ -51,6 +53,7 @@ export function UsersManager({ initialUsers }: UsersManagerProps) {
       );
       setPromoteConfirmOpen(false);
       setUserToPromote(null);
+      router.refresh();
     } catch (error) {
       alert("Error promoting user");
       console.error(error);
@@ -68,12 +71,9 @@ export function UsersManager({ initialUsers }: UsersManagerProps) {
     const createdAtFormatted = new Date(user.createdAt).toLocaleString(
       "en-US",
       {
-        month: "numeric",
+        month: "long",
         day: "numeric",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
       },
     );
     const memberSince = new Date(user.createdAt).getFullYear();

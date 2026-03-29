@@ -10,6 +10,11 @@ async function TripsPage() {
     with: {
       van: true,
       driver: true,
+      bookings: {
+        with: {
+          user: true,
+        },
+      },
     },
   });
 

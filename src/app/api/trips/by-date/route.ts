@@ -35,9 +35,7 @@ export async function GET(request: NextRequest) {
         van: {
           columns: { name: true, plateNumber: true },
         },
-        driver: {
-          columns: { name: true },
-        },
+        driver: true,
       },
       orderBy: (trips, { asc }) => [asc(trips.departureTime)],
     });

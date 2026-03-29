@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { db } from "~/server/db";
 import { bookings, trips, users, vans } from "~/server/db/schema";
 import { eq, and, gte, lt, or } from "drizzle-orm";
+import { checkDuplicateTrip } from "~/lib/conflicts";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +25,6 @@ export async function POST(request: NextRequest) {
 
     const body = (await request.json()) as {
       vanId: number;
-      driverId: number;
       route: string;
       departureTime: string;
       arrivalTime: string;
@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
 
     const {
       vanId,
-      driverId,
       route,
       departureTime,
       arrivalTime,
@@ -45,11 +44,10 @@ export async function POST(request: NextRequest) {
     console.log("=== BOOKING REQUEST ===");
     console.log("User ID:", userId);
     console.log("Van ID:", vanId);
-    console.log("Driver ID:", driverId);
     console.log("Departure Time:", departureTime);
 
     // Validate
-    if (!vanId || !driverId || !route || !departureTime || !seatsRequested) {
+    if (!vanId || !route || !departureTime || !seatsRequested) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -88,85 +86,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if driver already has any APPROVED/scheduled trip on this date
-    const driverTripsOnDate = await db.query.trips.findMany({
-      where: and(
-        eq(trips.driverId, driverId),
-        eq(trips.status, "scheduled"),
-        gte(trips.departureTime, startOfDay),
-        lt(trips.departureTime, endOfDay),
-      ),
+    // Get van's actual capacity
+    const van = await db.query.vans.findFirst({
+      where: eq(vans.id, vanId),
     });
 
-    if (driverTripsOnDate.length > 0) {
+    if (!van) {
+      return NextResponse.json({ error: "Van not found" }, { status: 404 });
+    }
+
+    // Check for duplicate trip requests (same van, route, departure/arrival times)
+    const depDate = new Date(departureTime);
+    const arrDate = new Date(arrivalTime);
+
+    const duplicateCheck = await checkDuplicateTrip(
+      vanId,
+      route,
+      depDate,
+      arrDate,
+    );
+
+    if (duplicateCheck.isDuplicate) {
       return NextResponse.json(
         {
-          error:
-            "This driver is already assigned to another trip on this date. Drivers can only operate one route per day.",
+          error: duplicateCheck.message,
+          existingTripId: duplicateCheck.existingTripId,
+          existingTripStatus: duplicateCheck.existingTripStatus,
         },
-        { status: 400 },
+        { status: 409 }, // 409 Conflict
       );
     }
 
-    // Check if trip already exists for this van + driver + time in same hour
-    // Round to nearest hour to match booking times
-    const depTimeHour = new Date(
-      depTime.getFullYear(),
-      depTime.getMonth(),
-      depTime.getDate(),
-      depTime.getHours(),
-      0,
-      0,
-    );
-    const depTimeNextHour = new Date(depTimeHour.getTime() + 60 * 60 * 1000);
-
-    const existingTrip = await db.query.trips.findFirst({
-      where: and(
-        eq(trips.vanId, vanId),
-        eq(trips.driverId, driverId),
-        gte(trips.departureTime, depTimeHour),
-        lt(trips.departureTime, depTimeNextHour),
-      ),
-    });
-
-    let tripId: number;
-
-    if (existingTrip) {
-      tripId = existingTrip.id;
-    } else {
-      // Get van's actual capacity
-      const van = await db.query.vans.findFirst({
-        where: eq(vans.id, vanId),
-      });
-
-      if (!van) {
-        return NextResponse.json({ error: "Van not found" }, { status: 404 });
-      }
-
-      // Create new pending trip (will be scheduled after admin approval)
-      const newTrip = await db
-        .insert(trips)
-        .values({
-          vanId,
-          driverId,
-          route,
-          departureTime: new Date(departureTime),
-          arrivalTime: new Date(arrivalTime),
-          seatsAvailable: van.capacity, // Use van's actual capacity
-          seatsReserved: 0,
-          status: "pending",
-        })
-        .returning();
-
-      tripId = newTrip[0].id;
-      console.log("✅ Trip created:", {
-        id: tripId,
+    // Create new pending trip WITHOUT driver (will be assigned by admin after approval)
+    const newTrip = await db
+      .insert(trips)
+      .values({
         vanId,
-        driverId,
-        departureTime: newTrip[0].departureTime,
-        status: newTrip[0].status,
-      });
-    }
+        driverId: null, // No driver yet - admin will assign after approval
+        route,
+        departureTime: new Date(departureTime),
+        arrivalTime: new Date(arrivalTime),
+        seatsAvailable: van.capacity, // Use van's actual capacity
+        seatsReserved: 0,
+        status: "pending",
+      })
+      .returning();
+
+    let tripId = newTrip[0].id;
 
     // Get current trip to check available seats
     const currentTrip = await db.query.trips.findFirst({

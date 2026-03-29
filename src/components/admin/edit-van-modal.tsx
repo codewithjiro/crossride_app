@@ -76,9 +76,7 @@ export function EditVanModal({
         throw new Error(data.error || "Failed to update van");
       }
 
-      onClose();
       onSuccess();
-      window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {

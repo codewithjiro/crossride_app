@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Zap, CheckCircle2 } from "lucide-react";
@@ -12,6 +13,7 @@ interface AutoCompleteStats {
 }
 
 export function AutoCompleteBookings() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<AutoCompleteStats | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +35,7 @@ export function AutoCompleteBookings() {
       const data = await response.json();
       setStats(data.stats);
       setLastRunTime(new Date().toLocaleString());
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
