@@ -5,6 +5,9 @@ import { bookings, trips } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "~/lib/auth";
 
+// Force dynamic to prevent caching
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const user = await requireAuth();
@@ -22,7 +25,11 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(userBookings);
+    return NextResponse.json(userBookings, {
+      headers: {
+        "Cache-Control": "no-store, must-revalidate",
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       {

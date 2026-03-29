@@ -5,6 +5,9 @@ import { bookings, trips } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "~/lib/auth";
 
+// Force dynamic to prevent caching
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -66,8 +69,16 @@ export async function PATCH(
     revalidatePath("/my-bookings/");
     revalidatePath("/dashboard");
     revalidatePath("/admin/bookings");
+    revalidatePath("/api/bookings");
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { success: true },
+      {
+        headers: {
+          "Cache-Control": "no-store, must-revalidate",
+        },
+      },
+    );
   } catch (error) {
     console.error("Cancel booking error:", error);
     return NextResponse.json(

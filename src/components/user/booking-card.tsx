@@ -77,15 +77,17 @@ export function BookingCard({
         return;
       }
 
-      // Call the callback if provided, then refresh
+      // Call the callback if provided, then reload page
       if (onCompleted) {
         onCompleted();
       }
 
-      // Small delay to ensure server cache is updated
+      // Reload page after sufficient delay to allow cache invalidation
+      console.log("Reloading page in 2 seconds...");
       setTimeout(() => {
-        router.refresh();
-      }, 100);
+        console.log("Reloading now...");
+        window.location.reload();
+      }, 2000);
     } catch (err) {
       setError("An error occurred. Please try again.");
       console.error(err);
@@ -110,10 +112,12 @@ export function BookingCard({
         return;
       }
 
-      // Small delay to ensure server cache is updated
+      // Reload page after sufficient delay to allow cache invalidation
+      console.log("Reloading page in 2 seconds...");
       setTimeout(() => {
-        router.refresh();
-      }, 100);
+        console.log("Reloading now...");
+        window.location.reload();
+      }, 2000);
     } catch (err) {
       setError("An error occurred. Please try again.");
       console.error(err);
