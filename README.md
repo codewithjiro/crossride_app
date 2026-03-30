@@ -9,15 +9,18 @@ A comprehensive, enterprise-grade transportation management platform designed fo
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Technology Stack](#technology-stack)
-- [System Architecture](#system-architecture)
-- [Getting Started](#getting-started)
+- [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
-- [Core Features](#core-features)
+- [System Architecture](#system-architecture)
+- [Available Scripts](#available-scripts)
 - [Environment Configuration](#environment-configuration)
 - [Database](#database)
+- [API Endpoints](#api-endpoints)
 - [Deployment](#deployment)
 - [Development](#development)
 - [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [Support](#support)
 
 ---
 
@@ -38,89 +41,79 @@ CrossRide is a modern transportation management system that simplifies the compl
 
 ## Key Features
 
-### 🏢 Admin Dashboard
+### 🏢 Admin Dashboard Features
 
-**Fleet Management**
+**Fleet & Driver Management**
+- Comprehensive vehicle inventory management with capacity specifications
+- Driver profile management with contact information and assignments
+- Real-time vehicle and driver status tracking
+- Assign drivers to specific vehicles with schedule coordination
+- Track vehicle maintenance history and driver performance metrics
 
-- Add, edit, and manage vehicle inventory with capacity specifications
-- Track vehicle status and maintenance history
-- Assign drivers to vehicles with schedule management
-
-**Driver Portal**
-
-- Maintain comprehensive driver profiles and contact information
-- Monitor driver assignments and trip schedules
-- Track driver performance metrics
-
-**Trip Management**
-
-- Create and schedule routes with advanced conflict detection
-- Monitor trip status in real-time (Pending → Scheduled → In Progress → Completed)
-- Cancel trips with automatic cascade to related bookings
-- Add detailed cancellation reasons for audit trails
-- View historical data and analytics
+**Advanced Trip Management**
+- Create and schedule routes with intelligent conflict detection
+- Real-time trip status monitoring (Pending → Scheduled → In Progress → Completed)
+- Trip cancellation with cascade to related bookings
+- Detailed cancellation reasons for audit compliance
+- Historical data and analytics dashboard
+- Advanced search and filtering capabilities
 
 **Booking Administration**
-
-- Review pending booking requests with detailed passenger information
+- Review pending booking requests with passenger details
 - Approve or reject bookings with audit tracking
-- Monitor booking status across all phases
-- Sort bookings by creation date (newest first)
-- Responsive dashboard showing booking metrics
+- Monitor bookings across all phases (Pending, Approved, Completed, Cancelled)
+- Sort and filter bookings efficiently
+- Interactive dashboard metrics and KPIs
+- Booking status visibility with color-coded indicators
 
 **System Monitoring**
-
 - Real-time dashboard with key performance indicators
-- Activity logs with complete timestamp and user tracking
-- Quick access to critical metrics (total bookings, scheduled trips, total seats booked)
+- Complete activity logs with timestamp and user tracking
+- Quick access to critical metrics (total bookings, scheduled trips, seats booked)
+- System health status and alerts
 
-### 👥 User Portal
+### 👥 User Portal Features
 
 **Trip Discovery & Booking**
-
 - Browse available trips with real-time seat availability
-- Filter and search trips by date, time, and route
+- Advanced search and filter by date, time, and route
 - Instant booking confirmation with email notifications
 - Secure reservation management
 
-**Booking Management**
-
+**My Bookings Management**
 - Organized bookings view with status categories:
-  - **Pending**: Awaiting admin approval (yellow)
-  - **Approved**: Confirmed by administrator (green)
-  - **Completed**: Successfully completed (blue)
-- Advanced filtering system (All, Pending, Approved, Completed)
+  - **Pending**: Awaiting admin approval (yellow badge)
+  - **Approved**: Confirmed by administrator (green badge)
+  - **Completed**: Successfully completed (blue badge)
+  - **Cancelled**: Trip cancelled (red badge)
+- Advanced filtering system across all categories
 - One-click cancellation for pending bookings
 - View cancellation reasons with detailed explanations
 
-**Trip History**
-
+**Trip History & Statistics**
 - Complete historical record of past trips
 - Filter options: All, Completed, Cancelled
 - Dynamic trip timeline with visual categorization
-- Cancellation reason visibility
-
-**Personal Dashboard**
-
-- Quick statistics: Total bookings, approved trips, total seats booked
-- Visual dashboard cards with status icons
+- Personal dashboard with quick statistics:
+  - Total bookings
+  - Approved trips
+  - Total seats booked
 - Next 3 upcoming bookings preview
 - Quick actions for requesting new trips
 
 **Account Management**
-
 - Profile information updates
 - Contact details management
-- Preference settings
+- Preference settings and notification controls
 
 ### 🔐 Security & Authentication
 
 - **Clerk Authentication**: Industry-standard secure authentication system
 - **Role-Based Access Control**: Enforced authorization on admin and user routes
 - **Session Management**: Secure cookie-based sessions with automatic expiration
-- **Logout Confirmation**: Modal confirmation before signing out
 - **Protected Endpoints**: All sensitive operations require authentication
 - **Webhook Integration**: Real-time user synchronization with Clerk
+- **Logout Confirmation**: Modal confirmation before signing out
 
 ---
 
@@ -128,19 +121,23 @@ CrossRide is a modern transportation management system that simplifies the compl
 
 ### Frontend
 
-- **Framework**: Next.js 15 (with Turbopack)
-- **Language**: TypeScript (strict mode)
+- **Framework**: Next.js 15 (with Turbopack for faster builds)
+- **Language**: TypeScript (strict mode for type safety)
 - **UI Library**: React 19
 - **Styling**: Tailwind CSS with custom design system
 - **Components**: shadcn/ui base components
 - **Icons**: Lucide React
+- **Maps**: Leaflet + React Leaflet for route visualization
 
 ### Backend & Database
 
 - **API**: Next.js Server Actions & Route Handlers
 - **Database**: PostgreSQL (Neon for cloud)
 - **ORM**: Drizzle ORM with full TypeScript support
-- **Validation**: Client and server-side request validation
+- **Validation**: Client and server-side request validation with Zod
+- **File Upload**: UploadThing for image management
+- **Password**: bcryptjs for secure password hashing
+- **Sessions**: iron-session for session management
 
 ### Authentication
 
@@ -150,67 +147,47 @@ CrossRide is a modern transportation management system that simplifies the compl
 
 ### Development Tools
 
-- **Package Manager**: pnpm
-- **Code Quality**: ESLint with TypeScript
-- **Formatting**: Prettier
-- **Build Tool**: Turbopack (Next.js native)
+- **Package Manager**: pnpm (fast, efficient package management)
+- **Code Quality**: ESLint with TypeScript support
+- **Formatting**: Prettier with custom configuration
+- **Build Tool**: Turbopack (Next.js native, much faster than Webpack)
 - **Version Control**: Git
+- **Task Runner**: pnpm scripts
 
 ### Deployment
 
 - **Platform**: Vercel (recommended)
-- **Alternative Platforms**: Docker, self-hosted with Node.js
+- **Alternative Platforms**: Railway, Render, self-hosted with Node.js
 
 ---
 
-## System Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                     Frontend (React 19)                  │
-│  ┌────────────────┐  ┌──────────────┐  ┌────────────┐  │
-│  │ Admin Portal   │  │ User Portal  │  │ Auth Pages │  │
-│  └────────────────┘  └──────────────┘  └────────────┘  │
-└────────────────────────┬──────────────────────────────┘
-                         │ API Calls
-┌────────────────────────▼──────────────────────────────┐
-│         Next.js API Routes & Server Actions           │
-│  ┌──────────────────────────────────────────────────┐ │
-│  │ /api/admin/*  │ /api/bookings/* │ /api/auth/*   │ │
-│  └──────────────────────────────────────────────────┘ │
-└────────────────────────┬──────────────────────────────┘
-                         │ Database Queries
-┌────────────────────────▼──────────────────────────────┐
-│        PostgreSQL Database (via Drizzle ORM)          │
-│  Tables: users, vans, drivers, trips, bookings, logs  │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
 - **Node.js**: v18.17 or later
-- **pnpm**: v8.0 or later
-- **PostgreSQL**: v14 or later (local) or Neon account
-- **Clerk Account**: Free tier available at clerk.com
+- **pnpm**: v8.0 or later (Install with `npm install -g pnpm`)
+- **PostgreSQL**: v14 or later (local) or Neon account (free)
+- **Clerk Account**: Free tier available at https://clerk.com
 
-### Step 1: Clone Repository
+### Installation Steps
+
+#### 1. Clone Repository
 
 ```bash
 git clone https://github.com/yourusername/cross_ride.git
 cd cross_ride
 ```
 
-### Step 2: Install Dependencies
+#### 2. Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-### Step 3: Configure Environment Variables
+#### 3. Configure Environment Variables
+
+Create `.env.local` file in the root directory:
 
 ```bash
 cp .env.example .env.local
@@ -223,25 +200,25 @@ Update `.env.local` with your configuration:
 DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
 # Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_publishable_key"
-CLERK_SECRET_KEY="your_secret_key"
-CLERK_WEBHOOK_SECRET="your_webhook_secret"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_xxx"
+CLERK_SECRET_KEY="sk_test_xxx"
+CLERK_WEBHOOK_SECRET="whsec_xxx"
 
 # Application
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-### Step 4: Setup Database
+#### 4. Setup Database
 
 ```bash
 # Apply schema migrations
 pnpm db:push
 
-# (Optional) Seed initial data
-pnpm db:seed
+# (Optional) Open Drizzle Studio to view/manage database
+pnpm db:studio
 ```
 
-### Step 5: Start Development Server
+#### 5. Start Development Server
 
 ```bash
 pnpm dev
@@ -249,14 +226,19 @@ pnpm dev
 
 Visit **http://localhost:3000** in your browser.
 
-### Default Test Credentials
+#### 6. Create Admin User
 
-After initialization, create admin and user accounts through the UI:
-
-| Role  | Email         | Password      |
-| ----- | ------------- | ------------- |
-| Admin | Your email    | Your password |
-| User  | Another email | Password      |
+1. Sign up at http://localhost:3000/sign-up
+2. Make API call to promote user to admin:
+   ```bash
+   curl -X POST http://localhost:3000/api/admin/init \
+     -H "Content-Type: application/json" \
+     -d '{"userId":"user_xxx"}'
+   ```
+   Or update database directly:
+   ```sql
+   UPDATE users SET role = 'admin' WHERE user_id = 'user_xxx' LIMIT 1;
+   ```
 
 ---
 
@@ -265,92 +247,227 @@ After initialization, create admin and user accounts through the UI:
 ```
 cross_ride/
 ├── src/
-│   ├── app/                          # Next.js 15 App Router
-│   │   ├── (admin)/                  # Admin portal routes
+│   ├── app/                              # Next.js 15 App Router
+│   │   ├── (admin)/                      # Admin portal routes (protected)
 │   │   │   ├── admin/
-│   │   │   │   ├── bookings/         # Booking management
-│   │   │   │   ├── dashboard/        # Admin overview
-│   │   │   │   ├── drivers/          # Driver management
-│   │   │   │   ├── trips/            # Trip scheduling
-│   │   │   │   ├── vans/             # Vehicle management
-│   │   │   │   └── settings/         # System settings
-│   │   │   └── layout.tsx            # Admin layout wrapper
-│   │   ├── (user)/                   # User portal routes
-│   │   │   ├── dashboard/            # User Home
-│   │   │   ├── my-bookings/          # Booking management
-│   │   │   ├── trip-history/         # Past trips
-│   │   │   ├── available-trips/      # Trip discovery
-│   │   │   ├── profile/              # User settings
-│   │   │   ├── request-trip/         # Custom trip request
-│   │   │   └── layout.tsx            # User layout wrapper
-│   │   ├── (public)/                 # Landing pages
-│   │   │   └── page.tsx              # Homepage
-│   │   ├── sign-in/                  # Authentication
-│   │   ├── sign-up/
-│   │   ├── api/                      # Backend API routes
-│   │   │   ├── admin/                # Admin endpoints
-│   │   │   ├── auth/                 # Authentication
-│   │   │   ├── bookings/             # Booking operations
-│   │   │   └── webhooks/             # Clerk webhooks
-│   │   └── layout.tsx                # Root layout
+│   │   │   │   ├── bookings/             # Booking management page
+│   │   │   │   ├── dashboard/            # Admin overview & KPIs
+│   │   │   │   ├── drivers/              # Driver CRUD & management
+│   │   │   │   ├── trips/                # Trip scheduling & conflicts
+│   │   │   │   ├── vans/                 # Vehicle management
+│   │   │   │   ├── logs/                 # Activity logs & audit trail
+│   │   │   │   └── settings/             # System settings
+│   │   │   └── layout.tsx                # Admin layout wrapper
+│   │   ├── (user)/                       # User portal routes (protected)
+│   │   │   ├── dashboard/                # User home & statistics
+│   │   │   ├── my-bookings/              # Booking management
+│   │   │   ├── trip-history/             # Past trips & history
+│   │   │   ├── available-trips/          # Trip discovery & search
+│   │   │   ├── request-trip/             # Custom trip request form
+│   │   │   ├── profile/                  # User profile & settings
+│   │   │   └── layout.tsx                # User layout wrapper
+│   │   ├── (public)/                     # Public pages
+│   │   │   └── page.tsx                  # Landing page & marketing
+│   │   ├── sign-in/                      # Clerk sign in page
+│   │   ├── sign-up/                      # Clerk sign up page
+│   │   ├── api/                          # Backend API routes
+│   │   │   ├── admin/                    # Admin endpoints
+│   │   │   │   ├── vans/
+│   │   │   │   ├── drivers/
+│   │   │   │   ├── trips/
+│   │   │   │   ├── bookings/
+│   │   │   │   ├── logs/
+│   │   │   │   └── init/                 # Admin initialization
+│   │   │   ├── auth/                     # Authentication endpoints
+│   │   │   ├── bookings/                 # Booking operations
+│   │   │   ├── trips/                    # Trip queries
+│   │   │   ├── drivers/                  # Driver queries
+│   │   │   ├── vans/                     # Van queries
+│   │   │   ├── route/                    # Route calculation
+│   │   │   ├── geocode/                  # Geocoding service
+│   │   │   ├── webhooks/                 # Clerk webhooks
+│   │   │   ├── uploadthing/              # File upload endpoints
+│   │   │   ├── debug/                    # Debug endpoints
+│   │   │   └── psgc/                     # Location data
+│   │   ├── middleware.ts                 # Auth middleware
+│   │   └── layout.tsx                    # Root layout wrapper
 │   ├── components/
-│   │   ├── admin/                    # Admin components
-│   │   ├── user/                     # User components
-│   │   ├── ui/                       # Base UI components
-│   │   └── marketing/                # Landing components
+│   │   ├── admin/                        # Admin-specific components
+│   │   │   ├── add-driver-modal.tsx
+│   │   │   ├── add-van-modal.tsx
+│   │   │   ├── driver-table-row.tsx
+│   │   │   ├── edit-driver-modal.tsx
+│   │   │   ├── trips-table.tsx
+│   │   │   └── ...more admin components
+│   │   ├── user/                         # User-specific components
+│   │   │   ├── booking-card.tsx
+│   │   │   ├── dashboard-header.tsx
+│   │   │   ├── profile-picture-upload.tsx
+│   │   │   └── sidebar.tsx
+│   │   ├── maps/                         # Map components
+│   │   │   └── route-map.tsx
+│   │   ├── marketing/                    # Landing page components
+│   │   │   ├── hero.tsx
+│   │   │   ├── footer.tsx
+│   │   │   ├── navbar.tsx
+│   │   │   └── ...more marketing components
+│   │   └── ui/                           # Shared UI components (shadcn/ui)
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── dialog.tsx
+│   │       └── ...more UI components
 │   ├── lib/
-│   │   ├── auth.ts                   # Authentication utilities
-│   │   ├── utils.ts                  # Helper functions
-│   │   └── conflicts.ts              # Trip conflict detection
+│   │   ├── auth.ts                       # Authentication utilities
+│   │   ├── api-middleware.ts             # API protection middleware
+│   │   ├── conflicts.ts                  # Trip conflict detection
+│   │   ├── cron.ts                       # Scheduled tasks
+│   │   ├── data.ts                       # Data fetching utilities
+│   │   ├── uploadthing.ts                # File upload setup
+│   │   └── utils.ts                      # General helper functions
 │   ├── server/
 │   │   └── db/
-│   │       ├── index.ts              # Database client
-│   │       └── schema.ts             # Drizzle schema definitions
+│   │       ├── index.ts                  # Database client initialization
+│   │       └── schema.ts                 # Drizzle ORM schema
+│   ├── hooks/
+│   │   └── use-session-manager.tsx       # Session management hook
 │   ├── styles/
-│   │   └── globals.css               # Global styles
-│   ├── middleware.ts                 # Authentication middleware
-│   └── env.js                        # Environment validation
+│   │   └── globals.css                   # Global Tailwind styles
+│   ├── middleware.ts                     # Next.js authentication middleware
+│   └── env.js                            # Environment variable validation
 ├── public/
-│   └── images/                       # Static assets
-├── drizzle/                          # Database migrations
+│   ├── drivers/                          # Driver images
+│   ├── images/                           # Static images
+│   ├── profile/                          # Profile pictures
+│   └── ...other static assets
+├── drizzle/
+│   ├── 0000_*.sql                        # Migration files
+│   ├── 0001_*.sql
+│   └── meta/
+│       ├── _journal.json                 # Migration journal
+│       └── *_snapshot.json               # Schema snapshots
+├── scripts/
+│   ├── add-vans.mjs                      # Seed van data
+│   └── restore-drivers.mjs               # Seed driver data
 ├── package.json
-├── tsconfig.json                     # TypeScript config
-├── tailwind.config.ts                # Tailwind configuration
-├── next.config.js                    # Next.js configuration
+├── tsconfig.json                         # TypeScript configuration
+├── next.config.js                        # Next.js configuration
+├── tailwind.config.ts                    # Tailwind CSS configuration
+├── postcss.config.js                     # PostCSS configuration
+├── prettier.config.js                    # Code formatting rules
+├── eslint.config.js                      # Linting rules
+├── drizzle.config.ts                     # Drizzle ORM configuration
+├── .env.example                          # Environment variables template
 └── README.md
 ```
 
 ---
 
-## Core Features
+## System Architecture
 
-### Trip Cancellation System
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (React 19)                       │
+│  ┌──────────────────┐  ┌──────────────┐  ┌────────────────┐ │
+│  │  Admin Portal    │  │ User Portal  │  │  Auth Pages    │ │
+│  │  Dashboard       │  │ Trip Booking │  │  Sign In/Up    │ │
+│  │  Fleet Mgmt      │  │  My Bookings │  │  Landing Page  │ │
+│  └──────────────────┘  └──────────────┘  └────────────────┘ │
+└────────────────────────┬──────────────────────────────────────┘
+                         │ TypeScript API Calls (fetch)
+┌────────────────────────▼──────────────────────────────────────┐
+│          Next.js API Routes & Server Actions                  │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │ Admin APIs     │ User APIs     │ Auth       │ Webhooks   │ │
+│  │ /api/admin/*   │ /api/booking* │ /api/auth  │ /webhooks  │ │
+│  └─────────────────────────────────────────────────────────┘ │
+│                                                               │
+│  Middleware Layer:                                            │
+│  - Authorization & RBAC                                       │
+│  - Request validation (Zod)                                   │
+│  - Rate limiting                                              │
+│  - Audit logging                                              │
+└────────────────────────┬──────────────────────────────────────┘
+                         │ Database Queries (Drizzle ORM)
+┌────────────────────────▼──────────────────────────────────────┐
+│       PostgreSQL Database (Neon Cloud)                        │
+│                                                               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │ users        │  │ trips        │  │ bookings     │       │
+│  │ - userId     │  │ - tripId     │  │ - bookingId  │       │
+│  │ - role       │  │ - status     │  │ - status     │       │
+│  │ - email      │  │ - startLoc   │  │ - tripId     │       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│                                                               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │ drivers      │  │ vans         │  │ logs         │       │
+│  │ - driverId   │  │ - vanId      │  │ - action     │       │
+│  │ - name       │  │ - capacity   │  │ - userId     │       │
+│  │ - phone      │  │ - status     │  │ - timestamp  │       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
+└─────────────────────────────────────────────────────────────────┘
 
-- Admin can cancel trips with detailed reason tracking
-- Automatic cascade cancellation to all related bookings
-- Reasons visible to passengers on booking cards and trip history
-- Complete audit trail for compliance
+External Services:
+├── Clerk (Authentication & User Management)
+├── Leaflet Maps (Route Visualization)
+├── UploadThing (Image Upload & Storage)
+└── Neon (PostgreSQL Database Hosting)
+```
 
-### Status Synchronization
+---
 
-- **Bidirectional Sync**: When user completes booking, trip status updates automatically
-- **Cascade Updates**: Group cancellations automatically sync across related records
-- **Real-time Notification**: Users see status changes instantly
+## Available Scripts
 
-### Advanced Filtering & Search
+### Development Commands
 
-- **My Bookings**: Filter by status (All, Pending, Approved, Completed)
-- **Trip History**: Timeline view with filtered categorization
-- **Bookings Table**: Sort by creation date (newest first)
-- Dynamic badge counting on filter buttons
+```bash
+# Start development server with Turbopack (fast refresh)
+pnpm dev
 
-### Professional UI/UX
+# Run TypeScript type checking
+pnpm check
 
-- **Status Indicators**: Color-coded badges (Yellow→Pending, Green→Approved, Blue→Completed, Red→Cancelled)
-- **Icon Integration**: Lucide React icons for visual clarity
-- **Modal Confirmations**: Critical actions require user confirmation
-- **Time Formatting**: 12-hour format with AM/PM indicators
-- **Responsive Design**: Works seamlessly on desktop, tablet, mobile
+# Run ESLint to check for code issues
+pnpm lint
+
+# Fix ESLint issues automatically
+pnpm lint:fix
+
+# Format code with Prettier
+pnpm format:write
+
+# Check code formatting without making changes
+pnpm format:check
+```
+
+### Database Commands
+
+```bash
+# Apply pending migrations to database
+pnpm db:push
+
+# Generate new migration files from schema changes
+pnpm db:generate
+
+# Run migrations manually
+pnpm db:migrate
+
+# Open Drizzle Studio (local database viewer/editor)
+pnpm db:studio
+```
+
+### Production Commands
+
+```bash
+# Build application for production
+pnpm build
+
+# Start production server
+pnpm start
+
+# Build and start locally (preview production)
+pnpm preview
+```
 
 ---
 
@@ -359,23 +476,43 @@ cross_ride/
 ### Required Variables
 
 ```env
-# PostgreSQL Connection
-DATABASE_URL=postgresql://...
+# PostgreSQL Connection String (Neon recommended for cloud)
+DATABASE_URL="postgresql://user:password@host.neon.tech/database?sslmode=require"
 
-# Clerk Keys
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
-CLERK_SECRET_KEY=sk_...
-CLERK_WEBHOOK_SECRET=whsec_...
+# Clerk API Keys (get from https://clerk.com)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_xxx..."
+CLERK_SECRET_KEY="sk_test_xxx..."
+CLERK_WEBHOOK_SECRET="whsec_xxx..."
 ```
 
 ### Optional Variables
 
 ```env
-# Application URL
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+# Application URL (for redirects and emails)
+NEXT_PUBLIC_APP_URL="https://yourdomain.com"
+
+# UploadThing Keys (for image uploads)
+UPLOADTHING_SECRET="sk_xxx..."
+NEXT_PUBLIC_UPLOADTHING_APP_ID="xxx..."
 ```
 
-See `.env.example` for complete reference.
+### Environment Setup Guide
+
+1. **Clerk Setup**:
+   - Sign up at https://clerk.com
+   - Create new application
+   - Copy API keys to `.env.local`
+   - Add redirect URLs in Clerk dashboard
+
+2. **Neon Database**:
+   - Sign up at https://console.neon.tech
+   - Create new PostgreSQL database
+   - Copy connection string to `DATABASE_URL`
+
+3. **UploadThing** (Optional):
+   - Sign up at https://uploadthing.com
+   - Create new app
+   - Copy API keys
 
 ---
 
@@ -383,137 +520,432 @@ See `.env.example` for complete reference.
 
 ### Schema Overview
 
-**Tables:**
+**Core Tables:**
 
-- `users` - User accounts with role designation
-- `vans` - Vehicle inventory with capacity and status
-- `drivers` - Driver profiles with contact information
-- `trips` - Scheduled routes with conflict detection
-- `bookings` - Passenger reservations with status tracking
-- `logs` - Complete audit trail of all system actions
+- **users**: User accounts with authentication and role information
+  - userId, email, name, role (admin/user), createdAt, updatedAt
+
+- **vans**: Vehicle fleet inventory
+  - vanId, licensePlate, capacity, status, imageUrl, createdAt
+
+- **drivers**: Driver profiles and information
+  - driverId, firstName, lastName, phone, email, imageUrl, status
+
+- **trips**: Scheduled routes with conflict detection
+  - tripId, startLocation, endLocation, startTime, endTime, vanId, driverId, capacity, status, cancellationReason
+
+- **bookings**: Passenger reservations
+  - bookingId, userId, tripId, passengersCount, status, createdAt, approvedAt, cancellationReason
+
+- **adminLogs**: Complete audit trail
+  - logId, userId, action, resource, resourceId, changes, timestamp
 
 ### Key Relationships
 
 ```
-users ──→ bookings ──→ trips
-          ↓
-        vans (assigned to trips)
-drivers → trips
+users (admin)
+  ↓
+  └─→ Create/manage trips, drivers, vans, bookings
+  
+users (passenger)
+  ↓
+  └─→ bookings → trips
+  
+drivers → trips ← vans
+           ↓
+         bookings
+         
+AdminLogs (audit trail for all changes)
 ```
 
-### Migrations
+### Database Diagram
 
-Migrations are stored in `drizzle/` directory and applied via:
+```
+[users] (1)←──────→(many) [bookings]
+                             ├──→ [trips]
+                             │      ├──→ [drivers]
+                             │      └──→ [vans]
+                             
+[adminLogs] ← Audit trail for all operations
+```
+
+### Running Migrations
 
 ```bash
-pnpm db:push      # Apply all pending migrations
-pnpm db:generate  # Generate new migration files
+# View current database schema
+pnpm db:studio
+
+# Generate migration from schema changes
+pnpm db:generate
+
+# Apply migrations to database
+pnpm db:push
+
+# Create seed data
+pnpm scripts/add-vans.mjs
+pnpm scripts/restore-drivers.mjs
 ```
+
+---
+
+## API Endpoints
+
+### Admin API Routes
+
+**Driver Management**
+- `POST /api/admin/drivers` - Create new driver
+- `GET /api/admin/drivers` - List all drivers
+- `GET /api/admin/drivers/[id]` - Get driver details
+- `PATCH /api/admin/drivers/[id]` - Update driver
+- `DELETE /api/admin/drivers/[id]` - Delete driver
+
+**Van Management**
+- `POST /api/admin/vans` - Create new van
+- `GET /api/admin/vans` - List all vans
+- `GET /api/admin/vans/[id]` - Get van details
+- `PATCH /api/admin/vans/[id]` - Update van
+- `DELETE /api/admin/vans/[id]` - Delete van
+
+**Trip Management**
+- `POST /api/admin/trips` - Create trip with conflict detection
+- `GET /api/admin/trips` - List all trips
+- `GET /api/admin/trips/[id]` - Get trip details
+- `PATCH /api/admin/trips/[id]` - Update trip status or cancel
+- `DELETE /api/admin/trips/[id]` - Delete trip
+
+**Booking Management**
+- `GET /api/admin/bookings` - List all bookings
+- `PATCH /api/admin/bookings/[id]` - Approve/reject booking
+- `GET /api/admin/logs` - View activity logs
+
+**System**
+- `GET /api/admin/init` - Check if admin exists
+- `POST /api/admin/init` - Create/promote admin user
+
+### User API Routes
+
+**Booking Operations**
+- `GET /api/bookings` - Get user's bookings
+- `POST /api/bookings` - Create new booking
+- `DELETE /api/bookings/[id]` - Cancel pending booking
+
+**Trip Discovery**
+- `GET /api/trips` - List available trips
+- `GET /api/trips/[id]` - Get trip details
+
+**User Info**
+- `GET /api/auth/check` - Check authentication status
+
+### Webhook Routes
+
+- `POST /api/webhooks/clerk` - Clerk user sync webhook
+
+### Utility Routes
+
+- `POST /api/route` - Calculate route details
+- `GET /api/geocode` - Geocode address
+- `POST /api/uploadthing` - Handle file uploads
 
 ---
 
 ## Deployment
 
-### 🚀 Vercel (Recommended)
+### 🚀 Deployment on Vercel (Recommended)
 
-See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete guide.
+**Benefits:**
+- Automatic deployments on push
+- Built-in environment variable management
+- Free SSL/HTTPS
+- Serverless functions
+- Edge network for fast load times
 
-**Quick Steps:**
+**Setup Steps:**
 
-1. Push code to GitHub
-2. Create new project on vercel.com
-3. Import repository and connect
-4. Add environment variables in Vercel dashboard
-5. Deploy automatically on push
+1. **Push to GitHub**
+   ```bash
+   git remote add origin https://github.com/yourusername/cross_ride.git
+   git push -u origin main
+   ```
 
-### Database Options
+2. **Connect to Vercel**
+   - Go to https://vercel.com/new
+   - Import GitHub repository
+   - Select "cross_ride"
 
-- ✅ **Neon PostgreSQL** (easiest for Vercel)
-- ✅ **Vercel Postgres** (integrated service)
-- ✅ **Supabase** (open-source alternative)
-- ✅ **Railway** (Docker-friendly)
+3. **Configure Environment Variables**
+   - In Vercel Dashboard → Settings → Environment Variables
+   - Add all variables from `.env.local`:
+     - `DATABASE_URL` (Neon PostgreSQL)
+     - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+     - `CLERK_SECRET_KEY`
+     - `CLERK_WEBHOOK_SECRET`
+     - `NEXT_PUBLIC_APP_URL` (your Vercel domain)
 
-### Self-Hosted
+4. **Configure Database**
+   - Use Neon PostgreSQL (free tier available)
+   - Connection string in `DATABASE_URL`
 
+5. **Deploy**
+   - Vercel automatically deploys on push
+   - View deployment logs in dashboard
+
+### Alternative Deployment Options
+
+**Railway** (railway.app)
+- Excellent for PostgreSQL + Node.js
+- Simple GitHub integration
+- Similar setup to Vercel
+
+**Render** (render.com)
+- Good for Next.js applications
+- Built-in PostgreSQL option
+- Web services and cron jobs
+
+**Self-Hosted**
 - Install Node.js 18+
 - Run `pnpm build`
 - Start with `pnpm start`
-- Use reverse proxy (Nginx) for SSL
+- Use Nginx as reverse proxy for SSL
+- Configure PostgreSQL separately
+
+### Database Hosting Options
+
+- ✅ **Neon PostgreSQL** (Easiest for Vercel, free tier)
+- ✅ **Vercel Postgres** (Integrated with Vercel)
+- ✅ **Supabase** (PostgreSQL + extra features)
+- ✅ **Railway Postgres** (Good for Railway deployment)
+- ✅ **Amazon RDS** (Production-grade option)
 
 ---
 
 ## Development
 
-### Available Scripts
+### Code Quality Standards
+
+- **TypeScript**: Strict mode enabled for type safety
+- **Formatting**: Prettier (run `pnpm format:write`)
+- **Linting**: ESLint with TypeScript support (run `pnpm lint:fix`)
+- **Naming Conventions**:
+  - Variables/Functions: camelCase
+  - Components: PascalCase
+  - Constants: UPPER_SNAKE_CASE
+- **File Structure**: Organized by feature/domain
+
+### Development Workflow
 
 ```bash
-# Development
-pnpm dev              # Start dev server (http://localhost:3000)
-pnpm build            # Production build
-pnpm start            # Start production server
+# 1. Create feature branch
+git checkout -b feature/amazing-feature
 
-# Database
-pnpm db:push          # Apply migrations
-pnpm db:generate      # Generate new migration
-pnpm db:studio        # Open Drizzle Studio
+# 2. Install dependencies and setup
+pnpm install
 
-# Code Quality
-pnpm lint             # Run ESLint
-pnpm format           # Format with Prettier
-pnpm type-check       # TypeScript checking
+# 3. Create .env.local with development keys
+cp .env.example .env.local
+
+# 4. Start development server
+pnpm dev
+
+# 5. Make changes and test locally
+
+# 6. Run code quality checks
+pnpm lint:fix
+pnpm format:write
+pnpm check
+
+# 7. Commit changes
+git add .
+git commit -m "feat: add amazing feature"
+
+# 8. Push and create Pull Request
+git push origin feature/amazing-feature
 ```
 
-### Code Standards
+### Commit Message Convention
 
-- **TypeScript**: Strict mode enabled
-- **Formatting**: Prettier configuration in `.prettierrc`
-- **Linting**: ESLint with TypeScript support
-- **Naming**: camelCase for variables/functions, PascalCase for components
-- **File Structure**: Organize by feature/domain
+Follow the conventional commits format:
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `refactor:` - Code refactoring
+- `docs:` - Documentation changes
+- `style:` - Code formatting (no logic changes)
+- `perf:` - Performance improvements
+- `test:` - Adding/updating tests
+- `chore:` - Dependency updates, etc.
+
+**Examples:**
+```
+feat: add trip conflict detection
+fix: resolve booking approval bug
+refactor: simplify driver management code
+docs: update README installation guide
+```
 
 ### Testing
 
-Recommended testing tools:
+Framework recommendations (not yet implemented):
 
-- **Unit Tests**: Jest + Testing Library (not yet implemented)
-- **E2E Tests**: Playwright or Cypress (not yet implemented)
+- **Unit Tests**: Jest + Testing Library
+  ```bash
+  pnpm add -D jest @testing-library/react
+  ```
 
-To add testing:
-
-```bash
-pnpm add -D jest @testing-library/react
-```
+- **E2E Tests**: Playwright or Cypress
+  ```bash
+  pnpm add -D playwright @playwright/test
+  ```
 
 ---
 
 ## Contributing
 
-### Development Workflow
+### How to Contribute
 
-1. Create feature branch: `git checkout -b feature/amazing-feature`
-2. Make changes following code standards
-3. Test thoroughly: `pnpm dev` and manual testing
-4. Commit with clear messages: `git commit -m "feat: add amazing feature"`
-5. Push and create Pull Request
+1. **Fork the repository**
+   ```bash
+   git clone https://github.com/yourusername/cross_ride.git
+   ```
 
-### Commit Convention
+2. **Create feature branch**
+   ```bash
+   git checkout -b feature/your-feature
+   ```
 
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `refactor:` - Code refactoring
-- `docs:` - Documentation
-- `style:` - Code style (formatting)
-- `perf:` - Performance improvement
-- `test:` - Adding tests
+3. **Make changes and test**
+   ```bash
+   pnpm dev
+   # Test your changes locally
+   ```
+
+4. **Run quality checks**
+   ```bash
+   pnpm lint:fix
+   pnpm format:write
+   pnpm check
+   ```
+
+5. **Commit with conventional message**
+   ```bash
+   git commit -m "feat: describe your feature"
+   ```
+
+6. **Push and create Pull Request**
+   ```bash
+   git push origin feature/your-feature
+   ```
 
 ### Reporting Issues
 
-Please include:
+Please include in issue reports:
 
-- Step-by-step reproduction
-- Expected vs actual behavior
-- Screenshots if applicable
-- Browser/OS information
+- Step-by-step reproduction of the problem
+- Expected behavior vs actual behavior
+- Screenshots or screen recordings if applicable
+- Browser and OS information
+- Console errors (if applicable)
+
+---
+
+## Troubleshooting
+
+### Common Issues & Solutions
+
+**Database Connection Error**
+- ✓ Check `DATABASE_URL` is correct in `.env.local`
+- ✓ Verify database is running/accessible
+- ✓ For Neon: Check IP whitelist if needed
+- ✓ Run `pnpm db:studio` to test connection
+
+**Build Fails on Vercel**
+- ✓ Check all environment variables are set in Vercel dashboard
+- ✓ Verify `NODE_ENV=production` is not set in env vars
+- ✓ Check Vercel build logs for specific errors
+- ✓ Ensure `package.json` correct and `pnpm-lock.yaml` committed
+
+**Users Not Syncing from Clerk**
+- ✓ Verify webhook secret in `.env.local`
+- ✓ Check Clerk dashboard → Webhooks → verify URL is correct
+- ✓ Check webhook logs in Clerk dashboard for errors
+- ✓ Ensure webhook endpoint is publicly accessible
+
+**Admin Endpoints Return 401**
+- ✓ Ensure user is logged in first
+- ✓ Verify user role is "admin" in database
+- ✓ Check session/authentication middleware
+
+**Type Errors**
+- ✓ Run `pnpm check` to see TypeScript errors
+- ✓ Ensure all types are properly imported
+- ✓ Check `.env.local` has all required variables
+
+**Build Size Too Large**
+- ✓ Run `pnpm build` and check `.next` directory
+- ✓ Check for large dependencies with `npm ls`
+- ✓ Consider code splitting and dynamic imports
+
+### Debug Commands
+
+```bash
+# Type check entire project
+pnpm check
+
+# Run linter and show all issues
+pnpm lint
+
+# Format all files
+pnpm format:write
+
+# Open database viewer
+pnpm db:studio
+
+# View development server logs
+pnpm dev  # All console output appears here
+
+# Build and preview production version
+pnpm build
+pnpm start
+```
+
+### Testing Routes Locally
+
+```
+Public site:         http://localhost:3000
+Sign up:             http://localhost:3000/sign-up
+Sign in:             http://localhost:3000/sign-in
+User dashboard:      http://localhost:3000/dashboard (login required)
+Admin dashboard:     http://localhost:3000/admin/dashboard (admin login required)
+Database viewer:     pnpm db:studio (shows all database tables)
+```
+
+---
+
+## Support
+
+### Getting Help
+
+- **📧 Email**: support@crossride.local
+- **💬 GitHub Discussions**: For questions and discussions
+- **🐛 GitHub Issues**: For bug reports
+- **📚 Documentation**: Check VERCEL_DEPLOYMENT.md for deployment help
+
+### Related Documentation
+
+- **Deployment Guide**: See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)
+- **Setup Guide**: See [SETUP_COMPLETE.md](SETUP_COMPLETE.md)
+- **Clerk Docs**: https://clerk.com/docs
+- **Vercel Docs**: https://vercel.com/docs
+- **Next.js Docs**: https://nextjs.org/docs
+- **Drizzle ORM**: https://orm.drizzle.team
+- **Tailwind CSS**: https://tailwindcss.com/docs
+
+### External Resources
+
+- **Next.js 15**: https://nextjs.org
+- **React 19**: https://react.dev
+- **TypeScript**: https://www.typescriptlang.org
+- **PostgreSQL**: https://www.postgresql.org/docs
+- **Clerk Authentication**: https://clerk.com
 
 ---
 
@@ -523,228 +955,35 @@ This project is proprietary and confidential.
 
 ---
 
-## Support
-
-For issues or questions:
-
-- 📧 Email: support@crossride.local
-- 💬 Discussions: GitHub Discussions
-- 🐛 Bugs: GitHub Issues
-
----
-
 ## Acknowledgments
 
-Built with modern technologies:
+Built with modern, production-ready technologies:
 
-- Vercel for hosting and deployment
-- Clerk for authentication
-- PostreSQL/Neon for data persistence
-- shadcn/ui for component foundation
-- Tailwind CSS for styling
+- **Vercel** - Hosting, deployment, and edge computing
+- **Clerk** - Secure authentication and user management
+- **PostgreSQL/Neon** - Reliable data persistence
+- **shadcn/ui** - Professional UI component foundation
+- **Tailwind CSS** - Utility-first styling
+- **Drizzle ORM** - Type-safe database operations
+- **Leaflet** - Interactive maps
+- **UploadThing** - File upload and storage
 
 ---
 
-**Last Updated**: March 24, 2026  
-**Version**: 1.0.0  
-**Status**: Production Ready
+## Project Status
 
-- **Render** (render.com)
+- **Version**: 1.0.0
+- **Last Updated**: March 30, 2026
+- **Status**: Production Ready ✅
+- **Maintained**: Yes
 
-## Project Structure
+---
 
-```
-src/
-├── app/
-│   ├── (admin)/          # Protected admin routes
-│   │   ├── admin/        # Admin pages
-│   │   └── layout.tsx    # Admin auth layout
-│   ├── (user)/           # Protected user routes
-│   │   ├── dashboard/    # User pages
-│   │   └── layout.tsx    # User auth layout
-│   ├── api/              # API routes
-│   │   ├── admin/        # Admin endpoints
-│   │   ├── bookings/     # Booking endpoints
-│   │   ├── webhooks/     # Webhook handlers
-│   │   └── auth/         # Auth endpoints
-│   ├── public            # Public landing page
-│   ├── layout.tsx        # Root layout
-│   └── page.tsx          # Landing page
-├── components/
-│   ├── admin/            # Admin components
-│   ├── user/             # User components
-│   ├── marketing/        # Public components
-│   └── ui/               # Shared UI components
-├── server/
-│   ├── db/
-│   │   ├── schema.ts     # Database schema
-│   │   └── index.ts      # Database setup
-│   └── auth/             # Auth utilities
-├── lib/
-│   ├── auth.ts           # Auth helpers
-│   ├── api-middleware.ts # API protection
-│   └── conflicts.ts      # Scheduling logic
-└── env.js                # Environment validation
-```
+**Ready to get started?** 🚀
 
-## Database Schema
-
-### Tables
-
-- **users**: User accounts with roles
-- **vans**: Vehicle fleet information
-- **drivers**: Driver information and status
-- **trips**: Routes and schedules with capacity
-- **bookings**: Passenger bookings with status
-- **adminLogs**: Audit trail of admin actions
-
-## API Endpoints
-
-### Admin APIs
-
-- `POST /api/admin/vans` - Create van
-- `GET/PATCH/DELETE /api/admin/vans/[id]` - Van management
-- `POST /api/admin/drivers` - Create driver
-- `GET/PATCH/DELETE /api/admin/drivers/[id]` - Driver management
-- `POST /api/admin/trips` - Create trip with conflict detection
-- `GET/PATCH/DELETE /api/admin/trips/[id]` - Trip management
-- `GET /api/admin/bookings` - View all bookings
-- `PATCH /api/admin/bookings/[id]` - Approve/reject bookings
-- `GET /api/admin/logs` - View activity logs
-
-### User APIs
-
-- `GET /api/bookings` - User's bookings
-- `POST /api/bookings` - Create booking
-- `GET /api/auth/check` - Check authentication status
-
-### Admin Setup
-
-- `GET /api/admin/init` - Check admin status
-- `POST /api/admin/init` - Create/promote admin user
-
-## Authentication Setup
-
-### Clerk Configuration
-
-1. Sign up at https://clerk.com (free tier)
-2. Create new application
-3. Get your API keys
-4. Add production URLs to **Allowed URLs**
-5. Configure webhook for automatic user syncing
-
-See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md#clerk-configuration) for detailed Clerk setup.
-
-## Available Scripts
-
-```bash
-# Development
-pnpm dev              # Start dev server
-pnpm check            # Type check & lint
-pnpm format:write     # Format code
-
-# Database
-pnpm db:push          # Sync schema to database
-pnpm db:generate      # Generate migrations
-pnpm db:migrate       # Run migrations
-pnpm db:studio        # Open Drizzle Studio (local only)
-
-# Production
-pnpm build            # Build for production
-pnpm start            # Start production server
-pnpm preview          # Preview production build locally
-```
-
-## Admin User Creation
-
-### Method 1: API Endpoint
-
-```bash
-curl -X POST http://localhost:3000/api/admin/init \
-  -H "Content-Type: application/json" \
-  -d '{"userId":"user_xxx"}'
-```
-
-### Method 2: Database (Vercel Postgres)
-
-```sql
-UPDATE users SET role = 'admin' WHERE user_id = 'user_xxx' LIMIT 1;
-```
-
-## Development Tips
-
-### Local Development Workflow
-
-1. Create `.env.local` with test Clerk keys
-2. Connect to local PostgreSQL database
+1. Follow the [Quick Start](#quick-start) guide
+2. Set up environment variables
 3. Run `pnpm dev`
-4. Make changes and test locally
-5. Push to GitHub when ready
-6. Vercel auto-deploys on push
+4. Check deployment options in [Deployment](#deployment)
 
-### Debugging
-
-- Check server logs: `pnpm dev` console output
-- View database: `pnpm db:studio`
-- Inspect Clerk logs: Clerk dashboard
-- Check Vercel logs: Vercel dashboard → Deployments
-
-### Testing Routes
-
-- Public: http://localhost:3000
-- User dashboard: http://localhost:3000/dashboard (requires login)
-- Admin dashboard: http://localhost:3000/admin/dashboard (requires admin role)
-- Sign up: http://localhost:3000/sign-up
-
-## Production Checklist
-
-Before deploying to production:
-
-- [ ] All environment variables set in Vercel
-- [ ] Database migrations run (`pnpm db:push`)
-- [ ] Admin user created
-- [ ] Clerk webhook configured
-- [ ] Production URLs added to Clerk
-- [ ] Security reviewed (see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md#production-checklist))
-- [ ] Error monitoring set up
-- [ ] Database backups configured
-
-## Troubleshooting
-
-### Issues?
-
-1. **Check [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md#troubleshooting)** for deployment issues
-2. **Review [SETUP_COMPLETE.md](SETUP_COMPLETE.md)** for setup questions
-3. **View server logs** with `pnpm dev`
-4. **Check database** with `pnpm db:studio`
-
-### Common Issues
-
-- **Build fails on Vercel**: Check environment variables in Vercel dashboard
-- **Users not syncing**: Verify webhook secret in `.env`
-- **Admin endpoint 401**: Make sure you're logged in first
-- **Database connection error**: Verify `DATABASE_URL` is correct
-
-## Contributing
-
-1. Create feature branch: `git checkout -b feature/feature-name`
-2. Make changes and test locally
-3. Commit: `git commit -am 'Add feature'`
-4. Push: `git push origin feature/feature-name`
-5. Create Pull Request
-
-## License
-
-MIT
-
-## Support
-
-- **Deployment Help**: See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)
-- **Setup Help**: See [SETUP_COMPLETE.md](SETUP_COMPLETE.md)
-- **Clerk Docs**: https://clerk.com/docs
-- **Vercel Docs**: https://vercel.com/docs
-- **Next.js Docs**: https://nextjs.org/docs
-
----
-
-**Ready to deploy? Check [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)** 🚀
+For detailed deployment instructions, see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)
