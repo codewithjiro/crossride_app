@@ -14,38 +14,58 @@ import {
   Briefcase,
   LogOut,
   UserCheck,
+  Settings,
+  ChevronDown,
 } from "lucide-react";
 
-const menuItems = [
+const mainMenuItems = [
   {
     label: "Dashboard",
     href: "/admin/dashboard",
     icon: LayoutDashboard,
+    badge: false,
   },
+];
+
+const operationsMenuItems = [
   {
     label: "Users",
     href: "/admin/users",
     icon: Users,
+    badge: false,
   },
   {
     label: "Vans",
     href: "/admin/vans",
     icon: Truck,
+    badge: false,
   },
   {
     label: "Drivers",
     href: "/admin/drivers",
     icon: UserCheck,
+    badge: false,
   },
   {
     label: "Trips",
     href: "/admin/trips",
     icon: MapPin,
+    badge: true, // Shows badge count
   },
   {
     label: "Bookings",
     href: "/admin/bookings",
     icon: Briefcase,
+    badge: true, // Shows badge count
+  },
+];
+
+const bottomMenuItems = [
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
+    badge: false,
   },
 ];
 
@@ -56,6 +76,9 @@ export function Sidebar() {
   const [bookingsCount, setBookingsCount] = useState(0);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>([
+    "operations",
+  ]);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -67,7 +90,6 @@ export function Sidebar() {
 
         if (tripsRes.ok) {
           const trips = await tripsRes.json();
-          // Count only scheduled trips
           const scheduledCount = Array.isArray(trips)
             ? trips.filter((t: any) => t.status === "scheduled").length
             : 0;
@@ -76,7 +98,6 @@ export function Sidebar() {
 
         if (bookingsRes.ok) {
           const bookings = await bookingsRes.json();
-          // Count pending bookings
           const pendingCount = Array.isArray(bookings)
             ? bookings.filter((b: any) => b.status === "pending").length
             : 0;
@@ -88,12 +109,17 @@ export function Sidebar() {
     };
 
     fetchCounts();
-
-    // Refresh every 5 seconds
-    const interval = setInterval(fetchCounts, 5000);
-
+    const interval = setInterval(fetchCounts, 2500);
     return () => clearInterval(interval);
   }, []);
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(section)
+        ? prev.filter((s) => s !== section)
+        : [...prev, section]
+    );
+  };
 
   const handleLogout = () => {
     setLogoutConfirmOpen(true);
@@ -120,69 +146,107 @@ export function Sidebar() {
     setLogoutConfirmOpen(false);
   };
 
+  const renderMenuItem = (item: any) => {
+    const Icon = item.icon;
+    const isActive = pathname === item.href;
+    let badgeCount = 0;
+
+    if (item.badge && item.label === "Trips") {
+      badgeCount = tripsCount;
+    } else if (item.badge && item.label === "Bookings") {
+      badgeCount = bookingsCount;
+    }
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={`group flex items-center justify-between rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          isActive
+            ? "bg-secondary/15 text-secondary shadow-lg shadow-secondary/10"
+            : "text-gray-300 hover:bg-secondary/10 hover:text-secondary"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <Icon
+            size={20}
+            className={`transition-transform group-hover:scale-110 ${
+              isActive ? "text-secondary" : ""
+            }`}
+          />
+          <span>{item.label}</span>
+        </div>
+        {badgeCount > 0 && (
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+            {badgeCount}
+          </span>
+        )}
+      </Link>
+    );
+  };
+
+  const renderMenuSection = (
+    title: string,
+    items: any[],
+    sectionId: string
+  ) => {
+    const isExpanded = expandedSections.includes(sectionId);
+
+    return (
+      <div key={sectionId}>
+        <button
+          onClick={() => toggleSection(sectionId)}
+          className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-gray-300 transition-colors"
+        >
+          <span>{title}</span>
+          <ChevronDown
+            size={16}
+            className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
+          />
+        </button>
+        {isExpanded && <div className="space-y-1 px-2">{items.map(renderMenuItem)}</div>}
+      </div>
+    );
+  };
+
   return (
-    <aside className="flex w-64 flex-col border-r border-[#f1c44f]/20 bg-[#0a2540]">
-      {/* Logo */}
-      <div className="border-b border-[#f1c44f]/20 p-6">
+    <aside className="flex h-screen w-64 flex-col border-r border-secondary/20 bg-linear-to-b from-[#0a2540] via-[#0a1f37] to-[#050d1a]">
+      {/* Header */}
+      <div className="border-b border-secondary/20 p-6">
         <div className="flex items-center gap-3">
           <Image
             src="/images/logohcc-150x150.png"
             alt="logo"
             width={40}
             height={40}
-            className="rounded"
+            className="rounded shadow-lg"
           />
           <div>
-            <h1 className="text-2xl font-bold text-[#f1c44f]">CrossRide</h1>
-            <p className="text-xs text-gray-400">Admin Portal</p>
+            <h1 className="text-2xl font-bold text-secondary">CrossRide</h1>
+            <p className="text-xs text-gray-400">SaaS Dashboard</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 p-4">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
+      <nav className="flex-1 space-y-6 overflow-y-auto border-b border-secondary/10 p-4">
+        {/* Main */}
+        <div className="space-y-1">
+          {mainMenuItems.map(renderMenuItem)}
+        </div>
 
-          // Get badge count
-          let badgeCount = 0;
-          if (item.label === "Trips") {
-            badgeCount = tripsCount;
-          } else if (item.label === "Bookings") {
-            badgeCount = bookingsCount;
-          }
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center justify-between rounded-lg px-4 py-2 transition-colors ${
-                isActive
-                  ? "bg-[#f1c44f]/20 text-[#f1c44f]"
-                  : "text-gray-300 hover:bg-[#f1c44f]/10 hover:text-[#f1c44f]"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon size={20} />
-                <span>{item.label}</span>
-              </div>
-              {badgeCount > 0 && (
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f1c44f] text-xs font-bold text-[#071d3a]">
-                  {badgeCount}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+        {/* Operations */}
+        {renderMenuSection("Operations", operationsMenuItems, "operations")}
       </nav>
 
-      {/* Logout */}
-      <div className="border-t border-[#f1c44f]/20 p-4">
+      {/* Bottom Section */}
+      <div className="border-t border-secondary/20 p-4 space-y-2">
+        {bottomMenuItems.map(renderMenuItem)}
         <Button
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="w-full gap-2 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+          variant="outline"
+          className="w-full gap-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 hover:text-red-300 border-red-600/40 disabled:opacity-50"
         >
           <LogOut size={18} />
           Logout

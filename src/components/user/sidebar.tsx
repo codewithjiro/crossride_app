@@ -64,8 +64,8 @@ export function LayoutSidebar() {
 
     fetchPendingCount();
 
-    // Refresh every 5 seconds
-    const interval = setInterval(fetchPendingCount, 5000);
+    // Refresh every 2.5 seconds for real-time updates
+    const interval = setInterval(fetchPendingCount, 2500);
 
     return () => clearInterval(interval);
   }, []);
