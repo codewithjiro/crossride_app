@@ -14,7 +14,6 @@ import {
   Briefcase,
   LogOut,
   UserCheck,
-  Settings,
   ChevronDown,
 } from "lucide-react";
 
@@ -60,14 +59,7 @@ const operationsMenuItems = [
   },
 ];
 
-const bottomMenuItems = [
-  {
-    label: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
-    badge: false,
-  },
-];
+
 
 export function Sidebar() {
   const router = useRouter();
@@ -241,7 +233,6 @@ export function Sidebar() {
 
       {/* Bottom Section */}
       <div className="border-t border-secondary/20 p-4 space-y-2">
-        {bottomMenuItems.map(renderMenuItem)}
         <Button
           onClick={handleLogout}
           disabled={isLoggingOut}

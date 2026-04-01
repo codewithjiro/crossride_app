@@ -6,6 +6,7 @@ import { trips, bookings, adminLogs } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "~/lib/auth";
 import { checkConflicts, checkDuplicateTrip } from "~/lib/conflicts";
+import { createNotification } from "~/lib/notifications";
 
 interface UpdateTripRequest {
   vanId?: string | number;
@@ -77,6 +78,49 @@ export async function PATCH(
         tripId,
       );
       if (conflictCheck.hasConflict) {
+        console.log("⚠️ TRIP CONFLICT DETECTED:", {
+          conflictType: conflictCheck.conflictType,
+          message: conflictCheck.message,
+          tripId: tripId,
+        });
+
+        // Get all bookings for this trip to notify affected users
+        const tripBookings = await db.query.bookings.findMany({
+          where: eq(bookings.tripId, tripId),
+        });
+
+        console.log(`📢 Found ${tripBookings.length} bookings affected`);
+
+        // Create notifications for all affected users
+        const notificationType =
+          conflictCheck.conflictType || "driver_conflict";
+        const notificationMessage =
+          getConflictNotificationMessage(notificationType);
+
+        for (const booking of tripBookings) {
+          console.log(
+            `📢 Creating notification for user ${booking.userId}, booking ${booking.id}`,
+          );
+          try {
+            const notifResult = await createNotification({
+              userId: booking.userId,
+              bookingId: booking.id,
+              tripId: tripId,
+              type: notificationType as
+                | "driver_conflict"
+                | "van_conflict"
+                | "both_conflict",
+              message: notificationMessage,
+            });
+            console.log(`✅ Notification created for booking ${booking.id}`);
+          } catch (notifError) {
+            console.error(
+              `❌ Failed to create notification for booking ${booking.id}:`,
+              notifError,
+            );
+          }
+        }
+
         return NextResponse.json(
           { error: conflictCheck.message ?? "Scheduling conflict detected" },
           { status: 409 }, // 409 Conflict
@@ -196,5 +240,21 @@ export async function DELETE(
       },
       { status: 500 },
     );
+  }
+}
+
+/**
+ * Get notification message based on conflict type
+ */
+function getConflictNotificationMessage(conflictType: string): string {
+  switch (conflictType) {
+    case "driver_conflict":
+      return "⚠️ Scheduling Conflict: Your assigned driver is not available at the scheduled time. Your booking needs to be updated.";
+    case "van_conflict":
+      return "⚠️ Scheduling Conflict: Your assigned van is not available at the scheduled time. Your booking needs to be updated.";
+    case "both_conflict":
+      return "⚠️ Scheduling Conflict: Your assigned driver and van are not available at the scheduled time. Your booking needs to be updated.";
+    default:
+      return "⚠️ Scheduling Conflict: Your booking has a scheduling conflict. Your booking needs to be updated.";
   }
 }

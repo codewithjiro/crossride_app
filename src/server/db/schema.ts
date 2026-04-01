@@ -185,10 +185,44 @@ export const adminLogs = createTable(
   ],
 );
 
+// Notifications Table
+export const notificationsEnum = pgEnum("notification_type", [
+  "driver_conflict",
+  "van_conflict",
+  "both_conflict",
+]);
+
+export const notifications = createTable(
+  "notification",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    bookingId: d.integer().references(() => bookings.id),
+    tripId: d.integer().references(() => trips.id),
+    type: notificationsEnum("type").notNull(),
+    title: d.varchar({ length: 255 }).notNull(),
+    message: d.text().notNull(),
+    isRead: d.boolean().default(false).notNull(),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).defaultNow(),
+  }),
+  (t) => [
+    index("notification_user_idx").on(t.userId),
+    index("notification_booking_idx").on(t.bookingId),
+    index("notification_type_idx").on(t.type),
+    index("notification_isRead_idx").on(t.isRead),
+    index("notification_created_idx").on(t.createdAt),
+  ],
+);
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   bookings: many(bookings),
   adminLogs: many(adminLogs),
+  notifications: many(notifications),
 }));
 
 export const vansRelations = relations(vans, ({ many }) => ({
@@ -226,5 +260,20 @@ export const adminLogsRelations = relations(adminLogs, ({ one }) => ({
   admin: one(users, {
     fields: [adminLogs.adminId],
     references: [users.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+  booking: one(bookings, {
+    fields: [notifications.bookingId],
+    references: [bookings.id],
+  }),
+  trip: one(trips, {
+    fields: [notifications.tripId],
+    references: [trips.id],
   }),
 }));

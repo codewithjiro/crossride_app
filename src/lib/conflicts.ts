@@ -10,7 +10,7 @@ export async function checkConflicts(
   tripIdToExclude?: number,
 ): Promise<{
   hasConflict: boolean;
-  conflictType?: "van" | "driver" | "both" | "duplicate";
+  conflictType?: "van_conflict" | "driver_conflict" | "both_conflict";
   message?: string;
 }> {
   // Validate time logic
@@ -60,7 +60,7 @@ export async function checkConflicts(
     if (vanConflicts.length > 0 && driverConflicts.length > 0) {
       return {
         hasConflict: true,
-        conflictType: "both",
+        conflictType: "both_conflict",
         message: "Van and driver are not available at this time",
       };
     }
@@ -68,7 +68,7 @@ export async function checkConflicts(
     if (vanConflicts.length > 0) {
       return {
         hasConflict: true,
-        conflictType: "van",
+        conflictType: "van_conflict",
         message: "Van is not available at this time",
       };
     }
@@ -76,7 +76,7 @@ export async function checkConflicts(
     if (driverConflicts.length > 0) {
       return {
         hasConflict: true,
-        conflictType: "driver",
+        conflictType: "driver_conflict",
         message: "Driver is not available at this time",
       };
     }

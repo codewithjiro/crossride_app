@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { db } from "~/server/db";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -351,9 +352,11 @@ async function RecentBookings() {
             <Briefcase size={28} className="text-secondary" />
             <h2 className="text-xl font-bold text-white">Recent Bookings</h2>
           </div>
-          <Button variant="outline" className="text-secondary border-secondary/30">
-            View All
-          </Button>
+          <Link href="/admin/trips">
+            <Button variant="outline" className="text-secondary border-secondary/30">
+              View All
+            </Button>
+          </Link>
         </div>
         <div className="space-y-3">
           {recentBookings.length === 0 ? (

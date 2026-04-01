@@ -14,6 +14,7 @@ import {
   User,
   LogOut,
   Plus,
+  Bell,
 } from "lucide-react";
 
 const navigationItems = [
@@ -26,6 +27,11 @@ const navigationItems = [
     label: "My Bookings",
     href: "/my-bookings",
     icon: Ticket,
+  },
+  {
+    label: "Notifications",
+    href: "/notifications",
+    icon: Bell,
   },
   {
     label: "Trip History",
@@ -45,6 +51,7 @@ export function LayoutSidebar() {
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -62,10 +69,26 @@ export function LayoutSidebar() {
       }
     };
 
+    const fetchUnreadNotifications = async () => {
+      try {
+        const response = await fetch("/api/notifications");
+        const data = await response.json();
+        if (response.ok && data.unreadCount !== undefined) {
+          setUnreadNotificationCount(data.unreadCount);
+        }
+      } catch (error) {
+        console.error("Failed to fetch unread notifications:", error);
+      }
+    };
+
     fetchPendingCount();
+    fetchUnreadNotifications();
 
     // Refresh every 2.5 seconds for real-time updates
-    const interval = setInterval(fetchPendingCount, 2500);
+    const interval = setInterval(() => {
+      fetchPendingCount();
+      fetchUnreadNotifications();
+    }, 2500);
 
     return () => clearInterval(interval);
   }, []);
@@ -141,6 +164,12 @@ export function LayoutSidebar() {
                       {pendingCount}
                     </span>
                   )}
+                  {item.href === "/notifications" &&
+                    unreadNotificationCount > 0 && (
+                      <span className="ml-auto inline-flex items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                        {unreadNotificationCount}
+                      </span>
+                    )}
                 </Button>
               </Link>
             );
