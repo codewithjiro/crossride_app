@@ -59,8 +59,6 @@ const operationsMenuItems = [
   },
 ];
 
-
-
 export function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -109,7 +107,7 @@ export function Sidebar() {
     setExpandedSections((prev) =>
       prev.includes(section)
         ? prev.filter((s) => s !== section)
-        : [...prev, section]
+        : [...prev, section],
     );
   };
 
@@ -155,8 +153,8 @@ export function Sidebar() {
         href={item.href}
         className={`group flex items-center justify-between rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
           isActive
-            ? "bg-secondary/15 text-secondary shadow-lg shadow-secondary/10"
-            : "text-gray-300 hover:bg-secondary/10 hover:text-secondary"
+            ? "bg-secondary/15 text-secondary shadow-secondary/10 shadow-lg"
+            : "hover:bg-secondary/10 hover:text-secondary text-gray-300"
         }`}
       >
         <div className="flex items-center gap-3">
@@ -180,7 +178,7 @@ export function Sidebar() {
   const renderMenuSection = (
     title: string,
     items: any[],
-    sectionId: string
+    sectionId: string,
   ) => {
     const isExpanded = expandedSections.includes(sectionId);
 
@@ -188,7 +186,7 @@ export function Sidebar() {
       <div key={sectionId}>
         <button
           onClick={() => toggleSection(sectionId)}
-          className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-gray-300 transition-colors"
+          className="flex w-full items-center justify-between px-4 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-gray-300"
         >
           <span>{title}</span>
           <ChevronDown
@@ -196,15 +194,17 @@ export function Sidebar() {
             className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
           />
         </button>
-        {isExpanded && <div className="space-y-1 px-2">{items.map(renderMenuItem)}</div>}
+        {isExpanded && (
+          <div className="space-y-1 px-2">{items.map(renderMenuItem)}</div>
+        )}
       </div>
     );
   };
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-secondary/20 bg-linear-to-b from-[#0a2540] via-[#0a1f37] to-[#050d1a]">
+    <aside className="border-secondary/20 flex h-screen w-64 flex-col border-r bg-linear-to-b from-[#0a2540] via-[#0a1f37] to-[#050d1a]">
       {/* Header */}
-      <div className="border-b border-secondary/20 p-6">
+      <div className="border-secondary/20 border-b p-6">
         <div className="flex items-center gap-3">
           <Image
             src="/images/logohcc-150x150.png"
@@ -214,30 +214,28 @@ export function Sidebar() {
             className="rounded shadow-lg"
           />
           <div>
-            <h1 className="text-2xl font-bold text-secondary">CrossRide</h1>
+            <h1 className="text-secondary text-2xl font-bold">CrossRide</h1>
             <p className="text-xs text-gray-400">SaaS Dashboard</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-6 overflow-y-auto border-b border-secondary/10 p-4">
+      <nav className="border-secondary/10 flex-1 space-y-6 overflow-y-auto border-b p-4">
         {/* Main */}
-        <div className="space-y-1">
-          {mainMenuItems.map(renderMenuItem)}
-        </div>
+        <div className="space-y-1">{mainMenuItems.map(renderMenuItem)}</div>
 
         {/* Operations */}
         {renderMenuSection("Operations", operationsMenuItems, "operations")}
       </nav>
 
       {/* Bottom Section */}
-      <div className="border-t border-secondary/20 p-4 space-y-2">
+      <div className="border-secondary/20 space-y-2 border-t p-4">
         <Button
           onClick={handleLogout}
           disabled={isLoggingOut}
           variant="outline"
-          className="w-full gap-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 hover:text-red-300 border-red-600/40 disabled:opacity-50"
+          className="w-full gap-2 border-red-600/40 bg-red-600/20 text-red-400 hover:bg-red-600/40 hover:text-red-300 disabled:opacity-50"
         >
           <LogOut size={18} />
           Logout

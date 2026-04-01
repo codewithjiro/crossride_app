@@ -34,16 +34,18 @@ async function SaaSMetrics() {
       db.query.bookings.findMany().then((bookings) => {
         const totalBookings = bookings.length;
         const completedBookings = bookings.filter(
-          (b) => b.status === "completed"
+          (b) => b.status === "completed",
         ).length;
         const pendingBookings = bookings.filter(
-          (b) => b.status === "pending"
+          (b) => b.status === "pending",
         ).length;
         return { totalBookings, completedBookings, pendingBookings };
       }),
       db.query.trips.findMany().then((trips) => {
         const totalTrips = trips.length;
-        const activeTrips = trips.filter((t) => t.status === "scheduled").length;
+        const activeTrips = trips.filter(
+          (t) => t.status === "scheduled",
+        ).length;
         return { totalTrips, activeTrips };
       }),
     ]);
@@ -51,7 +53,7 @@ async function SaaSMetrics() {
     const completionRate =
       bookingsData.totalBookings > 0
         ? Math.round(
-            (bookingsData.completedBookings / bookingsData.totalBookings) * 100
+            (bookingsData.completedBookings / bookingsData.totalBookings) * 100,
           )
         : 0;
     const systemHealth = Math.min(100, 85 + Math.random() * 10);
@@ -59,7 +61,7 @@ async function SaaSMetrics() {
     // Simulated SaaS metrics
     const activeUsers = Math.max(
       5,
-      Math.floor(bookingsData.totalBookings * 0.3)
+      Math.floor(bookingsData.totalBookings * 0.3),
     );
 
     return (
@@ -68,7 +70,7 @@ async function SaaSMetrics() {
         <Card className="border border-emerald-500/30 bg-linear-to-br from-emerald-950/50 to-emerald-900/20 p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">
+              <p className="text-sm font-semibold tracking-wider text-emerald-300 uppercase">
                 System Status
               </p>
               <p className="mt-3 text-2xl font-bold text-white">
@@ -86,7 +88,7 @@ async function SaaSMetrics() {
         <Card className="border border-blue-500/30 bg-linear-to-br from-blue-950/50 to-blue-900/20 p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-semibold text-blue-300 uppercase tracking-wider">
+              <p className="text-sm font-semibold tracking-wider text-blue-300 uppercase">
                 Active Users
               </p>
               <p className="mt-3 text-2xl font-bold text-white">
@@ -163,7 +165,7 @@ async function DashboardStats() {
             return (
               <Card
                 key={stat.label}
-                className={`relative border border-secondary/20 bg-linear-to-br ${stat.bgGradient} bg-[#0a2540] p-6 transition-all duration-300 hover:border-secondary/40 hover:shadow-lg`}
+                className={`border-secondary/20 relative border bg-linear-to-br ${stat.bgGradient} hover:border-secondary/40 bg-[#0a2540] p-6 transition-all duration-300 hover:shadow-lg`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -240,7 +242,9 @@ async function BookingStatistics() {
                     <span className="text-sm font-semibold text-gray-400 capitalize">
                       {status}
                     </span>
-                    <span className="text-sm font-bold text-white">{count}</span>
+                    <span className="text-sm font-bold text-white">
+                      {count}
+                    </span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-[#0a1f37]">
                     <div
@@ -277,20 +281,20 @@ async function BookingStatistics() {
                   <div key={route}>
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary/20 text-sm font-bold text-secondary">
+                        <span className="bg-secondary/20 text-secondary flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                           {index + 1}
                         </span>
                         <span className="text-sm font-semibold wrap-break-word text-gray-300">
                           {route}
                         </span>
                       </div>
-                        <span className="text-sm font-bold text-secondary">
+                      <span className="text-secondary text-sm font-bold">
                         {count}
                       </span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-[#0a1f37]">
                       <div
-                        className="h-full bg-linear-to-r from-secondary to-[#d4a850] transition-all duration-300"
+                        className="from-secondary h-full bg-linear-to-r to-[#d4a850] transition-all duration-300"
                         style={{
                           width: `${(count / maxRoute) * 100}%`,
                         }}
@@ -353,7 +357,10 @@ async function RecentBookings() {
             <h2 className="text-xl font-bold text-white">Recent Bookings</h2>
           </div>
           <Link href="/admin/trips">
-            <Button variant="outline" className="text-secondary border-secondary/30">
+            <Button
+              variant="outline"
+              className="text-secondary border-secondary/30"
+            >
               View All
             </Button>
           </Link>
@@ -368,7 +375,7 @@ async function RecentBookings() {
                 className="group rounded-lg border border-[#f1c44f]/15 bg-gradient-to-br from-[#0f2d4a]/60 via-[#071d3a] to-[#0a1f37] p-5 transition-all duration-300 hover:border-[#f1c44f]/40 hover:from-[#0f2d4a]/80 hover:shadow-xl hover:shadow-[#f1c44f]/10"
               >
                 {/* Header: User + Status */}
-                <div className="mb-4 flex items-center justify-between gap-4 border-b border-secondary/10 pb-4">
+                <div className="border-secondary/10 mb-4 flex items-center justify-between gap-4 border-b pb-4">
                   <div className="flex min-w-0 flex-1 items-center gap-4">
                     <div className="relative shrink-0">
                       <img
@@ -377,7 +384,7 @@ async function RecentBookings() {
                           "/profile/default_profile.jpg"
                         }
                         alt={`${booking.user?.firstName} ${booking.user?.lastName}`}
-                        className="h-16 w-16 rounded-full border-2 border-secondary/30 object-cover shadow-lg"
+                        className="border-secondary/30 h-16 w-16 rounded-full border-2 object-cover shadow-lg"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -385,7 +392,7 @@ async function RecentBookings() {
                         {booking.user?.firstName} {booking.user?.lastName}
                       </p>
                       <p className="mt-1 flex items-center gap-1 text-xs text-gray-400">
-                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-secondary/40"></span>
+                        <span className="bg-secondary/40 inline-block h-1.5 w-1.5 rounded-full"></span>
                         {booking.trip?.van?.name}
                       </p>
                     </div>
@@ -433,7 +440,7 @@ async function RecentBookings() {
                 {/* Details Grid */}
                 <div className="grid grid-cols-4 gap-3">
                   {/* Route */}
-                  <div className="col-span-2 rounded-lg border border-secondary/10 bg-[#0a2540]/40 p-3 transition-colors hover:border-secondary/20">
+                  <div className="border-secondary/10 hover:border-secondary/20 col-span-2 rounded-lg border bg-[#0a2540]/40 p-3 transition-colors">
                     <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold tracking-wider text-gray-400 uppercase">
                       <MapPin size={12} className="text-secondary/60" />
                       Route
